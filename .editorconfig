@@ -1,0 +1,7 @@
+﻿[*.cs]
+
+# CA1707: Identifiers should not contain underscores
+dotnet_diagnostic.CA1707.severity = none
+
+# ca1051
+dotnet_code_quality.ca1051.api_surface = private, internal
