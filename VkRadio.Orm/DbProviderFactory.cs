@@ -25,7 +25,7 @@ namespace VkRadio.Orm
         public abstract DbParameter CreateParameter(string paramName, object? value, Type type, bool isNullable);
         public abstract DbParameter CreateParameter(DbParameter proto);
         public SelectTopStyle SelectTop { get; protected set; }
-        public GuidStyleEnum GuidStyle { get; protected set; }
+        public GuidStyle GuidStyle { get; protected set; }
 
         public abstract string GuidToSqlString(Guid guid);
         public abstract string? CheckForUniqueConstraintException(Exception exception, string tableName, string[] tableFieldDbNames, string[] tableFieldHumanNames);

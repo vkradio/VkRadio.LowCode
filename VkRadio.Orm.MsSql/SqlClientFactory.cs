@@ -30,7 +30,7 @@ namespace VkRadio.Orm
             else if (type == typeof(float?) || type == typeof(float?))
                 return SqlDbType.Float;
             else
-                throw new ApplicationException($"Unsupported type for Sql Parameter: {type.FullName}.");
+                throw new ArgumentException($"Unsupported type for Sql Parameter: {type.FullName}.");
         }
 
         public SqlClientFactory(string connectionString)
@@ -38,7 +38,7 @@ namespace VkRadio.Orm
             this.connectionString = connectionString;
             quoteSymbol = "\"";
             SelectTop = SelectTopStyle.AsMs;
-            GuidStyle = GuidStyleEnum.AsMs;
+            GuidStyle = GuidStyle.AsMs;
         }
 
         public override DbConnection CreateOpenConnection()
@@ -118,7 +118,7 @@ namespace VkRadio.Orm
 
         #region Type conversions when reading an object value from a Database.
 #pragma warning disable CA1062 // Here we are suppressing the Roslyn analyzer warnings on the DbDataReader param, because the speed of execution
-                               // is critical here, so we just assume no one of ascendants or API users will not put null reader here.
+                               // is critical here, so we just assume no one of ascendants or API users will put null reader here.
         public override bool ReadBoolFromReader(DbDataReader reader, int index) => (bool)reader[index];
         public override bool? ReadBoolNullableFromReader(DbDataReader reader, int index) => reader[index] as bool?;
         public override DateTime ReadDateTimeFromReader(DbDataReader reader, int index) => (DateTime)reader[index];

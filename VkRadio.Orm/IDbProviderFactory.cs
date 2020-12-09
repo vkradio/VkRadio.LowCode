@@ -14,7 +14,7 @@ namespace VkRadio.Orm
         DbParameter CreateParameter(string paramName, object? value, Type type, bool isNullable);
         DbParameter CreateParameter(DbParameter proto);
         SelectTopStyle SelectTop { get; }
-        GuidStyleEnum GuidStyle { get;  }
+        GuidStyle GuidStyle { get;  }
 
         [SuppressMessage("Naming", "CA1720:Identifier contains type name", Justification = "Better call it a guid.")]
         string GuidToSqlString(Guid guid);

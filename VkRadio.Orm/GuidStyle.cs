@@ -3,7 +3,7 @@
     /// <summary>
     /// How to write GUID literals
     /// </summary>
-    public enum GuidStyleEnum
+    public enum GuidStyle
     {
         // MS style: '00000000-0000-0000-0000-000000000000'
         AsMs,

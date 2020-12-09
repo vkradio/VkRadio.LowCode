@@ -32,7 +32,7 @@ namespace VkRadio.Orm
         protected string updateFieldValuePairs = default!;
         protected string[] fields = default!;
         protected string[] fieldsHuman = default!;
-        protected readonly List<int> decimalFields = new List<int>();
+        protected readonly IList<int> decimalFields = new List<int>();
         protected string[] parameters = default!;
         protected string sqlSelectOne = default!;
         protected string sqlSelectTable = default!;
@@ -137,7 +137,7 @@ namespace VkRadio.Orm
             {
                 var dataObject = new TDOT
                 {
-                    Id = dbProviderFactory.GuidStyle == GuidStyleEnum.AsMs ? (Guid)reader[0] : new Guid((byte[])reader[0])
+                    Id = dbProviderFactory.GuidStyle == GuidStyle.AsMs ? (Guid)reader[0] : new Guid((byte[])reader[0])
                 };
                 dataObject.SetDbProviderFactory(dbProviderFactory);
                 FillDOFromReader(reader, dataObject);
@@ -220,7 +220,7 @@ namespace VkRadio.Orm
                 ColumnName = "id",
                 Unique = true,
                 AllowDBNull = false,
-                DataType = dbProviderFactory.GuidStyle == GuidStyleEnum.AsMs ? typeof(Guid) : typeof(byte[])
+                DataType = dbProviderFactory.GuidStyle == GuidStyle.AsMs ? typeof(Guid) : typeof(byte[])
             };
             table.Columns.Add(keyColumn);
             table.PrimaryKey = new DataColumn[] { keyColumn };
@@ -232,6 +232,7 @@ namespace VkRadio.Orm
 
         public virtual void RefreshTable(FilterAbstract? filter, DataTable table) => FillDataTable(filter, table);
 
+        [SuppressMessage("Design", "CA1002:Do not expose generic lists", Justification = "Changing return type to IList<T> will be a breaking change to lots of legacy code")]
         public virtual List<TDOT> ReadAsCollection(string? where = null, DbParameter[]? parameters = null, string? orderBy = null, DbTransaction? transaction = null, bool doNotUseDefaultOrder = false, int selectTop = 0)
         {
             var result = new List<TDOT>();
@@ -256,7 +257,11 @@ namespace VkRadio.Orm
                     internalWhere = where;
                 if (selectTop > 0 && dbProviderFactory.SelectTop == SelectTopStyle.AsOracle)
                 {
+#pragma warning disable CA1508 // Avoid dead conditional code
+                    // TODO: This is a false-positive according to https://github.com/dotnet/roslyn-analyzers/issues/3685#issuecomment-702153431
+                    // We need to remove this disabler after .NET SDK 5.0.2*** will be released accroding to https://github.com/dotnet/roslyn-analyzers/branches/active
                     if (!string.IsNullOrEmpty(internalWhere))
+#pragma warning restore CA1508 // Avoid dead conditional code
                         internalWhere += " and ";
                     internalWhere += $"ROWNUM <= {selectTop}";
                 }
@@ -310,6 +315,7 @@ namespace VkRadio.Orm
             return result;
         }
 
+        [SuppressMessage("Design", "CA1002:Do not expose generic lists", Justification = "Changing return type to IList<T> will be a breaking change to lots of legacy code")]
         public virtual List<TDOT> ReasAsCollectionForParent(FilterSimple parentFilter, string? additionalWhere = null, DbParameter[]? parameters = null, string? orderBy = null, DbTransaction? transaction = null, bool doNotUseDefaultOrder = false, int selectTop = 0)
         {
             Guard.Against.Null(parentFilter, nameof(parentFilter));

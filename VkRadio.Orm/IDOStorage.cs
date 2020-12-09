@@ -5,7 +5,9 @@ using System.Data.Common;
 
 namespace VkRadio.Orm
 {
-    // Data Object Storage interface
+    /// <summary>
+    /// Data Object Storage interface
+    /// </summary>
     public interface IDOStorage
     {
         #region CREATE
