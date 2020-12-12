@@ -7,17 +7,29 @@
     <AnalysisLevel>latest</AnalysisLevel>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>VkRadio.Orm</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>vkradio</Authors>
     <Description>Simple ORM base library</Description>
     <PackageProjectUrl>https://github.com/vkradio/VkRadio.Orm/tree/main/VkRadio.Orm</PackageProjectUrl>
     <RepositoryUrl>https://github.com/vkradio/VkRadio.Orm</RepositoryUrl>
-    <PackageTags>ORM .NET</PackageTags>
+    <PackageTags>ORM;.NET;ADO.NET</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
-
+  
   <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     <PackageReference Include="Ardalis.GuardClauses" Version="3.0.1" />
   </ItemGroup>
 
