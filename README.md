@@ -1,2 +1,2 @@
 # VkRadio.Orm
-Legacy ORM base library
+My old micro-ORM base library
