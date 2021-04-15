@@ -45,7 +45,7 @@ namespace VkRadio.Orm
 
         public DOTOverrider? dotOverrider;
 
-        protected readonly Dictionary<Guid, DbMappedDOT> predefinedObjects = new Dictionary<Guid, DbMappedDOT>();
+        protected readonly Dictionary<Guid, DbMappedDOT> predefinedObjects = new();
         protected readonly IDbProviderFactory dbProviderFactory;
 
         protected DOStorage(IDbProviderFactory dbProviderFactory)
@@ -242,7 +242,7 @@ namespace VkRadio.Orm
             {
                 if (transaction == null)
                     conn = dbProviderFactory.CreateOpenConnection();
-                using var cmd = dbProviderFactory.CreateCommand(transaction == null ? conn! : transaction.Connection);
+                using var cmd = dbProviderFactory.CreateCommand(transaction == null ? conn! : transaction.Connection!);
                 if (transaction != null)
                     cmd.Transaction = transaction;
 
@@ -291,7 +291,7 @@ namespace VkRadio.Orm
                 {
                     while (reader.Read())
                     {
-                        TDOT o = new TDOT { Id = reader.GetGuid(0) };
+                        TDOT o = new() { Id = reader.GetGuid(0) };
                         o.SetDbProviderFactory(dbProviderFactory);
                         FillDOFromReader(reader, o);
                         o.SetStorageConsistency();
@@ -340,7 +340,7 @@ namespace VkRadio.Orm
             {
                 if (transaction == null)
                     conn = dbProviderFactory.CreateOpenConnection();
-                using var cmd = dbProviderFactory.CreateCommand(transaction == null ? conn! : transaction.Connection);
+                using var cmd = dbProviderFactory.CreateCommand(transaction == null ? conn! : transaction.Connection!);
                 if (transaction != null)
                     cmd.Transaction = transaction;
 
@@ -476,7 +476,7 @@ namespace VkRadio.Orm
                 return validationError;
 
             var conn = transaction != null ?
-                transaction.Connection :
+                transaction.Connection! :
                 dbProviderFactory.CreateOpenConnection();
             try
             {
@@ -538,7 +538,7 @@ namespace VkRadio.Orm
                 return ERR_CANNOT_DELETE_PREDEFINED_OBJECT;
 
             DbConnection conn = transaction != null ?
-                transaction.Connection :
+                transaction.Connection! :
                 dbProviderFactory.CreateOpenConnection();
             try
             {
@@ -613,7 +613,7 @@ namespace VkRadio.Orm
             sqlDelete = GenerateSqlDelete();
         }
 
-        public ConcurrentDictionary<Guid, DbMappedDOT> Cache = new ConcurrentDictionary<Guid, DbMappedDOT>();
+        public ConcurrentDictionary<Guid, DbMappedDOT> Cache = new();
 
         protected abstract void FillParameters(DbParameterCollection parameters, TDOT dataObject);
 
