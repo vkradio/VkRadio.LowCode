@@ -1,4 +1,4 @@
-﻿namespace VkRadio.Orm
+﻿namespace VkRadio.LowCode.Orm
 {
     public abstract class FilterAbstract
     {

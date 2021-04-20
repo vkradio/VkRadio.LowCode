@@ -1,7 +1,7 @@
 ﻿using Ardalis.GuardClauses;
 using System;
 
-namespace VkRadio.Orm
+namespace VkRadio.LowCode.Orm
 {
     public class FilterSimple : FilterAbstract
     {

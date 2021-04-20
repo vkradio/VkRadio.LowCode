@@ -1,4 +1,4 @@
-﻿namespace VkRadio.Orm
+﻿namespace VkRadio.LowCode.Orm
 {
     /// <summary>
     /// How to write GUID literals

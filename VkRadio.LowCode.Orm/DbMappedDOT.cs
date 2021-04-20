@@ -2,7 +2,7 @@
 using System;
 using System.Globalization;
 
-namespace VkRadio.Orm
+namespace VkRadio.LowCode.Orm
 {
     public abstract class DbMappedDOT : ICloneable
     {

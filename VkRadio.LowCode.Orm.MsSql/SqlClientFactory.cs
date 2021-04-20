@@ -5,7 +5,7 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Globalization;
 
-namespace VkRadio.Orm
+namespace VkRadio.LowCode.Orm
 {
     public class SqlClientFactory : DbProviderFactory
     {

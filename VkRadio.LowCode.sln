@@ -3,14 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VkRadio.Orm", "VkRadio.Orm\VkRadio.Orm.csproj", "{E119063B-1D04-40A7-AC7A-4883B1598CDF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VkRadio.LowCode.Orm", "VkRadio.LowCode.Orm\VkRadio.LowCode.Orm.csproj", "{E119063B-1D04-40A7-AC7A-4883B1598CDF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VkRadio.Orm.MsSql", "VkRadio.Orm.MsSql\VkRadio.Orm.MsSql.csproj", "{0ADB8030-DFF0-4DE9-82E1-D2266C5559ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VkRadio.LowCode.Orm.MsSql", "VkRadio.LowCode.Orm.MsSql\VkRadio.LowCode.Orm.MsSql.csproj", "{0ADB8030-DFF0-4DE9-82E1-D2266C5559ED}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AB55C6B3-B082-4AB3-8C62-706831F1CBB4}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.Gui.WinForms", "VkRadio.LowCode.Gui.WinForms\VkRadio.LowCode.Gui.WinForms.csproj", "{9BE9BC9B-BA56-41D1-847C-C0EEEB638369}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -26,6 +28,10 @@ Global
 		{0ADB8030-DFF0-4DE9-82E1-D2266C5559ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0ADB8030-DFF0-4DE9-82E1-D2266C5559ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0ADB8030-DFF0-4DE9-82E1-D2266C5559ED}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BE9BC9B-BA56-41D1-847C-C0EEEB638369}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BE9BC9B-BA56-41D1-847C-C0EEEB638369}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BE9BC9B-BA56-41D1-847C-C0EEEB638369}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BE9BC9B-BA56-41D1-847C-C0EEEB638369}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

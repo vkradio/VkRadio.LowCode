@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VkRadio.Orm
+namespace VkRadio.LowCode.Orm
 {
     /// <summary>
     /// Plug-in to override DbMappedDOT behavior

@@ -3,7 +3,7 @@ using System;
 using System.Data.Common;
 using System.Linq;
 
-namespace VkRadio.Orm
+namespace VkRadio.LowCode.Orm
 {
     public abstract class DbProviderFactory : IDbProviderFactory
     {

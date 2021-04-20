@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace VkRadio.Orm
+namespace VkRadio.LowCode.Orm
 {
     public class ZeroRowsAffectedException: Exception
     {

@@ -2,7 +2,7 @@
 using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 
-namespace VkRadio.Orm
+namespace VkRadio.LowCode.Orm
 {
     public interface IDbProviderFactory
     {
