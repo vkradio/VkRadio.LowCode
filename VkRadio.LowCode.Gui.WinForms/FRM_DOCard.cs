@@ -27,19 +27,20 @@ namespace VkRadio.LowCode.Gui.WinForms
             {
                 if (_doCard.NotSaved)
                 {
-                    string question = "Следует ли сохранить " + (_doCard.IsNewObject ? "объект?" : "изменения объекта?");
-                    System.Windows.Forms.DialogResult userReply = MessageBox.Show(this, question, "Сохранение", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                    var question = _doCard.IsNewObject ?
+                        "Do you need to save the object?" :
+                        "Do you need to save changes?";
+                    var userReply = MessageBox.Show(this, question, "Сохранение", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
                     switch (userReply)
                     {
-                        case System.Windows.Forms.DialogResult.Yes:
+                        case DialogResult.Yes:
                             bool saved = _doCard.Commit();
-                            // Если при сохранении состояния объекта получен отказ, отменяем
-                            // закрытие формы, чтобы позволить пользователю разобраться с этим.
+                            // If the user answered "Cancel", canceling form closing.
                             if (!saved)
                                 e.Cancel = true;
                             break;
-                        case System.Windows.Forms.DialogResult.No:
-                            // Ничего не делаем, просто позволяем форме закрыться.
+                        case DialogResult.No:
+                            // Doing nothing, just allow the form to close.
                             break;
                         default:
                             e.Cancel = true;

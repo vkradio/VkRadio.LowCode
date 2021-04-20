@@ -31,10 +31,6 @@ namespace VkRadio.LowCode.Gui.WinForms
             
             PAN_Content.Controls.Add(in_panel);
             in_panel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            //PAN_Content.ClientSize = new System.Drawing.Size(in_panel.Width, in_panel.Height);
-            //this.ClientSize = new System.Drawing.Size(in_panel.Width, in_panel.Height + PAN_Control.Height);
-
-            //SyncFromDO();
         }
 
         public virtual void SyncFromDO()

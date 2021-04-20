@@ -11,10 +11,10 @@ namespace VkRadio.LowCode.Gui.WinForms
 {
     public partial class DOList : UserControl
     {
-        protected const string c_noWayNoRowsSelected  = "Не выбрана строка.";
-        protected const string c_askDeleteObject      = "Вы действительно хотите удалить объект?";
-        protected const string c_captionFault         = "Отказ";
-        protected const string c_captionQuestion      = "Вопрос";
+        protected const string c_noWayNoRowsSelected  = "Row not selected.";
+        protected const string c_askDeleteObject      = "Do you really want to delete this object?";
+        protected const string c_captionFault         = "Refusal";
+        protected const string c_captionQuestion      = "Question";
 
         protected IDOStorage _storage;
         protected UILauncher _uiLauncher;
@@ -28,7 +28,7 @@ namespace VkRadio.LowCode.Gui.WinForms
 
         protected void UpdateCount()
         {
-            L_Count.Text = "Всего: " + (DGV_List.DataSource != null ?
+            L_Count.Text = "Total: " + (DGV_List.DataSource != null ?
                 ((DataTable)DGV_List.DataSource).Rows.Count.ToString() :
                 "0");
         }
@@ -45,10 +45,10 @@ namespace VkRadio.LowCode.Gui.WinForms
 
                     if (DGV_List.DataSource == null)
                     {
-                        // Здесь добавил _params, но это будет работать только при создании нового окна со списком
-                        // объектов. Если же нужно будет в будущем расширить функционал - в уже созданном окне применять
-                        // фильтры отбора, то скорее всего это работать не будет - скорее всего старые строки в таблице
-                        // не будут отсекаться при применении фильтра.
+                        // Here I've added _params, but it will work only on the creation of a new window containing
+                        // the list of objects. If in the future there will be a need to extend the functionality -
+                        // to apply filters in the already created window, then probably it won't work, probably old
+                        // rows won't be deleting on filter apply.
                         DGV_List.DataSource = _storage.ReadAsTable(_filter, _params);
                     }
                     else
@@ -98,7 +98,7 @@ namespace VkRadio.LowCode.Gui.WinForms
             DbMappedDOT o = _storage.Restore(id.Value);
             if (o == null)
             {
-                MessageBox.Show(this, "Объект больше не существует.", c_captionFault, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show(this, "Object no longer exists.", c_captionFault, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return null;
             }
             return o;
@@ -185,7 +185,7 @@ namespace VkRadio.LowCode.Gui.WinForms
                 }
                 catch (ZeroRowsAffectedException)
                 {
-                    MessageBox.Show(this, "Объект больше не существует.", c_captionFault, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show(this, "Object no longer exists.", c_captionFault, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     return;
                 }
 
@@ -227,7 +227,7 @@ namespace VkRadio.LowCode.Gui.WinForms
             object filterFrm = _uiLauncher.CreateFilterForm();
             if (filterFrm == null)
             {
-                MessageBox.Show(this, "Фильтр для этого типа объектов не предусмотрен.", "Отказ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, "Filter for this type of objects is not provided.", "Refusal", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
         }
@@ -235,12 +235,12 @@ namespace VkRadio.LowCode.Gui.WinForms
         {
             if (DGV_List.Rows.Count == 0)
             {
-                MessageBox.Show(this, "Таблица пуста.", "Отказ", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show(this, "Table is empty.", "Refusal", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
 
-            List<string> textLines = new List<string>();
-            string header = string.Empty;
+            var textLines = new List<string>();
+            var header = string.Empty;
             for (int i = 1; i < DGV_List.Columns.Count; i++)
             {
                 DataGridViewColumn col = DGV_List.Columns[i];
@@ -267,7 +267,7 @@ namespace VkRadio.LowCode.Gui.WinForms
                 textLines.Add(textRow);
             }
 
-            using (SaveFileDialog dlg = new SaveFileDialog())
+            using (var dlg = new SaveFileDialog())
             {
                 dlg.CheckPathExists = true;
                 dlg.AddExtension = true;
@@ -278,7 +278,7 @@ namespace VkRadio.LowCode.Gui.WinForms
                 dlg.FilterIndex = 0;
                 dlg.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
                 dlg.OverwritePrompt = true;
-                dlg.Title = "Сохранение таблицы";
+                dlg.Title = "Saving the table";
                 dlg.ValidateNames = true;
                 dlg.FileName = _uiLauncher.DotName;
                 if (dlg.ShowDialog(this) == DialogResult.OK)
@@ -290,7 +290,7 @@ namespace VkRadio.LowCode.Gui.WinForms
                         foreach (string str in textLines)
                             file.WriteLine(str);
                     }
-                    MessageBox.Show(this, "Таблица сохранена в файл CSV.", "Сообщение", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show(this, "Table saved to CSV file.", "Message", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
         }

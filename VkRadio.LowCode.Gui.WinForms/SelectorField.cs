@@ -9,31 +9,11 @@ namespace VkRadio.LowCode.Gui.WinForms
         protected string _caption = "Caption";
         protected DbMappedDOT _refObject;
 
-        void B_Clear_Click(object sender, EventArgs e)
-        {
-            if (ClearClick != null)
-                ClearClick(sender, e);
-        }
-        void B_Select_Click(object sender, EventArgs e)
-        {
-            if (SelectClick != null)
-                SelectClick(sender, e);
-        }
-        void B_QuickSelect_Click(object sender, EventArgs e)
-        {
-            if (QuickSelectClick != null)
-                QuickSelectClick(sender, e);
-        }
-        void B_Card_Click(object sender, EventArgs e)
-        {
-            if (CardClick != null)
-                CardClick(sender, e);
-        }
-        void OnValueChange()
-        {
-            if (ValueChanged != null)
-                ValueChanged(this, null);
-        }
+        void B_Clear_Click(object sender, EventArgs e) => ClearClick?.Invoke(sender, e);
+        void B_Select_Click(object sender, EventArgs e) => SelectClick?.Invoke(sender, e);
+        void B_QuickSelect_Click(object sender, EventArgs e) => QuickSelectClick?.Invoke(sender, e);
+        void B_Card_Click(object sender, EventArgs e) => CardClick?.Invoke(sender, e);
+        void OnValueChange() => ValueChanged?.Invoke(this, null);
 
         public SelectorField()
         {
