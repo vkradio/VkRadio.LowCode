@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VkRadio.LowCode.Gui.WinForms\VkRadio.LowCode.Gui.WinForms.csproj" />
+    <ProjectReference Include="..\VkRadio.LowCode.Orm.MsSql\VkRadio.LowCode.Orm.MsSql.csproj" />
+    <ProjectReference Include="..\VkRadio.LowCode.Orm\VkRadio.LowCode.Orm.csproj" />
+  </ItemGroup>
+
+</Project>
