@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <PackageId>VkRadio.LowCode.Gui.WinForms</PackageId>
-    <Version>0.0.0-dev.4</Version>
+    <Version>0.0.0-dev.5</Version>
     <Authors>vkradio</Authors>
     <Description>WinForms GUI components library used in VkRadio.LowCode toolset</Description>
     <PackageProjectUrl>https://github.com/vkradio/VkRadio.LowCode/tree/main/VkRadio.LowCode.Gui.WinForms</PackageProjectUrl>
@@ -20,6 +20,10 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\VkRadio.LowCode.Orm\VkRadio.LowCode.Orm.csproj" />
