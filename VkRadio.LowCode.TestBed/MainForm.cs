@@ -30,7 +30,8 @@ namespace VkRadio.LowCode.TestBed
                 IntegratedSecurity = true
             };
 
-            // Legacy way of using lots of Singletons everywhere. Now I'll almost never do that, I'll prefer DI instead.
+            // Legacy way of using lots of Singletons everywhere. Now I'll almost never do that, I'll prefer
+            // DI instead (such as partially implemented in SqlClientFactory constructor here).
             Orm.DbProviderFactory.Default = new Orm.SqlClientFactory(builder.ConnectionString);
             StorageRegistry.Instance = new StorageRegistry(Orm.DbProviderFactory.Default);
             if (UiRegistry.Instance == null)

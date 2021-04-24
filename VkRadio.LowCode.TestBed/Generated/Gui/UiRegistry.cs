@@ -11,11 +11,11 @@ namespace VkRadio.LowCode.TestBed.Generated.Gui
         /// <summary>
         /// Sole instance (Singleton)
         /// </summary>
-        static UiRegistry _instance;
+        readonly static UiRegistry _instance;
         /// <summary>
         /// Quick Select Storage
         /// </summary>
-        QuickSelectStorage _quickSelectStorage = new QuickSelectStorage();
+        readonly QuickSelectStorage _quickSelectStorage = new();
         /// <summary>
         /// UI Launcher for Drive Account objects
         /// </summary>
