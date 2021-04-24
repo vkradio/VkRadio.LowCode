@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>VkRadio.LowCode.Orm</PackageId>
+    <Version>0.0.0-dev.4</Version>
+    <Authors>vkradio</Authors>
+    <Description>Simple micro-ORM base library used in VkRadio.LowCode toolset</Description>
+    <PackageProjectUrl>https://github.com/vkradio/VkRadio.LowCode/tree/main/VkRadio.LowCode.Orm</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/vkradio/VkRadio.LowCode</RepositoryUrl>
+    <PackageTags>low code;ORM;micro-ORM;.NET;ADO.NET</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Ardalis.GuardClauses" Version="3.1.0" />
+  </ItemGroup>
+
+</Project>

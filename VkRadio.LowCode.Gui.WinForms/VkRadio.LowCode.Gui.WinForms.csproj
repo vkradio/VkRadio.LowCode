@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>VkRadio.LowCode.Gui.WinForms</PackageId>
+    <Version>0.0.0-dev.4</Version>
+    <Authors>vkradio</Authors>
+    <Description>WinForms GUI components library used in VkRadio.LowCode toolset</Description>
+    <PackageProjectUrl>https://github.com/vkradio/VkRadio.LowCode/tree/main/VkRadio.LowCode.Gui.WinForms</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/vkradio/VkRadio.LowCode</RepositoryUrl>
+    <PackageTags>low code;GUI;WinForms;CRUD;.NET;ADO.NET</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VkRadio.LowCode.Orm\VkRadio.LowCode.Orm.csproj" />
+  </ItemGroup>
+
+</Project>
