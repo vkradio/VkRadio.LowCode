@@ -6,8 +6,8 @@ namespace VkRadio.LowCode.Orm
 {
     public abstract class DbMappedDOT : ICloneable
     {
-        protected static readonly DateTime C_MIN_SQL_DATE_TIME = new DateTime(1753, 1, 1, 0, 0, 0);
-        protected static readonly DateTime C_MAX_SQL_DATE_TIME = new DateTime(9999, 12, 31, 23, 59, 59);
+        protected static readonly DateTime C_MIN_SQL_DATE_TIME = new(1753, 1, 1, 0, 0, 0);
+        protected static readonly DateTime C_MAX_SQL_DATE_TIME = new(9999, 12, 31, 23, 59, 59);
 
         protected const string PARAM_ID = "@in_id";
 

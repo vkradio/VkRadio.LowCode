@@ -146,6 +146,6 @@ namespace VkRadio.LowCode.Gui.WinForms
         public void SetValue(string in_value) => Value = in_value ?? string.Empty;
         public void SetValue(Guid? in_value) => Value = in_value.HasValue ? in_value.Value.ToString() : string.Empty;
 
-        private void T_Value_TextChanged(object sender, EventArgs e) => ValueChanged?.Invoke(sender, e);
+        void TextValueChanged(object sender, EventArgs e) => ValueChanged?.Invoke(sender, e);
     }
 }

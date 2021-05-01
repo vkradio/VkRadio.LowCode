@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
+
+    <!-- Modern C# and .NET features: -->
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <AnalysisLevel>latest</AnalysisLevel>
@@ -11,7 +13,7 @@
 
   <PropertyGroup>
     <PackageId>VkRadio.LowCode.Orm.MsSql</PackageId>
-    <Version>0.0.0-dev.5</Version>
+    <Version>0.0.0-dev.6</Version>
     <Authors>vkradio</Authors>
     <Description>IDbProviderFactory implementation for MS SQL (used in VkRadio.LowCode toolset)</Description>
     <PackageProjectUrl>https://github.com/vkradio/VkRadio.LowCode/tree/main/VkRadio.LowCode.Orm.MsSql</PackageProjectUrl>
@@ -25,13 +27,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="Ardalis.GuardClauses" Version="3.1.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
+    <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\VkRadio.LowCode.Orm\VkRadio.LowCode.Orm.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Ardalis.GuardClauses" Version="3.1.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.2" />
   </ItemGroup>
 
 </Project>

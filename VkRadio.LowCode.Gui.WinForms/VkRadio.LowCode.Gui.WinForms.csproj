@@ -2,13 +2,22 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0-windows</TargetFramework>
-    <LangVersion>latest</LangVersion>
+
+    <!-- WinForms specifics: -->
     <UseWindowsForms>true</UseWindowsForms>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+
+    <!-- Modern C# and .NET features: -->
+    <LangVersion>latest</LangVersion>
+    <!--<Nullable>enable</Nullable>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>-->
   </PropertyGroup>
 
   <PropertyGroup>
     <PackageId>VkRadio.LowCode.Gui.WinForms</PackageId>
-    <Version>0.0.0-dev.5</Version>
+    <Version>0.0.0-dev.6</Version>
     <Authors>vkradio</Authors>
     <Description>WinForms GUI components library used in VkRadio.LowCode toolset</Description>
     <PackageProjectUrl>https://github.com/vkradio/VkRadio.LowCode/tree/main/VkRadio.LowCode.Gui.WinForms</PackageProjectUrl>
@@ -22,11 +31,69 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <None Include="..\.editorconfig" Link=".editorconfig" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\VkRadio.LowCode.Orm\VkRadio.LowCode.Orm.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="CommandButtons.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="DOCard.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="DOEditPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="DOList.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="FRM_DOCard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="FRM_DOList.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="SelectorField.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="StringField.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="CommandButtons.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="DOCard.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="DOEditPanel.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="DOList.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="FRM_DOCard.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="FRM_DOList.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="SelectorField.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="StringField.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

@@ -1,14 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
-    <LangVersion>latest</LangVersion>
+
+    <!-- WinForms specifics: -->
+    <OutputType>WinExe</OutputType>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RootNamespace>VkRadio.LowCode.TestBed</RootNamespace>
     <AssemblyName>VkRadio.LowCode.TestBed</AssemblyName>
+
+    <!-- Modern C# and .NET features: -->
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\VkRadio.LowCode.Gui.WinForms\VkRadio.LowCode.Gui.WinForms.csproj" />
@@ -26,6 +34,30 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Generated\Gui\Elements\DOPDriveAccount.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="Generated\Gui\Lists\DOLDriveAccount.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="MainForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Generated\Gui\Elements\DOPDriveAccount.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Generated\Gui\Lists\DOLDriveAccount.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Update="MainForm.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

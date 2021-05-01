@@ -41,7 +41,7 @@
             this.T_Value.Name = "T_Value";
             this.T_Value.Size = new System.Drawing.Size(211, 20);
             this.T_Value.TabIndex = 3;
-            this.T_Value.TextChanged += new System.EventHandler(this.T_Value_TextChanged);
+            this.T_Value.TextChanged += new System.EventHandler(this.TextValueChanged);
             // 
             // L_Caption
             // 
