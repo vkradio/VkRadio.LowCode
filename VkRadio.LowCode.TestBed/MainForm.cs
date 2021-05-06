@@ -49,8 +49,7 @@ namespace VkRadio.LowCode.TestBed
                 // DI instead (such as partially implemented in SqlClientFactory constructor here).
                 Orm.DbProviderFactory.Default = new Orm.SqlClientFactory(builder.ConnectionString);
                 StorageRegistry.Instance = new StorageRegistry(Orm.DbProviderFactory.Default);
-                if (UiRegistry.Instance == null)
-                    throw new ApplicationException("UiRegistryExt.Instance == null");
+                UiRegistry.ResetInstance();
 
                 using var frm = UiRegistry.Instance.UilDriveAccount.CreateList();
                 frm.ShowDialog(this);
@@ -61,7 +60,7 @@ namespace VkRadio.LowCode.TestBed
             }
         }
 
-        void SettingsChanged(object sender, EventArgs e)
+        void SettingsChanged(object? sender, EventArgs e)
         {
             if (!loadSettings)
             {

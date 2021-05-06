@@ -1,6 +1,6 @@
 ﻿namespace VkRadio.LowCode.Gui.WinForms
 {
-    partial class FRM_DOList
+    partial class DOListForm
     {
         /// <summary>
         /// Required designer variable.
@@ -13,9 +13,12 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing)
             {
-                components.Dispose();
+                if (components != null)
+                    components.Dispose();
+                if (doList != null)
+                    doList.Dispose();
             }
             base.Dispose(disposing);
         }

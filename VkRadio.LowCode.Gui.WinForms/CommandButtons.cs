@@ -12,18 +12,18 @@ namespace VkRadio.LowCode.Gui.WinForms
 
         public CommandButtons() => InitializeComponent();
 
-        public bool EnabledClear { get { return B_Clear.Enabled; } set { B_Clear.Enabled = value; } }
-        public bool EnabledSelect { get { return B_Select.Enabled; } set { B_Select.Enabled = value; } }
-        public bool EnabledQuickSelect { get { return B_QuickSelect.Enabled; } set { B_QuickSelect.Enabled = value; } }
-        public bool EnabledCard { get { return B_Card.Enabled; } set { B_Card.Enabled = value; } }
+        public bool EnabledClear { get => B_Clear.Enabled; set => B_Clear.Enabled = value; }
+        public bool EnabledSelect { get => B_Select.Enabled; set => B_Select.Enabled = value; }
+        public bool EnabledQuickSelect { get => B_QuickSelect.Enabled; set => B_QuickSelect.Enabled = value; }
+        public bool EnabledCard { get => B_Card.Enabled; set => B_Card.Enabled = value; }
         public bool UseClear { get; set; } = true;
         public bool UseSelect { get; set; } = true;
         public bool UseQuickSelect { get; set; } = true;
         public bool UseCard { get; set; } = true;
 
-        public event EventHandler ClearClick;
-        public event EventHandler SelectClick;
-        public event EventHandler QuickSelectClick;
-        public event EventHandler CardClick;
+        public event EventHandler? ClearClick;
+        public event EventHandler? SelectClick;
+        public event EventHandler? QuickSelectClick;
+        public event EventHandler? CardClick;
     }
 }

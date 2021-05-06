@@ -11,7 +11,7 @@ namespace VkRadio.LowCode.TestBed.Generated.Gui
         /// <summary>
         /// Sole instance (Singleton)
         /// </summary>
-        readonly static UiRegistry _instance;
+        static UiRegistry _instance = default!;
         /// <summary>
         /// Quick Select Storage
         /// </summary>
@@ -31,19 +31,21 @@ namespace VkRadio.LowCode.TestBed.Generated.Gui
         /// <summary>
         /// Static constructor of UI launchers
         /// </summary>
-        static UiRegistry() { _instance = new UiRegistry(); }
+        static UiRegistry() => ResetInstance();
+
+        public static void ResetInstance() => _instance = new UiRegistry();
 
         /// <summary>
         /// Sole instance (Singleton)
         /// </summary>
-        public static UiRegistry Instance { get { return _instance; } }
+        public static UiRegistry Instance => _instance;
         /// <summary>
         /// Quick Select Storage
         /// </summary>
-        public QuickSelectStorage QuickSelectStorage { get { return _quickSelectStorage; } }
+        public QuickSelectStorage QuickSelectStorage => _quickSelectStorage;
         /// <summary>
         /// UI Launcher for Drive Account objects
         /// </summary>
-        public UILauncher UilDriveAccount { get { return _uilDriveAccount; } set { _uilDriveAccount = value; } }
-    };
+        public UILauncher UilDriveAccount { get => _uilDriveAccount; set => _uilDriveAccount = value; }
+    }
 }

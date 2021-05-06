@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ardalis.GuardClauses;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -29,9 +30,11 @@ namespace VkRadio.LowCode.TestBed.Generated.Gui.Elements
         /// <summary>
         /// Synchronize the widget state from the object state
         /// </summary>
-        public override void SyncFromDOT(DbMappedDOT in_o)
+        public override void SyncFromDOT(DbMappedDOT dataObject)
         {
-            DriveAccount o = (DriveAccount)in_o;
+            Guard.Against.Null(dataObject, nameof(dataObject));
+
+            DriveAccount o = (DriveAccount)dataObject;
         
             SF_Name.SetValue(o.Name);
             SF_Code.SetValue(o.Code);
@@ -40,9 +43,11 @@ namespace VkRadio.LowCode.TestBed.Generated.Gui.Elements
         /// <summary>
         /// Synchronize the object state from the widget state
         /// </summary>
-        public override string SyncToDOT(DbMappedDOT in_o)
+        public override string? SyncToDOT(DbMappedDOT dataObject)
         {
-            DriveAccount o = (DriveAccount)in_o;
+            Guard.Against.Null(dataObject, nameof(dataObject));
+
+            DriveAccount o = (DriveAccount)dataObject;
         
             o.Name = SF_Name.GetValueAsString();
             o.Code = SF_Code.GetValueAsString();
@@ -50,5 +55,5 @@ namespace VkRadio.LowCode.TestBed.Generated.Gui.Elements
         
             return null;
         }
-    };
+    }
 }

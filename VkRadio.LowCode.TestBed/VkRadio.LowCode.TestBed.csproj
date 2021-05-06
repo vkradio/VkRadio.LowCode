@@ -6,12 +6,15 @@
     <!-- WinForms specifics: -->
     <OutputType>WinExe</OutputType>
     <UseWindowsForms>true</UseWindowsForms>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RootNamespace>VkRadio.LowCode.TestBed</RootNamespace>
     <AssemblyName>VkRadio.LowCode.TestBed</AssemblyName>
 
     <!-- Modern C# and .NET features: -->
     <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
 
   <ItemGroup>

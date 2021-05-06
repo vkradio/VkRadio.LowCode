@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ardalis.GuardClauses;
+using System;
 using System.Globalization;
 
 namespace VkRadio.LowCode.Gui.Utils
@@ -12,45 +13,44 @@ namespace VkRadio.LowCode.Gui.Utils
         /// Receiving int value and returning its decimal representation (for example,
         /// for PFTMoney).
         /// </summary>
-        /// <param name="in_value"></param>
-        /// <param name="in_decimalPositions"></param>
+        /// <param name="value"></param>
+        /// <param name="decimalPositions"></param>
         /// <returns></returns>
-        public static string GetDecimalString(int in_value, int in_decimalPositions = 2)
+        public static string GetDecimalString(int value, int decimalPositions = 2)
         {
-            string result = in_value.ToString();
-            if (in_value < 0)
+            var result = value.ToString(CultureInfo.CurrentCulture);
+            if (value < 0)
                 result = result[1..];
 
-            if (result.Length <= in_decimalPositions)
+            if (result.Length <= decimalPositions)
             {
-                int deltaLength = in_decimalPositions - result.Length;
-                for (int i = 0; i <= deltaLength; i++)
+                var deltaLength = decimalPositions - result.Length;
+                for (var i = 0; i <= deltaLength; i++)
                     result = "0" + result;
             }
 
-            if (in_value < 0)
+            if (value < 0)
                 result = "-" + result;
             
             return GetDecimalStringForFullString(result);
         }
         /// <summary>
-        /// Does the same as GetDecimalString, but as input receiving a string &quot;normalized&quot;
+        /// Does the same as GetDecimalString, but as input receiving a string, &quot;normalized&quot;
         /// to minimal length, so that it contains at least zero as a whole part.
         /// </summary>
-        /// <param name="in_fullStringNotSeparated"></param>
-        /// <param name="in_decimalPositions"></param>
+        /// <param name="fullStringNotSeparated"></param>
+        /// <param name="decimalPositions"></param>
         /// <returns></returns>
-        public static string GetDecimalStringForFullString(string in_fullStringNotSeparated, int in_decimalPositions = 2)
+        public static string GetDecimalStringForFullString(string fullStringNotSeparated, int decimalPositions = 2)
         {
+            Guard.Against.Null(fullStringNotSeparated, nameof(fullStringNotSeparated));
+
             return
-                in_fullStringNotSeparated.Substring(0, in_fullStringNotSeparated.Length - in_decimalPositions) +
+                fullStringNotSeparated.Substring(0, fullStringNotSeparated.Length - decimalPositions) +
                 (CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator ?? ".") +
-                in_fullStringNotSeparated.Substring(in_fullStringNotSeparated.Length - in_decimalPositions);
+                fullStringNotSeparated[^decimalPositions..];
         }
 
-        public static string[] SplitTextToLines(string in_text)
-        {
-            return (in_text ?? string.Empty).Split(new string[] { "\r\n" }, StringSplitOptions.None);
-        }
-    };
+        public static string[] SplitTextToLines(string text) => (text ?? string.Empty).Split(new string[] { "\r\n" }, StringSplitOptions.None);
+    }
 }

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Ardalis.GuardClauses;
+using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows.Forms;
 using VkRadio.LowCode.Orm;
 
@@ -9,18 +11,24 @@ namespace VkRadio.LowCode.Gui.WinForms
         protected string c_noWayNoObjectSelected = "Object not selected.";
         protected string c_captionFault = "Refusal";
 
-        protected DbMappedDOT _o;
+        protected DbMappedDOT? dataObject;
 
-        public DOEditPanel()
+        public DOEditPanel() => InitializeComponent();
+
+        public virtual void SyncFromDOTBase(DbMappedDOT dataObject)
         {
-            InitializeComponent();
+            Guard.Against.Null(dataObject, nameof(dataObject));
+
+            this.dataObject = dataObject;
+            SyncFromDOT(this.dataObject);
         }
 
-        public virtual void SyncFromDOTBase(DbMappedDOT in_o) { _o = in_o; SyncFromDOT(_o); }
-        public virtual void SyncFromDOT(DbMappedDOT in_o) { }
-        public virtual string SyncToDOT(DbMappedDOT in_o) => null;
+        public virtual void SyncFromDOT(DbMappedDOT dataObject) { }
 
-        public virtual void AnyValueChanged(object sender, EventArgs e) =>
-            ((DOCard)Parent?.Parent).AnyValueChanged(sender, e);
+        public virtual string? SyncToDOT(DbMappedDOT dataObject) => null;
+
+
+        [SuppressMessage("Security", "CA2109:Review visible event handlers", Justification = "We have no dangerous security functionality here")]
+        public virtual void AnyValueChanged(object? sender, EventArgs e) => ((DOCard?)Parent?.Parent)?.AnyValueChanged(sender, e);
     };
 }

@@ -1,4 +1,6 @@
-﻿using System.Windows.Forms;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Windows.Forms;
 using VkRadio.LowCode.Gui.WinForms;
 
 namespace VkRadio.LowCode.TestBed.Generated.Gui.Lists
@@ -11,13 +13,14 @@ namespace VkRadio.LowCode.TestBed.Generated.Gui.Lists
         /// <summary>
         /// List constructor
         /// </summary>
+        [SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "Extraction of string literals from resources should be implemented in the future")]
         public DOLDriveAccount()
         {
             InitializeComponent();
         
             DGV_ListProtected.Columns.AddRange(new DataGridViewColumn[]
             {
-                new DataGridViewTextBoxColumn()
+                new DataGridViewTextBoxColumn
                 {
                     DataPropertyName = "name",
                     HeaderText = "Name",
@@ -27,7 +30,7 @@ namespace VkRadio.LowCode.TestBed.Generated.Gui.Lists
                     Width = 200,
                     DisplayIndex = 0
                 },
-                new DataGridViewTextBoxColumn()
+                new DataGridViewTextBoxColumn
                 {
                     DataPropertyName = "code",
                     HeaderText = "Code",
@@ -37,7 +40,7 @@ namespace VkRadio.LowCode.TestBed.Generated.Gui.Lists
                     Width = 200,
                     DisplayIndex = 1
                 },
-                new DataGridViewTextBoxColumn()
+                new DataGridViewTextBoxColumn
                 {
                     DataPropertyName = "default_value",
                     HeaderText = "Def.val",
@@ -48,13 +51,13 @@ namespace VkRadio.LowCode.TestBed.Generated.Gui.Lists
                     DisplayIndex = 2
                 }
             });
-            for (int i = 1; i < DGV_ListProtected.Columns.Count; i++)
+            for (var i = 1; i < DGV_ListProtected.Columns.Count; i++)
                 DGV_ListProtected.Columns[i].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
             DGV_ListProtected.Columns[3].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
         
-            _defaultSortFieldIndex = 1;
+            defaultSortFieldIndex = 1;
         
-            _decimalIntPositions = new int[]
+            decimalIntPositions = new int[]
             {
                 0,
                 0,
@@ -71,19 +74,19 @@ namespace VkRadio.LowCode.TestBed.Generated.Gui.Lists
         {
             if (e.ColumnIndex == 0)
                 return;
-            int intPositions = _decimalIntPositions[e.ColumnIndex - 1];
+            var intPositions = decimalIntPositions[e.ColumnIndex - 1];
             if (intPositions != 0)
             {
-                int? eValue = e.Value as int?;
+                var eValue = e.Value as int?;
                 if (eValue.HasValue)
                 {
-                    e.Value = (eValue.Value / 100m).ToString($"N{intPositions}");
+                    e.Value = (eValue.Value / 100m).ToString($"N{intPositions}", CultureInfo.CurrentCulture);
                     e.FormattingApplied = true;
                 }
             }
             else
             {
-                bool? boolValue = e.Value as bool?;
+                var boolValue = e.Value as bool?;
                 if (boolValue.HasValue)
                 {
                     e.Value = boolValue.Value ? "yes" : "no";
@@ -91,5 +94,5 @@ namespace VkRadio.LowCode.TestBed.Generated.Gui.Lists
                 }
             }
         }
-    };
+    }
 }

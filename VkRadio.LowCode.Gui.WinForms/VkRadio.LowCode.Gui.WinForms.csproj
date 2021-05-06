@@ -5,19 +5,18 @@
 
     <!-- WinForms specifics: -->
     <UseWindowsForms>true</UseWindowsForms>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
     <!-- Modern C# and .NET features: -->
     <LangVersion>latest</LangVersion>
-    <!--<Nullable>enable</Nullable>
+    <Nullable>enable</Nullable>
     <AnalysisLevel>latest</AnalysisLevel>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>-->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
 
   <PropertyGroup>
     <PackageId>VkRadio.LowCode.Gui.WinForms</PackageId>
-    <Version>0.0.0-dev.6</Version>
+    <Version>0.0.0-dev.7</Version>
     <Authors>vkradio</Authors>
     <Description>WinForms GUI components library used in VkRadio.LowCode toolset</Description>
     <PackageProjectUrl>https://github.com/vkradio/VkRadio.LowCode/tree/main/VkRadio.LowCode.Gui.WinForms</PackageProjectUrl>
@@ -40,6 +39,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Ardalis.GuardClauses" Version="3.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -55,10 +55,10 @@
     <Compile Update="DOList.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Update="FRM_DOCard.cs">
+    <Compile Update="DOCardForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="FRM_DOList.cs">
+    <Compile Update="DOListForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="SelectorField.cs">
@@ -82,10 +82,10 @@
     <EmbeddedResource Update="DOList.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Update="FRM_DOCard.resx">
+    <EmbeddedResource Update="DOCardForm.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Update="FRM_DOList.resx">
+    <EmbeddedResource Update="DOListForm.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Update="SelectorField.resx">
@@ -94,6 +94,10 @@
     <EmbeddedResource Update="StringField.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>

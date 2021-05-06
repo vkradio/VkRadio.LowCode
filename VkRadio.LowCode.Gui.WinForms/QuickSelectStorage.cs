@@ -1,117 +1,118 @@
-﻿using System;
+﻿using Ardalis.GuardClauses;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Xml.Linq;
 
 namespace VkRadio.LowCode.Gui.WinForms
 {
+    /// <summary>
+    /// This class should be redesigned:
+    /// - We need to abstract the storage mechanism away from the hard-coded AppData file storage;
+    /// - We need to work with collections in modern functional way with immutability.
+    /// </summary>
     public class QuickSelectStorage
     {
-        const int c_maxRowCount = 20;
+        const int maxRowCount = 20;
 
         /// <summary>
         /// Application folder name, located in AppData, that contains QuickSelect.xml cache.
         /// </summary>
-        public static string ProgramFolder { get; set; }
+        public static string? ProgramFolder { get; set; }
 
+        [SuppressMessage("Design", "CA1034:Nested types should not be visible", Justification = "I do not want to review this simple legacy design")]
         public class SelectableRow
         {
             public Guid Id { get; set; }
-            public string Name { get; set; }
+            public string? Name { get; set; }
         };
 
-        string _filePath;
-        XElement _xel;
+        string? filePath;
+        XElement? rootXElement;
 
         string GetFilePath()
         {
-            if (_filePath == null)
+            if (filePath == null)
             {
-                var dirPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), !string.IsNullOrEmpty(ProgramFolder) ? ProgramFolder : "VkRadio.LowCode.Gui.WinForms");
+                var dirPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), !string.IsNullOrEmpty(ProgramFolder) ? ProgramFolder : typeof(QuickSelectStorage).Namespace!);
                 if (!Directory.Exists(dirPath))
                     Directory.CreateDirectory(dirPath);
-                _filePath = Path.Combine(dirPath, "QuickSelect.xml");
+                filePath = Path.Combine(dirPath, "QuickSelect.xml");
             }
-            return _filePath;
+            return filePath;
         }
-        XElement GetXel()
+
+        XElement GetRootXElement()
         {
-            if (_xel == null)
+            if (rootXElement == null)
             {
-                string filePath = GetFilePath();
+                var filePath = GetFilePath();
                 if (!File.Exists(filePath))
-                    _xel = new XElement("QuickSelect");
+                    rootXElement = new XElement("QuickSelect");
                 else
-                    _xel = XElement.Load(_filePath);
+                    rootXElement = XElement.Load(filePath);
             }
-            return _xel;
+            return rootXElement;
         }
 
-        public List<SelectableRow> GetRowsForDOT(string in_dot)
+        public IList<SelectableRow> GetRowsForDOT(string dataObjectType)
         {
-            var result = new List<SelectableRow>();
+            var xelDot = GetRootXElement().Element(dataObjectType);
 
-            var xelRoot = GetXel();
-            var xelDot = xelRoot.Element(in_dot);
             if (xelDot != null)
             {
-                foreach (XElement xelRow in xelDot.Elements())
-                {
-                    SelectableRow row = new SelectableRow() { Id = new Guid(xelRow.Element("Id").Value), Name = xelRow.Element("N").Value };
-                    result.Add(row);
-                }
+                return xelDot
+                    .Elements()
+                    .Select(e => new SelectableRow { Id = new Guid(e.Element("Id")!.Value), Name = e.Element("N")!.Value })
+                    .ToList();
             }
+            else
+            {
+                return new List<SelectableRow>();
+            }
+        }
 
-            return result;
-        }
-        public SelectableRow GetRowById(List<SelectableRow> in_list, Guid in_id)
+        public static SelectableRow? GetRowById(IList<SelectableRow> list, Guid id)
         {
-            foreach (SelectableRow row in in_list)
-            {
-                if (row.Id == in_id)
-                    return row;
-            }
-            return null;
+            Guard.Against.Null(list, nameof(list));
+            return list.FirstOrDefault(r => r.Id == id);
         }
-        public void SetFirstRow(List<SelectableRow> in_list, SelectableRow in_firstRow)
-        {
-            SelectableRow rowToRemove = null;
-            foreach (SelectableRow row in in_list)
-            {
-                if (row.Id == in_firstRow.Id)
-                {
-                    rowToRemove = row;
-                    break;
-                }
-            }
-            if (rowToRemove != null)
-                in_list.Remove(rowToRemove);
 
-            in_list.Insert(0, in_firstRow);
-            if (in_list.Count > c_maxRowCount)
-                in_list.RemoveAt(c_maxRowCount);
-        }
-        public void RemoveRow(List<SelectableRow> in_list, Guid in_id)
+        public static void SetFirstRow(IList<SelectableRow> list, SelectableRow firstRow)
         {
-            SelectableRow rowToRemove = null;
-            foreach (SelectableRow row in in_list)
-            {
-                if (row.Id == in_id)
-                {
-                    rowToRemove = row;
-                    break;
-                }
-            }
+            Guard.Against.Null(list, nameof(list));
+            Guard.Against.Null(firstRow, nameof(firstRow));
+
+            var rowToRemove = list.FirstOrDefault(r => r.Id == firstRow.Id);
             if (rowToRemove != null)
-                in_list.Remove(rowToRemove);
+                list.Remove(rowToRemove);
+
+            list.Insert(0, firstRow);
+            if (list.Count > maxRowCount)
+                list.RemoveAt(maxRowCount);
         }
-        public void SaveList(string in_dot, List<SelectableRow> in_list)
+
+        public static void RemoveRow(IList<SelectableRow> list, Guid id)
         {
-            XElement xelRoot = GetXel();
-            XElement xelDot = xelRoot.Element(in_dot);
+            Guard.Against.Null(list, nameof(list));
+
+            var rowToRemove = list.FirstOrDefault(r => r.Id == id);
+            if (rowToRemove != null)
+                list.Remove(rowToRemove);
+        }
+
+        public void SaveList(string dataObjectType, IList<SelectableRow> list)
+        {
+            Guard.Against.NullOrEmpty(dataObjectType, nameof(dataObjectType));
+            Guard.Against.Null(list, nameof(list));
+
+            var xelRoot = GetRootXElement();
+            var xelDot = xelRoot.Element(dataObjectType);
             if (xelDot == null)
             {
-                xelDot = new XElement(in_dot);
+                xelDot = new XElement(dataObjectType);
                 xelRoot.Add(xelDot);
             }
             else
@@ -119,14 +120,15 @@ namespace VkRadio.LowCode.Gui.WinForms
                 xelDot.Elements().Remove();
             }
 
-            foreach (SelectableRow row in in_list)
+            foreach (var row in list)
             {
                 xelDot.Add(new XElement("Row",
                     new XElement("Id", row.Id.ToString()),
                     new XElement("N", row.Name)
                 ));
             }
+
             xelRoot.Save(GetFilePath());
         }
-    };
+    }
 }

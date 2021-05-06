@@ -2,8 +2,8 @@
 
 namespace VkRadio.LowCode.Gui.WinForms
 {
-    public interface IFRM_Card: IDisposable
+    public interface ICardForm: IDisposable
     {
         bool Changed { get; }
-    };
+    }
 }

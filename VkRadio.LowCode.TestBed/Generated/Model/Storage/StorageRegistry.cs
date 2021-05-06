@@ -1,4 +1,5 @@
-﻿using VkRadio.LowCode.Orm;
+﻿using System;
+using VkRadio.LowCode.Orm;
 
 namespace VkRadio.LowCode.TestBed.Generated.Model.Storage
 {
@@ -14,7 +15,7 @@ namespace VkRadio.LowCode.TestBed.Generated.Model.Storage
         /// <summary>
         /// Sole instance (Singleton)
         /// </summary>
-        static StorageRegistry _instance;
+        static StorageRegistry? _instance;
 
         /// <summary>
         /// Storage Registry Constructor
@@ -34,6 +35,6 @@ namespace VkRadio.LowCode.TestBed.Generated.Model.Storage
         /// Storage of Drive Account
         /// </summary>
         public DriveAccountStorage DriveAccountStorage { get { return _driveAccountStorage; } set { _driveAccountStorage = value; } }
-        public static StorageRegistry Instance { get => _instance; set => _instance = value; }
-    };
+        public static StorageRegistry Instance { get => _instance ?? throw new InvalidOperationException($"{nameof(_instance)} is null here"); set => _instance = value; }
+    }
 }

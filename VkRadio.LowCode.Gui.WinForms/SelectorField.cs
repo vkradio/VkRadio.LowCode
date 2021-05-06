@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Ardalis.GuardClauses;
+using System;
+using System.Globalization;
 using System.Windows.Forms;
 using VkRadio.LowCode.Orm;
 
@@ -6,14 +8,14 @@ namespace VkRadio.LowCode.Gui.WinForms
 {
     public partial class SelectorField : UserControl
     {
-        protected string _caption = "Caption";
-        protected DbMappedDOT _refObject;
+        protected string caption = "Caption";
+        protected DbMappedDOT? refObject;
 
-        void B_Clear_Click(object sender, EventArgs e) => ClearClick?.Invoke(sender, e);
-        void B_Select_Click(object sender, EventArgs e) => SelectClick?.Invoke(sender, e);
-        void B_QuickSelect_Click(object sender, EventArgs e) => QuickSelectClick?.Invoke(sender, e);
-        void B_Card_Click(object sender, EventArgs e) => CardClick?.Invoke(sender, e);
-        void OnValueChange() => ValueChanged?.Invoke(this, null);
+        void B_Clear_Click(object? sender, EventArgs e) => ClearClick?.Invoke(sender, e);
+        void B_Select_Click(object? sender, EventArgs e) => SelectClick?.Invoke(sender, e);
+        void B_QuickSelect_Click(object? sender, EventArgs e) => QuickSelectClick?.Invoke(sender, e);
+        void B_Card_Click(object? sender, EventArgs e) => CardClick?.Invoke(sender, e);
+        void OnValueChange() => ValueChanged?.Invoke(this, default!); // TODO: Something wrong here; what can we do to get rid of this "default!" and do it right?
 
         public SelectorField()
         {
@@ -25,39 +27,41 @@ namespace VkRadio.LowCode.Gui.WinForms
             CTRL_Buttons.CardClick += (s, e) => B_Card_Click(s, e);
         }
 
-        public string Value { get { return T_Value.Text; } set { T_Value.Text = value; } }
-        public string Caption { get { return _caption; } set { _caption = value; L_Caption.Text = _caption + ":"; } }
-        public DbMappedDOT RefObject { get { return _refObject; } set { SetValue(value); } }
-        public bool EnabledClear { get { return CTRL_Buttons.EnabledClear; } set { CTRL_Buttons.EnabledClear = value; } }
-        public bool EnabledSelect { get { return CTRL_Buttons.EnabledSelect; } set { CTRL_Buttons.EnabledSelect = value; } }
-        public bool EnabledQuickSelect { get { return CTRL_Buttons.EnabledQuickSelect; } set { CTRL_Buttons.EnabledQuickSelect = value; } }
-        public bool EnabledCard { get { return CTRL_Buttons.EnabledCard; } set { CTRL_Buttons.EnabledCard = value; } }
-        public bool UseClear { get { return CTRL_Buttons.UseClear; } set { CTRL_Buttons.UseClear = value; } }
-        public bool UseSelect { get { return CTRL_Buttons.UseSelect; } set { CTRL_Buttons.UseSelect = value; } }
-        public bool UseQuickSelect { get { return CTRL_Buttons.UseQuickSelect; } set { CTRL_Buttons.UseQuickSelect = value; } }
-        public bool UseCard { get { return CTRL_Buttons.UseCard; } set { CTRL_Buttons.UseCard = value; } }
+        public string Value { get => T_Value.Text; set => T_Value.Text = value; }
+        public string Caption { get => caption; set { caption = value; L_Caption.Text = caption + ":"; } }
+        public DbMappedDOT? RefObject { get => refObject; set => SetValue(value); }
+        public bool EnabledClear { get => CTRL_Buttons.EnabledClear; set => CTRL_Buttons.EnabledClear = value; }
+        public bool EnabledSelect { get => CTRL_Buttons.EnabledSelect; set => CTRL_Buttons.EnabledSelect = value; }
+        public bool EnabledQuickSelect { get => CTRL_Buttons.EnabledQuickSelect; set => CTRL_Buttons.EnabledQuickSelect = value; }
+        public bool EnabledCard { get => CTRL_Buttons.EnabledCard; set => CTRL_Buttons.EnabledCard = value; }
+        public bool UseClear { get => CTRL_Buttons.UseClear; set => CTRL_Buttons.UseClear = value; }
+        public bool UseSelect { get => CTRL_Buttons.UseSelect; set => CTRL_Buttons.UseSelect = value; }
+        public bool UseQuickSelect { get => CTRL_Buttons.UseQuickSelect; set => CTRL_Buttons.UseQuickSelect = value; }
+        public bool UseCard { get => CTRL_Buttons.UseCard; set => CTRL_Buttons.UseCard = value; }
 
-        public event EventHandler ValueChanged;
-        public event EventHandler ClearClick;
-        public event EventHandler SelectClick;
-        public event EventHandler QuickSelectClick;
-        public event EventHandler CardClick;
+        public event EventHandler? ValueChanged;
+        public event EventHandler? ClearClick;
+        public event EventHandler? SelectClick;
+        public event EventHandler? QuickSelectClick;
+        public event EventHandler? CardClick;
 
-        public void SetValue(DbMappedDOT in_refObject)
+        public void SetValue(DbMappedDOT? refObject)
         {
-            _refObject = in_refObject;
-            Value = in_refObject != null ? in_refObject.ToString() : string.Empty;
+            this.refObject = refObject;
+            Value = refObject?.ToString() ?? string.Empty;
             OnValueChange();
         }
-        public void SetValue(int in_count)
+        public void SetValue(int count)
         {
-            Value = in_count.ToString();
+            Value = count.ToString(CultureInfo.CurrentCulture);
             //OnValueChange();
         }
-        public void UpdateValue(DbMappedDOT in_refObject)
+        public void UpdateValue(DbMappedDOT refObject)
         {
-            _refObject = in_refObject;
-            Value = in_refObject != null ? in_refObject.ToString() : string.Empty;
+            Guard.Against.Null(refObject, nameof(refObject));
+
+            this.refObject = refObject;
+            Value = refObject.ToString()!;
         }
     }
 }

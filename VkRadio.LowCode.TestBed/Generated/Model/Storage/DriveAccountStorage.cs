@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Ardalis.GuardClauses;
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 
@@ -45,35 +46,42 @@ namespace VkRadio.LowCode.TestBed.Generated.Model.Storage
         /// <summary>
         /// Filling the Data Object properties from DbDataReader
         /// </summary>
-        public override void FillDOFromReader(DbDataReader in_reader, DriveAccount in_o)
+        public override void FillDOFromReader(DbDataReader reader, DriveAccount dataObject)
         {
+            Guard.Against.Null(dataObject, nameof(dataObject));
+
             var factory = dbProviderFactory;
-            in_o.Name = factory.ReadStringFromReader(in_reader, 1, false);
-            in_o.Code = factory.ReadStringFromReader(in_reader, 2, false);
-            in_o.DefaultValue = factory.ReadIntNullableFromReader(in_reader, 3);
+            dataObject.Name = factory.ReadStringFromReader(reader, 1, false);
+            dataObject.Code = factory.ReadStringFromReader(reader, 2, false);
+            dataObject.DefaultValue = factory.ReadIntNullableFromReader(reader, 3);
         }
+
         /// <summary>
         /// Filling parameters to write the Data Object state to the Database
         /// </summary>
-        protected override void FillParameters(DbParameterCollection in_params, DriveAccount in_o)
+        protected override void FillParameters(DbParameterCollection parameters, DriveAccount dataObject)
         {
+            Guard.Against.Null(parameters, nameof(parameters));
+            Guard.Against.Null(dataObject, nameof(dataObject));
+
             var factory = dbProviderFactory;
-            in_params.Add(factory.CreateParameter(parameters[1], in_o.Name, typeof(string), false));
-            in_params.Add(factory.CreateParameter(parameters[2], in_o.Code, typeof(string), false));
-            in_params.Add(factory.CreateParameter(parameters[3], in_o.DefaultValue, typeof(int?), true));
+            parameters.Add(factory.CreateParameter(base.parameters[1], dataObject.Name, typeof(string), false));
+            parameters.Add(factory.CreateParameter(base.parameters[2], dataObject.Code, typeof(string), false));
+            parameters.Add(factory.CreateParameter(base.parameters[3], dataObject.DefaultValue, typeof(int?), true));
         }
+
         /// <summary>
         /// Reading the object by its Name property
         /// </summary>
-        public virtual DriveAccount ReadByName(string in_name, DbTransaction in_transaction = null)
+        public virtual DriveAccount? ReadByName(string name, DbTransaction? transaction = null)
         {
-            if (in_name == null)
-                throw new ArgumentException("name");
-            DbParameter[] dbParams = new DbParameter[] { dbProviderFactory.CreateParameter("@in_name", in_name, typeof(string), false) };
-            List<DriveAccount> result = ReadAsCollection(
+            Guard.Against.Null(name, nameof(name));
+
+            var dbParams = new DbParameter[] { dbProviderFactory.CreateParameter("@in_name", name, typeof(string), false) };
+            var result = ReadAsCollection(
                 where: NAME_Q + " = @in_name",
                 parameters: dbParams,
-                transaction: in_transaction
+                transaction: transaction
             );
             return result.Count != 0 ? result[0] : null;
         }
@@ -102,5 +110,5 @@ namespace VkRadio.LowCode.TestBed.Generated.Model.Storage
         /// Table field Default Value (variant with quotes)
         /// </summary>
         public const string DEFAULT_VALUE_Q = "\"default_value\"";
-    };
+    }
 }

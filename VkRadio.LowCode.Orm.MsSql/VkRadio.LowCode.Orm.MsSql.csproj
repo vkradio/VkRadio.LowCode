@@ -13,7 +13,7 @@
 
   <PropertyGroup>
     <PackageId>VkRadio.LowCode.Orm.MsSql</PackageId>
-    <Version>0.0.0-dev.6</Version>
+    <Version>0.0.0-dev.7</Version>
     <Authors>vkradio</Authors>
     <Description>IDbProviderFactory implementation for MS SQL (used in VkRadio.LowCode toolset)</Description>
     <PackageProjectUrl>https://github.com/vkradio/VkRadio.LowCode/tree/main/VkRadio.LowCode.Orm.MsSql</PackageProjectUrl>
