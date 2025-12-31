@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31205.134
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36811.4 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VkRadio.LowCode.Orm", "VkRadio.LowCode.Orm\VkRadio.LowCode.Orm.csproj", "{E119063B-1D04-40A7-AC7A-4883B1598CDF}"
 EndProject
@@ -15,6 +15,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VkRadio.LowCode.Gui.WinForms", "VkRadio.LowCode.Gui.WinForms\VkRadio.LowCode.Gui.WinForms.csproj", "{9BE9BC9B-BA56-41D1-847C-C0EEEB638369}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.TestBed", "VkRadio.LowCode.TestBed\VkRadio.LowCode.TestBed.csproj", "{2D9A21CD-BEF0-441E-BC03-BC50B650D484}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGenerator", "VkRadio.LowCode.AppGenerator\VkRadio.LowCode.AppGenerator.csproj", "{B09352B7-AE02-4BC0-A463-60ECB0E955C4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGenerator.MetaModel", "VkRadio.LowCode.AppGenerator.MetaModel\VkRadio.LowCode.AppGenerator.MetaModel.csproj", "{79789461-00C8-48CB-94D4-06196E339F4F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -38,6 +42,14 @@ Global
 		{2D9A21CD-BEF0-441E-BC03-BC50B650D484}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D9A21CD-BEF0-441E-BC03-BC50B650D484}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D9A21CD-BEF0-441E-BC03-BC50B650D484}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B09352B7-AE02-4BC0-A463-60ECB0E955C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B09352B7-AE02-4BC0-A463-60ECB0E955C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B09352B7-AE02-4BC0-A463-60ECB0E955C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B09352B7-AE02-4BC0-A463-60ECB0E955C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79789461-00C8-48CB-94D4-06196E339F4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79789461-00C8-48CB-94D4-06196E339F4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79789461-00C8-48CB-94D4-06196E339F4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79789461-00C8-48CB-94D4-06196E339F4F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
