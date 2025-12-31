@@ -1,5 +1,5 @@
-﻿using System;
-using System.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows.Forms;
 using VkRadio.LowCode.Gui.WinForms;
@@ -40,7 +40,8 @@ namespace VkRadio.LowCode.TestBed
                 ApplicationName = appName,
                 DataSource = Settings.Default.SqlServer,
                 InitialCatalog = Settings.Default.Database,
-                IntegratedSecurity = true
+                IntegratedSecurity = true,
+                TrustServerCertificate = true
             };
 
             try

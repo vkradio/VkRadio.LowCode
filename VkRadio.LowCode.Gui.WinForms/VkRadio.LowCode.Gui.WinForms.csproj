@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
+    <TargetFramework>net9.0-windows</TargetFramework>
 
     <!-- WinForms specifics: -->
     <UseWindowsForms>true</UseWindowsForms>
@@ -38,8 +38,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="Ardalis.GuardClauses" Version="3.1.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="Ardalis.GuardClauses" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>
