@@ -14,10 +14,9 @@ namespace VkRadio.LowCode.Gui.WinForms
 
         protected void ValueSelected(SelectedObjectEventArgs in_ea)
         {
-            if (Pick != null)
-                Pick(this, in_ea);
+            Pick?.Invoke(this, in_ea);
             _selectedValue = in_ea.SelectedObject;
-            this.DialogResult = System.Windows.Forms.DialogResult.OK;
+            DialogResult = DialogResult.OK;
         }
 
         public FRM_DOList()
@@ -30,7 +29,7 @@ namespace VkRadio.LowCode.Gui.WinForms
             _storage = in_storage;
             _selectMode = in_selectMode;
 
-            Text = "Список объектов " + _dotName;
+            Text = "List of objects " + _dotName;
         }
 
         public virtual void InitByDOList(DOList in_doList)

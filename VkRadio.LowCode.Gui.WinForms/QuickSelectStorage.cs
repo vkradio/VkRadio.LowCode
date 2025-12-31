@@ -10,8 +10,7 @@ namespace VkRadio.LowCode.Gui.WinForms
         const int c_maxRowCount = 20;
 
         /// <summary>
-        /// Имя папки программы (возможно, на русском языке), в которой будет храниться
-        /// кэш QuickSelect.xml в папке AppData.
+        /// Application folder name, located in AppData, that contains QuickSelect.xml cache.
         /// </summary>
         public static string ProgramFolder { get; set; }
 
@@ -28,10 +27,10 @@ namespace VkRadio.LowCode.Gui.WinForms
         {
             if (_filePath == null)
             {
-                string dirPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), !string.IsNullOrEmpty(ProgramFolder) ? ProgramFolder : "VkRadio.Gui.WinForms");
+                var dirPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), !string.IsNullOrEmpty(ProgramFolder) ? ProgramFolder : "VkRadio.LowCode.Gui.WinForms");
                 if (!Directory.Exists(dirPath))
                     Directory.CreateDirectory(dirPath);
-                _filePath = System.IO.Path.Combine(dirPath, "QuickSelect.xml");
+                _filePath = Path.Combine(dirPath, "QuickSelect.xml");
             }
             return _filePath;
         }
@@ -50,10 +49,10 @@ namespace VkRadio.LowCode.Gui.WinForms
 
         public List<SelectableRow> GetRowsForDOT(string in_dot)
         {
-            List<SelectableRow> result = new List<SelectableRow>();
+            var result = new List<SelectableRow>();
 
-            XElement xelRoot = GetXel();
-            XElement xelDot = xelRoot.Element(in_dot);
+            var xelRoot = GetXel();
+            var xelDot = xelRoot.Element(in_dot);
             if (xelDot != null)
             {
                 foreach (XElement xelRow in xelDot.Elements())

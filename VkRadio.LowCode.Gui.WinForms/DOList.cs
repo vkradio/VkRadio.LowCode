@@ -11,10 +11,10 @@ namespace VkRadio.LowCode.Gui.WinForms
 {
     public partial class DOList : UserControl
     {
-        protected const string c_noWayNoRowsSelected  = "Не выбрана строка.";
-        protected const string c_askDeleteObject      = "Вы действительно хотите удалить объект?";
-        protected const string c_captionFault         = "Отказ";
-        protected const string c_captionQuestion      = "Вопрос";
+        protected const string c_noWayNoRowsSelected = "Row not selected.";
+        protected const string c_askDeleteObject  = "Do you really want to delete this object?";
+        protected const string c_captionFault = "Refusal";
+        protected const string c_captionQuestion = "Question";
 
         protected IDOStorage _storage;
         protected UILauncher _uiLauncher;
@@ -28,7 +28,7 @@ namespace VkRadio.LowCode.Gui.WinForms
 
         protected void UpdateCount()
         {
-            L_Count.Text = "Всего: " + (DGV_List.DataSource != null ?
+            L_Count.Text = "Total: " + (DGV_List.DataSource != null ?
                 ((DataTable)DGV_List.DataSource).Rows.Count.ToString() :
                 "0");
         }
@@ -37,18 +37,18 @@ namespace VkRadio.LowCode.Gui.WinForms
         {
             if (_storage != null)
             {
-                Cursor oldCur = this.Cursor;
+                var oldCur = this.Cursor;
                 try
                 {
-                    this.Cursor = Cursors.WaitCursor;
+                    Cursor = Cursors.WaitCursor;
                     DGV_List.AutoGenerateColumns = false;
 
                     if (DGV_List.DataSource == null)
                     {
-                        // Здесь добавил _params, но это будет работать только при создании нового окна со списком
-                        // объектов. Если же нужно будет в будущем расширить функционал - в уже созданном окне применять
-                        // фильтры отбора, то скорее всего это работать не будет - скорее всего старые строки в таблице
-                        // не будут отсекаться при применении фильтра.
+                        // Here I've added _params, but it will work only on the creation of a new window containing
+                        // the list of objects. If in the future there will be a need to extend the functionality -
+                        // to apply filters in the already created window, then probably it won't work, probably old
+                        // rows won't be deleting on filter apply.
                         DGV_List.DataSource = _storage.ReadAsTable(_filter, _params);
                     }
                     else
@@ -74,7 +74,7 @@ namespace VkRadio.LowCode.Gui.WinForms
                 }
                 finally
                 {
-                    this.Cursor = oldCur;
+                    Cursor = oldCur;
                 }
             }
         }
@@ -82,12 +82,12 @@ namespace VkRadio.LowCode.Gui.WinForms
         {
             if (DGV_List.Rows.GetRowCount(DataGridViewElementStates.Selected) <= 0)
                 return null;
-            DataGridViewRow row = DGV_List.SelectedRows[0];
+            var row = DGV_List.SelectedRows[0];
             return Orm.DbProviderFactory.Default.GuidStyle == GuidStyle.AsMs ? (Guid)row.Cells["COL_Id"].Value : new Guid((byte[])row.Cells["COL_Id"].Value);
         }
         protected DbMappedDOT GetSelectedObject(bool in_ignoreEmptyClick)
         {
-            Guid? id = GetCurrentId();
+            var id = GetCurrentId();
             if (!id.HasValue)
             {
                 if (!in_ignoreEmptyClick)
@@ -95,26 +95,24 @@ namespace VkRadio.LowCode.Gui.WinForms
                 return null;
             }
 
-            DbMappedDOT o = _storage.Restore(id.Value);
+            var o = _storage.Restore(id.Value);
             if (o == null)
             {
-                MessageBox.Show(this, "Объект больше не существует.", c_captionFault, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show(this, "Object no longer exists.", c_captionFault, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return null;
             }
             return o;
         }
         protected bool ShowCard(bool in_ignoreEmptyClick)
         {
-            DbMappedDOT o = GetSelectedObject(in_ignoreEmptyClick);
+            var o = GetSelectedObject(in_ignoreEmptyClick);
             if (o != null)
             {
                 o = (DbMappedDOT)o.Clone();
-            
-                using (IFRM_Card frm = _uiLauncher.CreateCard(o))
-                {
-                    ((Form)frm).ShowDialog(this);
-                    return frm.Changed;
-                }
+
+                using var frm = _uiLauncher.CreateCard(o);
+                ((Form)frm).ShowDialog(this);
+                return frm.Changed;
             }
             else
             {
@@ -122,17 +120,17 @@ namespace VkRadio.LowCode.Gui.WinForms
             }
         }
 
-        protected void InitializeComponentProtected() { InitializeComponent(); }
+        protected void InitializeComponentProtected() => InitializeComponent();
 
-        protected DataGridView DGV_ListProtected { get { return DGV_List; } }
-        protected Label L_CountProtected { get { return L_Count; } }
+        protected DataGridView DGV_ListProtected => DGV_List;
+        protected Label L_CountProtected => L_Count;
 
-        public DOList() { InitializeComponent(); }
+        public DOList() => InitializeComponent();
 
-        protected virtual DbMappedDOT SetupNewObject(DbMappedDOT in_o) { return in_o; }
+        protected virtual DbMappedDOT SetupNewObject(DbMappedDOT in_o) => in_o;
 
-        void DOList_Load(object sender, EventArgs e) {}
-        void B_Refresh_Click(object sender, EventArgs e) { RefreshTable(); }
+        void DOList_Load(object sender, EventArgs e) { }
+        void B_Refresh_Click(object sender, EventArgs e) => RefreshTable();
         void B_Card_Click(object sender, EventArgs e)
         {
             if (ShowCard(false))
@@ -152,17 +150,15 @@ namespace VkRadio.LowCode.Gui.WinForms
         }
         void B_Create_Click(object sender, EventArgs e)
         {
-            DbMappedDOT o = SetupNewObject(_storage.CreateNew());
-            using (IFRM_Card frm = _uiLauncher.CreateCard(o))
-            {
-                ((Form)frm).ShowDialog(this);
-                if (frm.Changed)
-                    RefreshTable();
-            }
+            var o = SetupNewObject(_storage.CreateNew());
+            using var frm = _uiLauncher.CreateCard(o);
+            ((Form)frm).ShowDialog(this);
+            if (frm.Changed)
+                RefreshTable();
         }
         public void B_Delete_Click(object sender, EventArgs e)
         {
-            Guid? id = GetCurrentId();
+            var id = GetCurrentId();
 
             if (!id.HasValue)
             {
@@ -178,24 +174,24 @@ namespace VkRadio.LowCode.Gui.WinForms
 
             if (MessageBox.Show(this, c_askDeleteObject, c_captionQuestion, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question) == System.Windows.Forms.DialogResult.Yes)
             {
-                string error = null;
+                string error;
                 try
                 {
                     error = _storage.Delete(id.Value, true);
                 }
                 catch (ZeroRowsAffectedException)
                 {
-                    MessageBox.Show(this, "Объект больше не существует.", c_captionFault, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    MessageBox.Show(this, "Object no longer exists.", c_captionFault, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     return;
                 }
 
                 if (error == null)
                 {
                     DataTable table = (DataTable)DGV_List.DataSource;
-                    for (int i = 0; i < table.Rows.Count; i++)
+                    for (var i = 0; i < table.Rows.Count; i++)
                     {
-                        DataRow row = table.Rows[i];
-                        Guid idOfRow = Orm.DbProviderFactory.Default.GuidStyle == GuidStyle.AsMs ? (Guid)row[0] : new Guid((byte[])row[0]);
+                        var row = table.Rows[i];
+                        var idOfRow = Orm.DbProviderFactory.Default.GuidStyle == GuidStyle.AsMs ? (Guid)row[0] : new Guid((byte[])row[0]);
                         if (idOfRow == id.Value)
                         {
                             table.Rows.RemoveAt(i);
@@ -214,7 +210,7 @@ namespace VkRadio.LowCode.Gui.WinForms
         {
             if (_selectable)
             {
-                DbMappedDOT selObj = GetSelectedObject(true);
+                var selObj = GetSelectedObject(true);
                 if (selObj != null)
                 {
                     selObj = (DbMappedDOT)selObj.Clone();
@@ -227,7 +223,7 @@ namespace VkRadio.LowCode.Gui.WinForms
             object filterFrm = _uiLauncher.CreateFilterForm();
             if (filterFrm == null)
             {
-                MessageBox.Show(this, "Фильтр для этого типа объектов не предусмотрен.", "Отказ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(this, "Filter for this type of objects is not provided.", "Refusal", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
         }
@@ -235,15 +231,15 @@ namespace VkRadio.LowCode.Gui.WinForms
         {
             if (DGV_List.Rows.Count == 0)
             {
-                MessageBox.Show(this, "Таблица пуста.", "Отказ", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show(this, "Table is empty.", "Refusal", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
 
-            List<string> textLines = new List<string>();
-            string header = string.Empty;
-            for (int i = 1; i < DGV_List.Columns.Count; i++)
+            var textLines = new List<string>();
+            var header = string.Empty;
+            for (var i = 1; i < DGV_List.Columns.Count; i++)
             {
-                DataGridViewColumn col = DGV_List.Columns[i];
+                var col = DGV_List.Columns[i];
                 if (header != string.Empty)
                     header += ";";
                 header += "\"" + col.DataPropertyName + "\"";
@@ -251,10 +247,10 @@ namespace VkRadio.LowCode.Gui.WinForms
             textLines.Add(header);
             foreach (DataGridViewRow row in DGV_List.Rows)
             {
-                string textRow = string.Empty;
-                for (int i = 1; i < row.Cells.Count; i++)
+                var textRow = string.Empty;
+                for (var i = 1; i < row.Cells.Count; i++)
                 {
-                    DataGridViewCell cell = row.Cells[i];
+                    var cell = row.Cells[i];
 
                     if (i != 1)
                         textRow += ";";
@@ -267,31 +263,29 @@ namespace VkRadio.LowCode.Gui.WinForms
                 textLines.Add(textRow);
             }
 
-            using (SaveFileDialog dlg = new SaveFileDialog())
+            using var dlg = new SaveFileDialog();
+            dlg.CheckPathExists = true;
+            dlg.AddExtension = true;
+            dlg.AutoUpgradeEnabled = true;
+            dlg.DefaultExt = "csv";
+            dlg.DereferenceLinks = true;
+            dlg.Filter = "Comma-separated values|*.csv|All files|*.*";
+            dlg.FilterIndex = 0;
+            dlg.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+            dlg.OverwritePrompt = true;
+            dlg.Title = "Saving the table";
+            dlg.ValidateNames = true;
+            dlg.FileName = _uiLauncher.DotName;
+            if (dlg.ShowDialog(this) == DialogResult.OK)
             {
-                dlg.CheckPathExists = true;
-                dlg.AddExtension = true;
-                dlg.AutoUpgradeEnabled = true;
-                dlg.DefaultExt = "csv";
-                dlg.DereferenceLinks = true;
-                dlg.Filter = "Comma-separated values|*.csv|All files|*.*";
-                dlg.FilterIndex = 0;
-                dlg.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-                dlg.OverwritePrompt = true;
-                dlg.Title = "Сохранение таблицы";
-                dlg.ValidateNames = true;
-                dlg.FileName = _uiLauncher.DotName;
-                if (dlg.ShowDialog(this) == DialogResult.OK)
+                if (File.Exists(dlg.FileName))
+                    File.Delete(dlg.FileName);
+                using (var file = new StreamWriter(dlg.FileName, false, Encoding.UTF8))
                 {
-                    if (File.Exists(dlg.FileName))
-                        File.Delete(dlg.FileName);
-                    using (StreamWriter file = new StreamWriter(dlg.FileName, false, Encoding.UTF8))
-                    {
-                        foreach (string str in textLines)
-                            file.WriteLine(str);
-                    }
-                    MessageBox.Show(this, "Таблица сохранена в файл CSV.", "Сообщение", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    foreach (string str in textLines)
+                        file.WriteLine(str);
                 }
+                MessageBox.Show(this, "Table saved to CSV file.", "Message", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -310,7 +304,7 @@ namespace VkRadio.LowCode.Gui.WinForms
 
         public bool Selectable
         {
-            get { return _selectable; }
+            get => _selectable;
             set
             {
                 _selectable = value;
@@ -318,7 +312,7 @@ namespace VkRadio.LowCode.Gui.WinForms
                 B_Pick.Visible = _selectable;
             }
         }
-        public DataGridView DGV_ListPublic { get { return DGV_List; } }
+        public DataGridView DGV_ListPublic => DGV_List;
 
         public event EventHandler<SelectedObjectEventArgs> Pick;
     };

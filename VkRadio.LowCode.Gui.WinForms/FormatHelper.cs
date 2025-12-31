@@ -9,16 +9,17 @@ namespace VkRadio.LowCode.Gui.Utils
         public const string C_DATE_TIME_FORMAT_Z = "yyyy-MM-ddTHH:mm:ssZ";
 
         /// <summary>
-        /// На входе подается значение int, на выходе получаем строку
-        /// для десятичного представления (например, для PFTMoney).
+        /// Receiving int value and returning its decimal representation (for example,
+        /// for PFTMoney).
         /// </summary>
         /// <param name="in_value"></param>
+        /// <param name="in_decimalPositions"></param>
         /// <returns></returns>
         public static string GetDecimalString(int in_value, int in_decimalPositions = 2)
         {
             string result = in_value.ToString();
             if (in_value < 0)
-                result = result.Substring(1);
+                result = result[1..];
 
             if (result.Length <= in_decimalPositions)
             {
@@ -33,10 +34,11 @@ namespace VkRadio.LowCode.Gui.Utils
             return GetDecimalStringForFullString(result);
         }
         /// <summary>
-        /// Делает то же, что и GetDecimalString, но на входе подается &quot;нормализованная&quot;
-        /// до минимальной длины строка, т.е. чтобы как миниум в ней был ноль в целом разряде.
+        /// Does the same as GetDecimalString, but as input receiving a string &quot;normalized&quot;
+        /// to minimal length, so that it contains at least zero as a whole part.
         /// </summary>
         /// <param name="in_fullStringNotSeparated"></param>
+        /// <param name="in_decimalPositions"></param>
         /// <returns></returns>
         public static string GetDecimalStringForFullString(string in_fullStringNotSeparated, int in_decimalPositions = 2)
         {
