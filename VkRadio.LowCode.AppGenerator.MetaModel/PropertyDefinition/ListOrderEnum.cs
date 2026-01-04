@@ -1,26 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
 
-namespace MetaModel.PropertyDefinition
+/// <summary>
+/// Order for sorting of lists of objects
+/// </summary>
+public enum ListOrderEnum
 {
     /// <summary>
-    /// Порядок сортировки списка объектов.
+    /// By ascending of values
     /// </summary>
-    public enum ListOrderEnum
-    {
-        /// <summary>
-        /// По возрастанию значений
-        /// </summary>
-        Asc,
-        /// <summary>
-        /// По убыванию значений
-        /// </summary>
-        Desc,
-        /// <summary>
-        /// По умолчанию, принятому для данного функционального типа свойств
-        /// </summary>
-        Default
-    };
+    Asc,
+    /// <summary>
+    /// By descending of values
+    /// </summary>
+    Desc,
+    /// <summary>
+    /// By default for a particular functional property type
+    /// </summary>
+    Default
 }

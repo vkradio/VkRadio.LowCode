@@ -1,19 +1,19 @@
-﻿using MetaModel.Names;
+﻿using VkRadio.LowCode.AppGenerator.MetaModel.Names;
 
-namespace MetaModel.PropertyDefinition
+namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
+
+/// <summary>
+/// Definition of a property
+/// </summary>
+public interface IPropertyDefinition : IUniqueNamed
 {
     /// <summary>
-    /// Определение свойства
+    /// Functional property type
     /// </summary>
-    public interface IPropertyDefinition: IUniqueNamed
-    {
-        /// <summary>
-        /// Функциональный тип свойства
-        /// </summary>
-        PropertyFunctionalType FunctionalType { get; }
-        /// <summary>
-        /// Признак упорядочения объектов в списке
-        /// </summary>
-        ListOrderEnum? ListOrder { get; set; }
-    };
+    PropertyFunctionalType FunctionalType { get; }
+
+    /// <summary>
+    /// Ordering attribute for objects in a list
+    /// </summary>
+    ListOrderEnum? ListOrder { get; set; }
 }

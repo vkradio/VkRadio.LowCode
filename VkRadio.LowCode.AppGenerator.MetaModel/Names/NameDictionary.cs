@@ -74,34 +74,35 @@ public static class NameDictionary
         }
     }
     /// <summary>
-    /// Обогащение словаря имен из другого словаря.
-    /// Если в словаре-приемнике отсутствует слово на языке, на котором это же слово
-    /// имеется в словаре-источнике (доноре), это слово добавляется оттуда из источника.
-    /// Метод отличается от аналогичного EnrichNames тем, что словарь-приемник ожидает
-    /// модификацию слов из донора так, что для русских имен будет сформировано имя вида
-    /// "коллекция объектов %оригинальный объект%", а для английских - "%original object%
-    /// collection".
+    /// Enrich name dictionary from other dictionary.
+    /// If dictionary recipient has no word in a language of a source dictionary, this word is added there.
+    /// The method differs from the similar EnrichNames in that it expects the added word will be modified,
+    /// so for Russian names it will be formatted like &quot;коллекция объектов %оригинальный объект%&quot;, and
+    /// for English names - like &quot;%original object% collection&quot;.
     /// </summary>
-    /// <param name="in_dest">Словарь-приемник (обогащаемый словарь)</param>
-    /// <param name="in_src">Словарь-источник (донор)</param>
-    public static void EnrichNamesForCollection(IDictionary<HumanLanguageEnum, string> in_dest, IDictionary<HumanLanguageEnum, string> in_src)
+    /// <param name="dest">Destination dictionary (being enriched)</param>
+    /// <param name="src">Source dictionary</param>
+    public static void EnrichNamesForCollection(IDictionary<HumanLanguageEnum, string> dest, IDictionary<HumanLanguageEnum, string> src)
     {
-        foreach (HumanLanguageEnum lang in AllHumanLanguages)
+        foreach (var lang in AllHumanLanguages)
         {
-            if (!in_dest.ContainsKey(lang) && in_src.ContainsKey(lang))
+            if (!dest.ContainsKey(lang) && src.ContainsKey(lang))
             {
-                string name = in_src[lang];
+                var name = src[lang];
+
                 switch (lang)
                 {
                     case HumanLanguageEnum.Ru:
                         name = "коллекция объектов " + name;
                         break;
+
                     default:
                         name += " collection";
                         break;
                 }
-                in_dest.Add(lang, name);
+
+                dest.Add(lang, name);
             }
         }
     }
-};
+}

@@ -1,18 +1,17 @@
-﻿namespace MetaModel.PredefinedDO
+﻿namespace VkRadio.LowCode.AppGenerator.MetaModel.PredefinedDO;
+
+/// <summary>
+/// Value of a predefined object
+/// </summary>
+public interface IPropertyValue
 {
     /// <summary>
-    /// Значение свойства предопределенного объекта
+    /// Property definition
     /// </summary>
-    public interface IPropertyValue
-    {
-        /// <summary>
-        /// Определение свойства
-        /// </summary>
-        PropertyDefinition.PropertyDefinition Definition { get; set; }
+    PropertyDefinition.PropertyDefinition Definition { get; set; }
 
-        /// <summary>
-        /// Значение, приведенное к абстрактному типу object
-        /// </summary>
-        object ValueObject { get; set; }
-    };
+    /// <summary>
+    /// Value, casted to an abstract object value
+    /// </summary>
+    object ValueObject { get; set; }
 }
