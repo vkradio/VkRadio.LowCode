@@ -1,64 +1,53 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.IO;
-using System.Linq;
+﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql;
 
-using ArtefactGenerationProject.ArtefactGenerator.Sql;
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Classic
+public class TargetCSharpAppLegacy : ArtefactGenerationTarget
 {
-    /**
-     * NOTE: In JSON file all paths are relative to project root. Directory, containing
-     * project JSON file, is the root of project. After deserialization, all respective
-     * relative paths converted to absolute paths.
-     */
+    public Guid Id { get; private set; }
 
-    //[JsonConverter(typeof(ArtefactGeneratorTargetJsonConverter))]
-    public class TargetCSharpAppLegacy : ArtefactGenerationTargetJson
+    public string DotNetFramework { get; private set; }
+
+    public string OrmLibProjectDir { get; private set; }
+
+    public string VersionControlWcRoot { get; private set; }
+
+    /// <summary>
+    /// Ormlib project name without any .csproj extension and path (as displayed in VS solution tree)
+    /// </summary>
+    public string OrmLibProjectName { get; private set; }
+
+    public TargetSql? TargetSql
     {
-        [JsonProperty]
-        public Guid Id { get; private set; }
+        get => Subtargets
+            .Where(t => t is TargetSql)
+            .Select(t => (TargetSql)t)
+            .SingleOrDefault();
+    }
 
-        [JsonProperty]
-        public string DotNetFramework { get; private set; }
+    //protected override void AfterDeserializeConcreteRoot()
+    //{
+    //    if (!Path.IsPathRooted(OrmLibProjectDir))
+    //    {
+    //        OrmLibProjectDir = Path.Combine(Project.ProjectBasePath, OrmLibProjectDir);
+    //    }
 
-        [JsonProperty]
-        public string OrmLibProjectDir { get; private set; }
+    //    OrmLibProjectName = "orm_" + DotNetFramework;
 
-        [JsonProperty]
-        public string VersionControlWcRoot { get; private set; }
+    //    if (!File.Exists(GetOrmLibProjectFilePath()))
+    //    {
+    //        throw new GeneratorException($"File not exists: {GetOrmLibProjectFilePath()}");
+    //    }
 
-        /// <summary>
-        /// Ormlib project name without any .csproj extension and path (as displayed in VS solution tree)
-        /// </summary>
-        [JsonIgnore]
-        public string OrmLibProjectName { get; private set; }
+    //    if (!Path.IsPathRooted(VersionControlWcRoot))
+    //    {
+    //        VersionControlWcRoot = Path.Combine(Project.ProjectBasePath, VersionControlWcRoot);
+    //    }
+    //}
 
-        [JsonIgnore]
-        public TargetSqlJson TargetSql
-        {
-            get => Subtargets
-                .Where(t => t is TargetSqlJson)
-                .Select(t => (TargetSqlJson)t)
-                .SingleOrDefault();
-        }
+    //protected override void CreateGenerator() => Generator = new DummyGenerator();
 
-        protected override void AfterDeserializeConcreteRoot()
-        {
-            if (!Path.IsPathRooted(OrmLibProjectDir))
-                OrmLibProjectDir = Path.Combine(Project.ProjectBasePath, OrmLibProjectDir);
-            OrmLibProjectName = "orm_" + DotNetFramework;
-            if (!File.Exists(GetOrmLibProjectFilePath()))
-                throw new GeneratorException($"File not exists: {GetOrmLibProjectFilePath()}");
-            if (!Path.IsPathRooted(VersionControlWcRoot))
-                VersionControlWcRoot = Path.Combine(Project.ProjectBasePath, VersionControlWcRoot);
-        }
+    public string GetOrmLibProjectFilePath() => Path.Combine(OrmLibProjectDir, OrmLibProjectName + ".csproj");
 
-        protected override void CreateGenerator() => Generator = new DummyGenerator();
-
-        public string GetOrmLibProjectFilePath() =>
-            Path.Combine(OrmLibProjectDir, OrmLibProjectName + ".csproj");
-
-        public static readonly string C_ORMLIB_PROJECT_GUID_STRING = "BC2581BB-BC55-4E13-9AED-69CE482E092D";
-    };
+    public static readonly string C_ORMLIB_PROJECT_GUID_STRING = "BC2581BB-BC55-4E13-9AED-69CE482E092D";
 }

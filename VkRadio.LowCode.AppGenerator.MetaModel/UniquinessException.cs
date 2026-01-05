@@ -1,15 +1,12 @@
-﻿using System;
+﻿namespace VkRadio.LowCode.AppGenerator.MetaModel;
 
-namespace MetaModel
+public class UniquinessException : Exception
 {
-    public class UniquinessException : Exception
+    public UniquinessException(Guid id, string message, Exception? innerException = null)
+        : base(message, innerException)
     {
-        public UniquinessException(Guid in_id, string in_message, Exception in_innerException = null)
-            : base(in_message, in_innerException)
-        {
-            Id = in_id;
-        }
+        Id = id;
+    }
 
-        public Guid Id { get; private set; }
-    };
+    public Guid Id { get; private set; }
 }

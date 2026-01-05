@@ -1,30 +1,30 @@
-﻿using System;
+﻿namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.SystemFunctionalTypes;
 
-namespace MetaModel.PropertyDefinition.SystemFunctionalTypes
+/// <summary>
+/// Reference type.
+/// When defined contains only a reference (Guid), but then a delayed linking will assing
+/// a value of a real data object
+/// </summary>
+public class SRefObject
 {
+    Guid _key;
+    object? _value;
+
     /// <summary>
-    /// Ссылочный тип.
-    /// Позволяет при создании хранить только ссылку (Guid) и в процессе отложенного
-    /// связывания доприсваивать собственно значение объекта данных.
+    /// Constructor for initializing only a reference (Guid)
     /// </summary>
-    public class SRefObject
+    /// <param name="key">Reference</param>
+    public SRefObject(Guid key)
     {
-        Guid _key;
-        object _value;
+        _key = key;
+    }
 
-        /// <summary>
-        /// Конструктор, инициализирующий только ссылку (Guid)
-        /// </summary>
-        /// <param name="in_key">Ссылка</param>
-        public SRefObject(Guid in_key) { _key = in_key; }
-
-        /// <summary>
-        /// Ссылка, или ключ, значения
-        /// </summary>
-        public Guid Key { get { return _key; } }
-        /// <summary>
-        /// Объектное значение
-        /// </summary>
-        public object Value { get { return _value; } set { _value = value; } }
-    };
+    /// <summary>
+    /// Reference (key) of a value
+    /// </summary>
+    public Guid Key { get { return _key; } }
+    /// <summary>
+    /// Value of an object
+    /// </summary>
+    public object? Value { get { return _value; } set { _value = value; } }
 }

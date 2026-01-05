@@ -1,58 +1,55 @@
-﻿using System;
+﻿namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Sql
+/// <summary>
+/// Helpers for work with database schema
+/// </summary>
+public static class DBSchemaHelper
 {
     /// <summary>
-    /// Вспомогательный функционал для работы со схемой БД
+    /// Name quote symbol
     /// </summary>
-    public static class DBSchemaHelper
-    {
-        /// <summary>
-        /// Символ квотирования имен
-        /// </summary>
-        public const string C_QUOTE_SYMBOL = "`";
-        /// <summary>
-        /// Ключевое слово default
-        /// </summary>
-        public const string C_KEYWORD_DEFAULT = "default";
-        /// <summary>
-        /// Ключевое слово unique
-        /// </summary>
-        public const string C_KEYWORD_UNIQUE = "unique";
-        /// <summary>
-        /// Длина табуляции
-        /// </summary>
-        public const int C_TAB_LEN = 4;
-        /// <summary>
-        /// Строка табуляции
-        /// </summary>
-        public const string C_TAB = "    ";
+    public const string C_QUOTE_SYMBOL = "`";
+    /// <summary>
+    /// Keyword &quot;default&quot;
+    /// </summary>
+    public const string C_KEYWORD_DEFAULT = "default";
+    /// <summary>
+    /// Keyword &quot;unique&quot;
+    /// </summary>
+    public const string C_KEYWORD_UNIQUE = "unique";
+    /// <summary>
+    /// Number of tabulation spaces
+    /// </summary>
+    public const int C_TAB_LEN = 4;
+    /// <summary>
+    /// Tabulation string
+    /// </summary>
+    public const string C_TAB = "    ";
 
-        /// <summary>
-        /// Преобразование значения Guid в строковое значение binary(16) для использования в MySQL
-        /// </summary>
-        /// <param name="in_guid">Значение типа Guid</param>
-        /// <returns>Строковое представление</returns>
-        public static string GuidToMySqlValueString(Guid in_guid)
+    /// <summary>
+    /// Translate GUID value to a binary(16) for use in MySQL
+    /// </summary>
+    /// <param name="guid"></param>
+    /// <returns>String representation of GUID</returns>
+    public static string GuidToMySqlValueString(Guid guid) => "x'" + GuidToHexString(guid) + "'";
+
+    /// <summary>
+    /// Translate GUID value to a uniqueidentifier value for use in MS SQL
+    /// </summary>
+    /// <param name="guid"></param>
+    /// <returns>String representation of GUID</returns>
+    public static string GuidToMsSqlValueString(Guid guid) => "'" + guid.ToString("D") + "'";
+
+    public static string GuidToHexString(Guid guid)
+    {
+        var guidBytes = guid.ToByteArray();
+        var guidString = string.Empty;
+
+        foreach (byte b in guidBytes)
         {
-            return "x'" + GuidToHexString(in_guid) + "'";
+            guidString += b.ToString("X2");
         }
-        /// <summary>
-        /// Преобразование значения Guid в строковое значение uniqueidentifier для использования в MS SQL
-        /// </summary>
-        /// <param name="in_guid">Значение типа Guid</param>
-        /// <returns>Строковое представление</returns>
-        public static string GuidToMsSqlValueString(Guid in_guid)
-        {
-            return "'" + in_guid.ToString("D") + "'";
-        }
-        public static string GuidToHexString(Guid in_guid)
-        {
-            byte[] guidBytes = in_guid.ToByteArray();
-            string guidString = string.Empty;
-            foreach (byte b in guidBytes)
-                guidString += b.ToString("X2");
-            return guidString;
-        }
-    };
+
+        return guidString;
+    }
 }

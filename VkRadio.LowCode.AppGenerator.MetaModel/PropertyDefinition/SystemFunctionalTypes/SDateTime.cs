@@ -1,63 +1,70 @@
-﻿using System;
+﻿namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.SystemFunctionalTypes;
 
-namespace MetaModel.PropertyDefinition.SystemFunctionalTypes
+/// <summary>
+/// System type for storing a date and time.
+/// Differs from a standard DateTime in that it allow to select whether to return a fixed
+/// DateTime value or return a current runtime DateTime value.
+/// </summary>
+public class SDateTime
 {
+    DateTime? _fixedValue;
+    bool _useModelRuntimeValue;
+
     /// <summary>
-    /// Системный тип для хранения даты и времени.
-    /// Отличается от стандартного DateTime тем, что позволяет указывать,
-    /// хранит ли тип фиксированное значение даты и времени или его следует
-    /// получать из системы в момент обращения (в момент исполнения
-    /// бизнес-модели).
+    /// Constructor variant for a fixed date and time value
     /// </summary>
-    public class SDateTime
+    /// <param name="fixedValue">Fixed value of date and time</param>
+    public SDateTime(DateTime fixedValue)
     {
-        DateTime? _fixedValue;
-        bool _useModelRuntimeValue;
+        _fixedValue = fixedValue;
+    }
+    /// <summary>
+    /// Constructor variant for a runtime date and time value
+    /// </summary>
+    public SDateTime()
+    {
+        _fixedValue = null;
+        _useModelRuntimeValue = true;
+    }
 
-        /// <summary>
-        /// Вариант конструктора для фиксированного значения даты и времени
-        /// </summary>
-        /// <param name="in_fixedValue">Фиксированное значение даты и времени</param>
-        public SDateTime(DateTime in_fixedValue)
+    /// <summary>
+    /// Fixed date and time value.
+    /// Note: If the fixed value is not set (requring getting a current runtime value),
+    /// an attempt to get a fixed value will throw an exception.
+    /// </summary>
+    public DateTime FixedValue
+    {
+        get
         {
-            _fixedValue = in_fixedValue;
-        }
-        /// <summary>
-        /// Вариант конструктора для указания, что дата и время извлекаются из
-        /// системы в момент исполнения модели
-        /// </summary>
-        public SDateTime()
-        {
-            _fixedValue = null;
-            _useModelRuntimeValue = true;
-        }
+            if (UseModelRuntimeValue)
+            {
+                throw new InvalidOperationException("Unable to get a fixed value for a current runtime date and time variant.");
+            }
 
-        /// <summary>
-        /// Фиксированное значение даты и времени.
-        /// Примечание: В случае, если фиксированное значение не задано (т.е.
-        /// хранится указание на дату и время времени исполнения), при попытке
-        /// извлечь фиксированное значение будет выдано исключение.
-        /// </summary>
-        public DateTime FixedValue
-        {
-            get { return _fixedValue.Value; }
-            set
-            {
-                _fixedValue = value;
-                _useModelRuntimeValue = false;
-            }
+            return _fixedValue!.Value;
         }
-        /// <summary>
-        /// Признак необходимости использования значения времени исполнения модели
-        /// </summary>
-        public bool UseModelRuntimeValue
+        set
         {
-            get { return _useModelRuntimeValue; }
-            set
-            {
-                _useModelRuntimeValue = value;
-                _fixedValue = _useModelRuntimeValue ? null : (DateTime?)DateTime.Now;
-            }
+            _fixedValue = value;
+            _useModelRuntimeValue = false;
         }
-    };
+    }
+
+    /// <summary>
+    /// Do we need to extract a current runtime date and time value
+    /// </summary>
+    public bool UseModelRuntimeValue
+    {
+        get
+        {
+            return _useModelRuntimeValue;
+        }
+        set
+        {
+            _useModelRuntimeValue = value;
+            _fixedValue = _useModelRuntimeValue
+                ? null
+                : DateTime.Now;
+        }
+    }
 }

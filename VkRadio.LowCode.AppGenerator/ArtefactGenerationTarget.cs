@@ -1,22 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Xml.Linq;
-
-using MetaModel.Names;
-using ag = ArtefactGenerationProject.ArtefactGenerator;
-using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Classic;
-using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Modular;
-using ArtefactGenerationProject.ArtefactGenerator.Sql.MsSql;
-using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp2;
-//using ArtefactGenerationProject.ArtefactGenerator.Sql.MySql;
-//using ArtefactGenerationProject.ArtefactGenerator.Sql.SQLite;
+﻿using System.Xml.Linq;
+using VkRadio.LowCode.AppGenerator.MetaModel.Names;
+using AG = VkRadio.LowCode.AppGenerator.ArtefactGenerator;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Modular;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql.MsSql;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp2;
+//using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql.MySql;
+//using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql.SQLite;
 
 namespace VkRadio.LowCode.AppGenerator;
 
 /// <summary>
-/// Описание цели генерации артефактов
+/// Description of an artefact generatiopn target
 /// </summary>
 public abstract class ArtefactGenerationTarget : IUnique
 {
@@ -26,64 +21,66 @@ public abstract class ArtefactGenerationTarget : IUnique
     protected virtual void InitConcrete(XElement in_xelTarget) { }
 
     /// <summary>
-    /// Проект генерации артефактов
+    /// Artefact generation project
     /// </summary>
     public ArtefactGenerationProject Project { get; private set; }
     /// <summary>
-    /// Вышестоящая цель
+    /// Parent (upper level) target
     /// </summary>
     public ArtefactGenerationTarget ParentTarget { get; private set; }
     /// <summary>
-    /// Уникальный идетификатор цели
+    /// Unique identifier of a target
     /// </summary>
     public Guid Id { get; private set; }
     /// <summary>
-    /// Полный путь к папке генерирования артефактов
+    /// Full path to a folder with generated artefacts
     /// </summary>
     public string OutputPath { get; private set; }
     /// <summary>
-    /// Тип генерируемого артефакта
+    /// Type of a generated artefact
     /// </summary>
     public ArtefactTypeCodeEnum Type { get; private set; }
     /// <summary>
-    /// Цели, от результатов генерирования которых зависит данная цель.
-    /// Эти цели должны быть достигнуты перед запуском данной цели.
+    /// Targets, on that success this target depends on
     /// </summary>
     public IDictionary<Guid, ArtefactGenerationTarget> DependsOn { get; private set; }
     /// <summary>
-    /// Цели, зависящие от данной цели.
-    /// Эти цели могут исполняться не раньше, чем будет исполнена данная цель.
+    /// Targets, that depends on success of this target
     /// </summary>
     public IDictionary<Guid, ArtefactGenerationTarget> Dependants { get; private set; } = new Dictionary<Guid, ArtefactGenerationTarget>();
     /// <summary>
-    /// Генерация цели выполнена успешно
+    /// Successful result
     /// </summary>
     public bool GenerateSuccess { get; set; } = true;
     /// <summary>
-    /// Подцели
+    /// Subtargets
     /// </summary>
     public List<ArtefactGenerationTarget> Subtargets { get; private set; } = new List<ArtefactGenerationTarget>();
-    public ag.ArtefactGenerator Generator { get; private set; }
+    public AG.ArtefactGenerator Generator { get; private set; }
 
     /// <summary>
-    /// Загрузка цели из узла XML
+    /// Load target from an XML node
     /// </summary>
-    /// <param name="in_project">Проект генерации артефактов</param>
-    /// <param name="in_xelTarget">Узел XML с описанием цели генерации</param>
-    /// <param name="in_xelTarget">Вышестоящая цель генерации, если есть</param>
-    /// <returns>Цель генерации артефактов</returns>
-    public static ArtefactGenerationTarget LoadFromXElement(ArtefactGenerationProject in_project, XElement in_xelTarget, ArtefactGenerationTarget in_parentTarget = null)
+    /// <param name="project">Artefact generation project</param>
+    /// <param name="xelTarget">XML node containing generation target description</param>
+    /// <param name="xelTarget">Upper level target, if any</param>
+    /// <returns>Artefact generation target</returns>
+    public static ArtefactGenerationTarget LoadFromXElement(ArtefactGenerationProject project, XElement xelTarget, ArtefactGenerationTarget? parentTarget = null)
     {
-        var id = new Guid(in_xelTarget.Element("Id").Value);
-        var xelOutputPath = in_xelTarget.Element("OutputPath");
-        string outputPath = null;
-        if (xelOutputPath != null)
-            outputPath = Path.Combine(in_project.ProjectRootPath, xelOutputPath.Value);
+        var id = new Guid(xelTarget.Element("Id")!.Value);
+        var xelOutputPath = xelTarget.Element("OutputPath");
+        string? outputPath = null;
+
+        if (xelOutputPath is not null)
+        {
+            outputPath = Path.Combine(project.ProjectRootPath, xelOutputPath.Value);
+        }
 
         var dependsOnIds = new List<Guid>();
-        var xelDependencies = in_xelTarget.Element("DependsOn");
+        var xelDependencies = xelTarget.Element("DependsOn");
         Guid? useOutputPathFromTargetId = null;
-        if (xelDependencies != null)
+
+        if (xelDependencies is not null)
         {
             foreach (var xelDepId in xelDependencies.Elements("TargetId"))
             {
@@ -93,14 +90,18 @@ public abstract class ArtefactGenerationTarget : IUnique
                 if (outputPath == null)
                 {
                     var xat = xelDepId.Attribute("useOutputPath");
-                    if (xat != null && xat.Value == "True")
+
+                    if (xat is not null && xat.Value == "True")
+                    {
                         useOutputPathFromTargetId = dependencyId;
+                    }
                 }
             }
         }
 
-        var artefactTypeCode = ArtefactType.Parse(in_xelTarget.Element("ArtefactType").Value);
+        var artefactTypeCode = ArtefactType.Parse(xelTarget.Element("ArtefactType")!.Value);
         ArtefactGenerationTarget target;
+
         switch (artefactTypeCode)
         {
             //case ArtefactTypeCodeEnum.MySql:
@@ -142,11 +143,11 @@ public abstract class ArtefactGenerationTarget : IUnique
 
         target.Id = id;
         target.OutputPath = outputPath;
-        target.Project = in_project;
+        target.Project = project;
         target._dependsOnIds = dependsOnIds;
         target._useOutputPathFromTargetId = useOutputPathFromTargetId;
 
-        target.InitConcrete(in_xelTarget);
+        target.InitConcrete(xelTarget);
 
         //var xelSubtargets = in_xelTarget.Element("Subtargets");
         //if (xelSubtargets != null)
@@ -157,67 +158,71 @@ public abstract class ArtefactGenerationTarget : IUnique
         //        subtarget.DeferredLinkDependencies(target.Subtargets);
         //}
 
-        target.Generator = ag.ArtefactGenerator.CreateConcrete(target, in_project.MetaModel);
+        target.Generator = AG.ArtefactGenerator.CreateConcrete(target, project.MetaModel);
 
         return target;
     }
 
     /// <summary>
-    /// Генерирование артефактов цели
+    /// Generate target artefacts
     /// </summary>
-    /// <returns>null, если генерация успешна, или сообщение о проблемах</returns>
+    /// <returns>If success - returns null, otherwise returns an error message</returns>
     public string GenerateArtefacts()
     {
-        string result = string.Empty;
+        var result = string.Empty;
+
         foreach (var subtarget in Subtargets)
         {
             var submessage = subtarget.GenerateArtefacts();
+
             if (!string.IsNullOrEmpty(submessage))
             {
                 if (result != string.Empty)
+                {
                     result += "; ";
+                }
+
                 result += submessage;
             }
         }
+
         var rootMessage = Generator.Generate();
+
         if (result != string.Empty)
+        {
             result += "; ";
+        }
+
         result += rootMessage;
+
         return result;
     }
 
-    ///// <summary>
-    ///// Отложенное связывание зависимостей
-    ///// </summary>
-    ///// <param name="in_allTargets">Все цели проекта</param>
-    //public void DeferredLinkDependencies(IDictionary<Guid, ArtefactGenerationTarget> in_allTargets)
-    //{
-    //    DependsOn = new Dictionary<Guid, ArtefactGenerationTarget>(_dependsOnIds.Count);
-    //    foreach (var depId in _dependsOnIds)
-    //    {
-    //        ArtefactGenerationTarget dep = in_allTargets[depId];
-    //        DependsOn.Add(depId, dep);
-    //        dep.Dependants.Add(Id, this);
-    //    }
-
-    //    if (OutputPath == null && _useOutputPathFromTargetId.HasValue)
-    //        OutputPath = in_allTargets[_useOutputPathFromTargetId.Value].OutputPath;
-    //}
     /// <summary>
-    /// Отложенное связывание зависимостей
+    /// Deferred linking
     /// </summary>
-    /// <param name="in_subtargets">Подцели внутри цели</param>
-    public void DeferredLinkDependencies(IList<ArtefactGenerationTarget> in_subtargets)
+    /// <param name="subtargets">Subtargets inside of a target</param>
+    public void DeferredLinkDependencies(IList<ArtefactGenerationTarget> subtargets)
     {
         DependsOn = new Dictionary<Guid, ArtefactGenerationTarget>(_dependsOnIds.Count);
+
         foreach (var depId in _dependsOnIds)
         {
-            ArtefactGenerationTarget dep = in_subtargets.Where(s => s.Id == depId).Single();
+            var dep = subtargets
+                .Where(x => x.Id == depId)
+                .Single();
+
             DependsOn.Add(depId, dep);
+
             dep.Dependants.Add(Id, this);
         }
 
-        if (OutputPath == null && _useOutputPathFromTargetId.HasValue)
-            OutputPath = in_subtargets.Where(s => s.Id == _useOutputPathFromTargetId.Value).Single().OutputPath;
+        if (OutputPath is null && _useOutputPathFromTargetId.HasValue)
+        {
+            OutputPath = subtargets
+                .Where(x => x.Id == _useOutputPathFromTargetId.Value)
+                .Single()
+                .OutputPath;
+        }
     }
 }

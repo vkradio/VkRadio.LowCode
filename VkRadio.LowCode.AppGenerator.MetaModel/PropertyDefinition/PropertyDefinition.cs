@@ -1,109 +1,106 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 
-using MetaModel.Names;
+using VkRadio.LowCode.AppGenerator.MetaModel.Names;
 
-namespace MetaModel.PropertyDefinition
+namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
+
+/// <summary>
+/// Definition of a property
+/// </summary>
+public class PropertyDefinition : IUniqueNamed, IPropertyDefinition
 {
+    Guid _id;
+    Dictionary<HumanLanguageEnum, string> _names;
+    DOTDefinition.DOTDefinition _ownerDefinition;
+    PropertyFunctionalType _functionalType;
+    object _defaultValue;
+
     /// <summary>
-    /// Определение свойства
+    /// Unique identifier of a property definition
     /// </summary>
-    public class PropertyDefinition: IUniqueNamed, IPropertyDefinition
+    public Guid Id { get { return _id; } set { _id = value; } }
+    /// <summary>
+    /// Dictionary with property names
+    /// </summary>
+    public IDictionary<HumanLanguageEnum, string> Names { get { return _names; } }
+    /// <summary>
+    /// Data object type definition that owns this property
+    /// </summary>
+    public DOTDefinition.DOTDefinition OwnerDefinition { get { return _ownerDefinition; } set { _ownerDefinition = value; } }
+    /// <summary>
+    /// Functional type of a property
+    /// </summary>
+    public PropertyFunctionalType FunctionalType { get { return _functionalType; } }
+    /// <summary>
+    /// Default value of a property
+    /// </summary>
+    public object? DefaultValue { get { return _defaultValue; } }
+    /// <summary>
+    /// List order
+    /// </summary>
+    public ListOrderEnum? ListOrder { get; set; }
+
+    static ListOrderEnum ParseListOrderValue(string stringValue)
     {
-        Guid _id;
-        Dictionary<HumanLanguageEnum, string> _names;
-        DOTDefinition.DOTDefinition _ownerDefinition;
-        PropertyFunctionalType _functionalType;
-        object _defaultValue;
-
-        /// <summary>
-        /// Уникальный идентификатор определения свойства
-        /// </summary>
-        public Guid Id { get { return _id; } set { _id = value; } }
-        /// <summary>
-        /// Словарь имен свойства
-        /// </summary>
-        public IDictionary<HumanLanguageEnum, string> Names { get { return _names; } }
-        /// <summary>
-        /// Определение ТОД, ялвяющееся владельцем определения данного свойства
-        /// </summary>
-        public DOTDefinition.DOTDefinition OwnerDefinition { get { return _ownerDefinition; } set { _ownerDefinition = value; } }
-        /// <summary>
-        /// Функциональный тип свойства
-        /// </summary>
-        public PropertyFunctionalType FunctionalType { get { return _functionalType; } }
-        /// <summary>
-        /// Значение свойства по умолчанию
-        /// </summary>
-        public object DefaultValue { get { return _defaultValue; } }
-        /// <summary>
-        /// Признак упорядочения объектов в списке
-        /// </summary>
-        public ListOrderEnum? ListOrder { get; set; }
-
-        static ListOrderEnum ParseListOrderValue(string in_string)
+        if (string.IsNullOrEmpty(stringValue))
         {
-            if (string.IsNullOrEmpty(in_string))
-                return ListOrderEnum.Default;
-
-            switch (in_string)
-            {
-                case "asc":
-                    return ListOrderEnum.Asc;
-                case "desc":
-                    return ListOrderEnum.Desc;
-                default:
-                    throw new FormatException(string.Format("Неверное значение свойства ListOrder: \"{0}\" (допустимо \"asc\", \"desc\" или пустое).", in_string ?? "<NULL>"));
-            }
+            return ListOrderEnum.Default;
         }
 
-        /// <summary>
-        /// Загрузка определения свойства ТОД из узла XML
-        /// </summary>
-        /// <param name="in_xel">Узел XML, содержащий определение свойства ТОД</param>
-        /// <param name="in_metaModel">Метамодель</param>
-        /// <returns>Определение свойства ТОД</returns>
-        public static PropertyDefinition LoadFromXElement(XElement in_xel, MetaModel in_metaModel)
+        return stringValue switch
         {
-            // 1. Загрузка свойств IUniqueNamed.
-            Guid id = new Guid(in_xel.Element("Id").Value);
-            Dictionary<HumanLanguageEnum, string> names = NameDictionary.LoadNamesFromContainingXElement(in_xel);
+            "asc" => ListOrderEnum.Asc,
+            "desc" => ListOrderEnum.Desc,
+            _ => throw new FormatException(string.Format("Invalid value of ListOrder: \"{0}\" (allowed values: \"asc\", \"desc\" or empty).", stringValue ?? "<NULL>")),
+        };
+    }
 
-            // 2. Извлечение функционального типа свойства.
-            PropertyFunctionalType ft = PropertyFunctionalType.LoadFromXElement(in_xel, in_metaModel);
+    /// <summary>
+    /// Loading of a property definition from a containing XML node
+    /// </summary>
+    /// <param name="containingXel">Containing XML node</param>
+    /// <param name="metaModel">MetaModel</param>
+    /// <returns>Property definition</returns>
+    public static PropertyDefinition LoadFromXElement(XElement containingXel, MetaModel metaModel)
+    {
+        // 1. Load a IUniqueNamed properties
+        var id = new Guid(containingXel.Element("Id")!.Value);
+        var names = NameDictionary.LoadNamesFromContainingXElement(containingXel);
 
-            // 3. Если в определении свойства не заданы все нужные имена, извлекаем их из функционального типа
-            //    свойства, а для ссылочных свойств - из ТОД, на которые они указывают.
-            NameDictionary.EnrichNames(names, ft.DefaultNames);
+        // 2. Extract a functional property type
+        var ft = PropertyFunctionalType.LoadFromXElement(containingXel, metaModel);
 
-            // 4. Извлечение значения по умолчанию. Если есть, берем его из определения свойства,
-            //    иначе наследуем из функционального типа.
-            XElement xelDefaultValue = in_xel.Element("DefaultValue");
-            object defaultValue = xelDefaultValue != null ?
-                ft.ParseValueFromXmlString(xelDefaultValue.Value) :
-                ft.DefaultValue;
+        // 3. If a property definition has no all required names, extract them from a functional type,
+        //    or for reference properties - from data object type definition, on that a reference is
+        //    being pointed
+        NameDictionary.EnrichNames(names, ft.DefaultNames);
 
-            // 5. Есть ли признак упорядочения списков объектов по этому полю?
-            XElement xelListOrder = in_xel.Element("ListOrder");
-            ListOrderEnum? listOrder = xelListOrder != null ?
-                (ListOrderEnum?)ParseListOrderValue(xelListOrder.Value) :
-                null;
+        // 4. Extract a default value. If set, than get it from a property definition, otherwise inherit
+        //    from a functional type
+        var xelDefaultValue = containingXel.Element("DefaultValue")!;
+        var defaultValue = xelDefaultValue is not null
+            ? ft.ParseValueFromXmlString(xelDefaultValue.Value)
+            : ft.DefaultValue;
 
-            // 6. Формирование определения свойства.
-            PropertyDefinition pd = new PropertyDefinition()
-            {
-                _id = id,
-                _names = names,
-                _functionalType = ft,
-                _defaultValue = defaultValue,
-                ListOrder = listOrder
-            };
+        // 5. Is there an ordering attribute for this field?
+        var xelListOrder = containingXel.Element("ListOrder");
+        var listOrder = xelListOrder is not null
+            ? ParseListOrderValue(xelListOrder.Value)
+            : (ListOrderEnum?)null;
 
-            // 7. Отложенное связывание функционального типа свойства с определением свойства.
-            pd.FunctionalType.PropertyDefinition = pd;
+        // 6. Create a property definition
+        var pd = new PropertyDefinition()
+        {
+            _id = id,
+            _names = names,
+            _functionalType = ft,
+            _defaultValue = defaultValue,
+            ListOrder = listOrder
+        };
 
-            return pd;
-        }
-    };
+        // 7. Delayed linking of a property definition with a functional type
+        pd.FunctionalType.PropertyDefinition = pd;
+
+        return pd;
+    }
 }

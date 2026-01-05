@@ -1,12 +1,11 @@
 ﻿using System.Xml.Linq;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Sql.MsSql
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql.MsSql;
+
+public class TargetMsSql : TargetSql
 {
-    public class TargetMsSql: TargetSql
+    protected override void InitConcrete(XElement xelTarget)
     {
-        protected override void InitConcrete(XElement in_xelTarget)
-        {
-            base.InitConcrete(in_xelTarget);
-        }
-    };
+        base.InitConcrete(xelTarget);
+    }
 }

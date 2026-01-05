@@ -1,46 +1,58 @@
-﻿using System.Collections.Generic;
+﻿namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Property.Getter;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Common.Class.Property.Getter
+public class CSPropertyGetter
 {
-    public class CSPropertyGetter
+    protected string? _predefinedCode;
+
+    public CSPropertyGetter(CSProperty property, bool singleLineHint, string? predefinedCode)
     {
-        protected string _predefinedCode;
+        _predefinedCode = predefinedCode;
+        Property = property;
+        SingleLineHint = singleLineHint;
+    }
 
-        public CSPropertyGetter(CSProperty property, bool singleLineHint, string predefinedCode)
+    public CSPropertyGetter(CSProperty property, bool singleLineHint)
+        : this(property, singleLineHint, null)
+    {
+    }
+
+    public CSPropertyGetter(CSProperty property)
+        : this(property, true)
+    {
+    }
+
+    public CSProperty Property { get; set; }
+    public bool SingleLineHint { get; set; } = true;
+
+    public virtual string[] GenerateText()
+    {
+        var text = new List<string>();
+
+        if (SingleLineHint)
         {
-            _predefinedCode = predefinedCode;
-            Property = property;
-            SingleLineHint = singleLineHint;
+            var line = _predefinedCode != null
+                ? _predefinedCode
+                : $"get => {Property.NameFieldCorresponding};";
+
+            text.Add(line);
         }
-        public CSPropertyGetter(CSProperty property, bool singleLineHint) : this(property, singleLineHint, null) {}
-        public CSPropertyGetter(CSProperty property) : this(property, true) {}
-
-        public CSProperty Property { get; set; }
-        public bool SingleLineHint { get; set; } = true;
-
-        public virtual string[] GenerateText()
+        else
         {
-            var text = new List<string>();
+            text.Add("get");
+            text.Add("{");
 
-            if (SingleLineHint)
+            if (_predefinedCode != null)
             {
-                var line = _predefinedCode != null ?
-                    _predefinedCode :
-                    $"get => {Property.NameFieldCorresponding};";
-                text.Add(line);
+                text.Add(_predefinedCode);
             }
             else
             {
-                text.Add("get");
-                text.Add("{");
-                if (_predefinedCode != null)
-                    text.Add(_predefinedCode);
-                else
-                    text.Add($"    return {Property.NameFieldCorresponding};");
-                text.Add("}");
+                text.Add($"    return {Property.NameFieldCorresponding};");
             }
 
-            return text.ToArray();
+            text.Add("}");
         }
-    };
+
+        return text.ToArray();
+    }
 }

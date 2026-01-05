@@ -1,48 +1,35 @@
-﻿using MetaModel.Names;
-using MetaModel.PredefinedDO;
+﻿using VkRadio.LowCode.AppGenerator.MetaModel.Names;
+using VkRadio.LowCode.AppGenerator.MetaModel.PredefinedDO;
 
-namespace MetaModel.PropertyDefinition.ConcreteFunctionalTypes
+namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
+
+/// <summary>
+/// Functional property type - integer number
+/// </summary>
+public class PFTInteger : PropertyFunctionalType
 {
-    /// <summary>
-    /// Функциональный тип свойства - целое число
-    /// </summary>
-    public class PFTInteger: PropertyFunctionalType
+    public PFTInteger()
     {
-        /// <summary>
-        /// Конструктор функционального типа свойства - целого числа
-        /// </summary>
-        public PFTInteger()
+        //_defaultValue = 0;
+        _defaultValue = null;
+        _nullable = true;
+        _quantitative = true;
+        _stringCode = C_STRING_CODE;
+        _unique = false;
+
+        _defaultNames.Add(HumanLanguageEnum.En, C_STRING_CODE);
+        _defaultNames.Add(HumanLanguageEnum.Ru, "целое число");
+    }
+
+    public const string C_STRING_CODE = "integer number";
+
+    public override object ParseValueFromXmlString(string xmlString) => int.Parse(xmlString);
+
+    public override IPropertyValue CreatePropertyValue()
+    {
+        return new PropertyValue<int?>
         {
-            //_defaultValue   = 0;
-            _defaultValue   = null;
-            _nullable       = true;
-            _quantitative   = true;
-            _stringCode     = C_STRING_CODE;
-            _unique         = false;
-
-            _defaultNames.Add(HumanLanguageEnum.En, C_STRING_CODE);
-            _defaultNames.Add(HumanLanguageEnum.Ru, "целое число");
-        }
-
-        /// <summary>
-        /// Строковый код фунционального типа свойства (используется в файле метамодели)
-        /// </summary>
-        public const string C_STRING_CODE = "integer number";
-
-        /// <summary>
-        /// Извлечение значения свойства из строки XML
-        /// </summary>
-        /// <param name="in_xmlString">Строка XML, содержащая извлекаемое значение</param>
-        /// <returns>Типизированное значение свойства</returns>
-        public override object ParseValueFromXmlString(string in_xmlString) { return int.Parse(in_xmlString); }
-
-        /// <summary>
-        /// Создание типизированной заготовки для хранения значения.
-        /// </summary>
-        /// <returns>Заготовка для значения свойства</returns>
-        public override IPropertyValue CreatePropertyValue()
-        {
-            return new PropertyValue<int?>() { Definition = (PropertyDefinition)_propertyDefinition };
-        }
-    };
+            Definition = (PropertyDefinition)_propertyDefinition
+        };
+    }
 }

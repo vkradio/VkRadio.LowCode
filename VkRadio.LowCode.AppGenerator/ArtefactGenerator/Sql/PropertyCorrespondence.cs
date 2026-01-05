@@ -1,27 +1,26 @@
-﻿using MetaModel.PropertyDefinition;
+﻿using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Sql
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql;
+
+/// <summary>
+/// Mutual correspondence of table field and data object type property
+/// </summary>
+public class PropertyCorrespondence
 {
-    /// <summary>
-    /// Взаимное соответствие поля таблицы и свойства ТОД
-    /// </summary>
-    public class PropertyCorrespondence
-    {
-        ITableField _tableField;
-        TableAndDOTCorrespondence _tableAndDOTCorrespondence;
-        PropertyDefinition _propertyDefinition;
+    ITableField _tableField;
+    TableAndDOTCorrespondence _tableAndDOTCorrespondence;
+    PropertyDefinition _propertyDefinition;
 
-        /// <summary>
-        /// Поле таблицы, для которого установлено соответствие
-        /// </summary>
-        public ITableField TableField { get { return _tableField; } set { _tableField = value; } }
-        /// <summary>
-        /// Взаимное соответствие определения ТОД и таблицы
-        /// </summary>
-        public TableAndDOTCorrespondence TableAndDOTCorrespondence { get { return _tableAndDOTCorrespondence; } set { _tableAndDOTCorrespondence = value; } }
-        /// <summary>
-        /// Определение свойства ТОД, для которого установлено соответствие
-        /// </summary>
-        public PropertyDefinition PropertyDefinition { get { return _propertyDefinition; } set { _propertyDefinition = value; } }
-    };
+    /// <summary>
+    /// Table field
+    /// </summary>
+    public ITableField TableField { get { return _tableField; } set { _tableField = value; } }
+    /// <summary>
+    /// Mutual correspondence of data object type definition and a table
+    /// </summary>
+    public TableAndDOTCorrespondence TableAndDOTCorrespondence { get { return _tableAndDOTCorrespondence; } set { _tableAndDOTCorrespondence = value; } }
+    /// <summary>
+    /// Property definition in DOT
+    /// </summary>
+    public PropertyDefinition PropertyDefinition { get { return _propertyDefinition; } set { _propertyDefinition = value; } }
 }

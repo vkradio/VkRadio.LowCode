@@ -1,40 +1,28 @@
-﻿using System;
+﻿using VkRadio.LowCode.AppGenerator.MetaModel.PredefinedDO;
+using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.SystemFunctionalTypes;
 
-using MetaModel.PredefinedDO;
-using MetaModel.PropertyDefinition.SystemFunctionalTypes;
+namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
 
-namespace MetaModel.PropertyDefinition.ConcreteFunctionalTypes
+/// <summary>
+/// Abstract functional property type - relationship with other objects
+/// </summary>
+public abstract class PFTLink : PropertyFunctionalType
 {
-    /// <summary>
-    /// Асбтрактный функциональный тип свойства - связь с другими объектами
-    /// </summary>
-    public abstract class PFTLink: PropertyFunctionalType
+    public PFTLink()
     {
-        /// <summary>
-        /// Конструктор функционального типа свойства - связи с другими объектами
-        /// </summary>
-        public PFTLink()
-        {
-            _defaultValue   = null;
-            _nullable       = true;
-            _quantitative   = false;
-            _unique         = false;
-        }
+        _defaultValue = null;
+        _nullable = true;
+        _quantitative = false;
+        _unique = false;
+    }
 
-        /// <summary>
-        /// Извлечение значения ссылки (Guid) из строки XML
-        /// </summary>
-        /// <param name="in_xmlString">Строка XML, содержащая ссылку в виде Guid</param>
-        /// <returns>Ссылочное значение, содержащее только ссылку, без значения объекта</returns>
-        public override object ParseValueFromXmlString(string in_xmlString) { return new SRefObject(new Guid(in_xmlString)); }
+    public override object ParseValueFromXmlString(string xmlString) => new SRefObject(new Guid(xmlString));
 
-        /// <summary>
-        /// Создание типизированной заготовки для хранения значения.
-        /// </summary>
-        /// <returns>Заготовка для значения свойства</returns>
-        public override IPropertyValue CreatePropertyValue()
+    public override IPropertyValue CreatePropertyValue()
+    {
+        return new PropertyValue<SRefObject>
         {
-            return new PropertyValue<SRefObject>() { Definition = (PropertyDefinition)_propertyDefinition };
-        }
-    };
+            Definition = (PropertyDefinition)_propertyDefinition
+        };
+    }
 }

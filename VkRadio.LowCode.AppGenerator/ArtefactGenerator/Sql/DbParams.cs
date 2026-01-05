@@ -1,48 +1,54 @@
 ﻿using System.Xml.Linq;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Sql
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql;
+
+public struct DbParams
 {
-    public struct DbParams
+    public string? Host;
+    public string? DbName;
+    public bool OsSecurityUseCurrentUser;
+    public string? User;
+    public string? Password;
+
+    public DbParams(string? host, string? dbName, bool osSecurityUseCurrentUser, string? user, string? password)
     {
-        public string Host;
-        public string DbName;
-        public bool OsSecurityUseCurrentUser;
-        public string User;
-        public string Password;
+        Host = host;
+        DbName = dbName;
+        OsSecurityUseCurrentUser = osSecurityUseCurrentUser;
+        User = user;
+        Password = password;
+    }
 
-        public DbParams(string in_host, string in_dbName, bool in_osSecurityUseCurrentUser, string in_user, string in_password)
+    public static DbParams ReadFromXElement(XElement containingXel)
+    {
+        var xel = containingXel.Element("Host");
+        var host = xel is not null
+            ? xel.Value
+            : null;
+
+        xel = containingXel.Element("DbName");
+        var dbName = xel is not null
+            ? xel.Value
+            : null;
+
+        xel = containingXel.Element("OsSecurityUseCurrentUser");
+        var osSecurity = false;
+        string?
+            user = null,
+            password = null;
+
+        if (xel is not null && bool.Parse(xel.Value))
         {
-            Host = in_host;
-            DbName = in_dbName;
-            OsSecurityUseCurrentUser = in_osSecurityUseCurrentUser;
-            User = in_user;
-            Password = in_password;
+            osSecurity = true;
+        }
+        else
+        {
+            xel = containingXel.Element("User");
+            user = xel is not null ? xel.Value : null;
+            xel = containingXel.Element("Password");
+            password = xel is not null ? xel.Value : null;
         }
 
-        public static DbParams ReadFromXElement(XElement in_xel)
-        {
-            XElement xel = in_xel.Element("Host");
-            string host = xel != null ? xel.Value : null;
-            xel = in_xel.Element("DbName");
-            string dbName = xel != null ? xel.Value : null;
-            xel = in_xel.Element("OsSecurityUseCurrentUser");
-            bool osSecurity = false;
-            string
-                user = null,
-                password = null;
-            if (xel != null && bool.Parse(xel.Value))
-            {
-                osSecurity = true;
-            }
-            else
-            {
-                xel = in_xel.Element("User");
-                user = xel != null ? xel.Value : null;
-                xel = in_xel.Element("Password");
-                password = xel != null ? xel.Value : null;
-            }
-
-            return new DbParams(host, dbName, osSecurity, user, password);
-        }
-    };
+        return new DbParams(host, dbName, osSecurity, user, password);
+    }
 }

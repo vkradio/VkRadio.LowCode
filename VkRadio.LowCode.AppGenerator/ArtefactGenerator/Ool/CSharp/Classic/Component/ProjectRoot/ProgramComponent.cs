@@ -1,8 +1,7 @@
-﻿using ArtefactGenerationProject.ArtefactGenerator.Ool.Abstract.Component;
+﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Component;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Classic.Component.ProjectRoot
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Component.ProjectRoot;
+
+public class ProgramComponent : ComponentWPredefinedCode
 {
-    public class ProgramComponent: ComponentWPredefinedCode
-    {
-    };
 }

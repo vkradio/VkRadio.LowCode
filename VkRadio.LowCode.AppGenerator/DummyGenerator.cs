@@ -8,4 +8,4 @@ public class DummyGenerator : ArtefactGenerator.ArtefactGeneratorJson
     public DummyGenerator() : base(null) { }
 
     public override void Generate() { }
-};
+}

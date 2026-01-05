@@ -1,22 +1,19 @@
-﻿using System;
+﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Component.ProjectRoot;
+using PackNS = VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Package;
 
-using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Classic.Component.ProjectRoot;
-using PackNS = ArtefactGenerationProject.ArtefactGenerator.Ool.Abstract.Package;
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Root;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Classic.Package.Root
+public abstract class CSharpProjectAbstract : PackNS.Package
 {
-    public abstract class CSharpProjectAbstract: PackNS.Package
+    public CSharpProjectAbstract(CSharpSolution solution, string name, Guid projectGuid)
+        : base(solution, name)
     {
-        public CSharpProjectAbstract(CSharpSolution in_solution, string in_name, Guid in_projectGuid)
-            : base(in_solution, in_name)
-        {
-            ProjectGuid = in_projectGuid;
-            RootNamespace = $"{NameHelper.NameToUnderscoreSeparatedName(in_solution.DomainModel.Names)}_{_name}";
-        }
+        ProjectGuid = projectGuid;
+        RootNamespace = $"{NameHelper.NameToUnderscoreSeparatedName(solution.DomainModel.Names)}_{_name}";
+    }
 
-        public Guid ProjectGuid { get; private set; }
-        public ProjectFile ProjectFile { get; protected set; }
-        public PropertiesPackageAbstract PropertiesPackage { get; protected set; }
-        public string RootNamespace { get; private set; }
-    };
+    public Guid ProjectGuid { get; private set; }
+    public ProjectFile ProjectFile { get; protected set; }
+    public PropertiesPackageAbstract PropertiesPackage { get; protected set; }
+    public string RootNamespace { get; private set; }
 }

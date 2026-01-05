@@ -1,5 +1,5 @@
 ﻿using System.Xml.Linq;
-using MetaModel.Names;
+using VkRadio.LowCode.AppGenerator.MetaModel.Names;
 
 namespace VkRadio.LowCode.AppGenerator.MetaModel.DOTDefinition;
 

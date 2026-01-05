@@ -22,23 +22,26 @@ public class PFTBoolean : PropertyFunctionalType
     }
 
     /// <summary>
-    /// Строковый код фунционального типа свойства (используется в файле метамодели)
+    /// String code of a functional property type (used in MetaModel files)
     /// </summary>
     public const string C_STRING_CODE = "boolean";
 
     /// <summary>
-    /// Извлечение значения свойства из строки XML
+    /// Parsing a value from an XML string
     /// </summary>
-    /// <param name="in_xmlString">Строка XML, содержащая извлекаемое значение</param>
-    /// <returns>Типизированное значение свойства</returns>
-    public override object ParseValueFromXmlString(string in_xmlString) { return bool.Parse(in_xmlString); }
+    /// <param name="xmlString">XML string containing a value</param>
+    /// <returns>Typed value of a property</returns>
+    public override object? ParseValueFromXmlString(string xmlString) { return bool.Parse(xmlString); }
 
     /// <summary>
-    /// Создание типизированной заготовки для хранения значения.
+    /// Creating of a typed prefab for storing a value
     /// </summary>
-    /// <returns>Заготовка для значения свойства</returns>
+    /// <returns>Prefab for a property value</returns>
     public override IPropertyValue CreatePropertyValue()
     {
-        return new PropertyValue<bool?>() { Definition = (PropertyDefinition)_propertyDefinition };
+        return new PropertyValue<bool?>
+        {
+            Definition = (PropertyDefinition)_propertyDefinition
+        };
     }
-};
+}

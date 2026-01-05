@@ -1,78 +1,84 @@
-﻿using System;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
+using VkRadio.LowCode.AppGenerator.MetaModel.Names;
 
-using MetaModel.Names;
+namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
 
-namespace MetaModel.PropertyDefinition.ConcreteFunctionalTypes
+/// <summary>
+/// Functional property type - money value
+/// </summary>
+public class PFTMoney : PFTInteger
 {
-    /// <summary>
-    /// Функциональный тип свойства - денежная сумма
-    /// </summary>
-    public class PFTMoney: PFTInteger
+    private int _decimalPositions = 2;
+
+    public PFTMoney()
     {
-        int _decimalPositions = 2;
+        _stringCode = C_STRING_CODE;
 
-        /// <summary>
-        /// Конструктор функционального типа свойства - денежной суммы
-        /// </summary>
-        public PFTMoney()
+        _defaultNames.Clear();
+        _defaultNames.Add(HumanLanguageEnum.En, C_STRING_CODE);
+        _defaultNames.Add(HumanLanguageEnum.Ru, "денежная сумма");
+    }
+
+    protected override void InitExtendedParams(XElement xelPropertyDefinition)
+    {
+        var xel = xelPropertyDefinition.Element("DecimalPositions");
+
+        if (xel is not null)
         {
-            _stringCode = C_STRING_CODE;
+            _decimalPositions = int.Parse(xel.Value);
+        }
+    }
+    public override object ParseValueFromXmlString(string xmlString)
+    {
+        var parts = (string.IsNullOrEmpty(xmlString) ? "0" : xmlString).Split(new char[] { '.' });
 
-            _defaultNames.Clear();
-            _defaultNames.Add(HumanLanguageEnum.En, C_STRING_CODE);
-            _defaultNames.Add(HumanLanguageEnum.Ru, "денежная сумма");
+        if (parts.Length > 2)
+        {
+            throw new FormatException(string.Format("Invalid format of PFTMoney value: {0}.", xmlString ?? "<NULL>"));
         }
 
-        protected override void InitExtendedParams(XElement in_xelPropertyDefinition)
+        var result = int.Parse(parts[0]);
+
+        for (var i = 0; i < _decimalPositions; i++)
         {
-            XElement xel = in_xelPropertyDefinition.Element("DecimalPositions");
-            if (xel != null)
-                _decimalPositions = int.Parse(xel.Value);
+            result *= 10;
         }
-        public override object ParseValueFromXmlString(string in_xmlString)
+
+        if (parts.Length == 2)
         {
-            string[] parts = (string.IsNullOrEmpty(in_xmlString) ? "0" : in_xmlString).Split(new char[] { '.' });
-            if (parts.Length > 2)
-                throw new FormatException(string.Format("Invalid format of PFTMoney value: {0}.", in_xmlString ?? "<NULL>"));
+            var part = parts[1];
 
-            int result = int.Parse(parts[0]);
-
-            for (int i = 0; i < _decimalPositions; i++)
-                result *= 10;
-
-            if (parts.Length == 2)
+            if (part.Length > _decimalPositions)
             {
-                string part = parts[1];
-
-                if (part.Length > _decimalPositions)
-                    throw new FormatException(string.Format("Invalid format of PFTMoney value: {0} (DecimalPositions = {1}).", in_xmlString ?? "<NULL>", _decimalPositions));
-
-                int decimalResult = 0;
-
-                int decimalPositionIndexInString = 0;
-                for (int i = _decimalPositions; i >= 1; i--)
-                {
-                    int positionValue = part.Length > decimalPositionIndexInString ? int.Parse(part.Substring(decimalPositionIndexInString, 1)) : 0;
-                    decimalPositionIndexInString++;
-
-                    for (int j = decimalPositionIndexInString; j < _decimalPositions; j++)
-                        positionValue *= 10;
-
-                    decimalResult += positionValue;
-                }
-
-                result += decimalResult;
+                throw new FormatException(string.Format("Invalid format of PFTMoney value: {0} (DecimalPositions = {1}).", xmlString ?? "<NULL>", _decimalPositions));
             }
 
-            return result;
+            var decimalResult = 0;
+            var decimalPositionIndexInString = 0;
+
+            for (var i = _decimalPositions; i >= 1; i--)
+            {
+                var positionValue = part.Length > decimalPositionIndexInString
+                    ? int.Parse(part.Substring(decimalPositionIndexInString, 1))
+                    : 0;
+
+                decimalPositionIndexInString++;
+
+                for (var j = decimalPositionIndexInString; j < _decimalPositions; j++)
+                {
+                    positionValue *= 10;
+                }
+
+                decimalResult += positionValue;
+            }
+
+            result += decimalResult;
         }
 
-        /// <summary>
-        /// Строковый код фунционального типа свойства (используется в файле метамодели)
-        /// </summary>
-        new public const string C_STRING_CODE = "money";
+        return result;
+    }
 
-        public int DecimalPositions { get { return _decimalPositions; } set { _decimalPositions = value; } }
-    };
+    new public const string C_STRING_CODE = "money";
+
+    public int DecimalPositions { get { return _decimalPositions; } set { _decimalPositions = value; } }
 }

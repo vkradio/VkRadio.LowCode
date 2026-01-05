@@ -1,441 +1,497 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Constant;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Method;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Model;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql;
+using VkRadio.LowCode.AppGenerator.MetaModel.DOTDefinition;
+using VkRadio.LowCode.AppGenerator.MetaModel.PredefinedDO;
+using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
+using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
 
-using ArtefactGenerationProject.ArtefactGenerator.Ool.Abstract;
-using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Common;
-using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Common.Class;
-using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Common.Class.Constant;
-using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Common.Class.Method;
-using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Classic.Package.Model;
-using ArtefactGenerationProject.ArtefactGenerator.Sql;
-using MetaModel.DOTDefinition;
-using MetaModel.PredefinedDO;
-using MetaModel.PropertyDefinition;
-using MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Component;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Classic.Component
+public class Storage : CSComponentWMainClass
 {
-    public class Storage: CSComponentWMainClass
+    private static List<CSClassConstant> GenerateFieldConstants(TableAndDOTCorrespondence tableAndDotCorrespondence, CSClass storageClass, List<int> decimalConstants)
     {
-        static List<CSClassConstant> GenerateFieldConstants(TableAndDOTCorrespondenceJson in_tableAndDotCorrespondence, CSClass in_storageClass, List<int> in_decimalConstants)
+        var result = new List<CSClassConstant>();
+
+        foreach (var field in tableAndDotCorrespondence.Table.AllFields)
         {
-            List<CSClassConstant> result = new List<CSClassConstant>();
-
-            foreach (ITableFieldJson field in in_tableAndDotCorrespondence.Table.AllFields)
+            if (field is PKSingle)
             {
-                if (field is PKSingleJson)
-                {
-                    in_decimalConstants.Add(0);
-                    continue;
-                }
-
-                ValueFieldJson vf = field as ValueFieldJson;
-                ForeignKeyFieldJson fk = field as ForeignKeyFieldJson;
-
-                if (vf == null && fk == null)
-                    throw new ApplicationException(string.Format("Table {0} contains ITableField {1} that is not of type ValueField or ForeignKeyField: {2}; PropertyDefinition Id = {3}.", in_tableAndDotCorrespondence.Table.Name, field.Name, field.GetType().Name, in_tableAndDotCorrespondence.PropertyCorrespondences[0].PropertyDefinition.Id));
-
-                CSClassConstant c = new CSClassConstant("string", ElementVisibilityClassic.Public, true)
-                {
-                    Class = in_storageClass,
-                    DocComment = new XmlComment(string.Format("Табличное поле {0} (вариант без кавычек)", NameHelper.GetLocalNameUpperCase(field.DOTPropertyCorrespondence.PropertyDefinition.Names))),
-                    Name = string.Format("{0}{1}", NameHelper.NameToConstant(field.DOTPropertyCorrespondence.PropertyDefinition.Names, false), fk != null ? "_ID" : string.Empty),
-                    Value = string.Format("\"{0}\"", field.Name)
-                };
-                in_storageClass.Constants.Add(c.Name, c);
-                result.Add(c);
-
-                c = new CSClassConstant("string", ElementVisibilityClassic.Public, true)
-                {
-                    Class = in_storageClass,
-                    DocComment = new XmlComment(string.Format("Табличное поле {0} (вариант с кавычками)", NameHelper.GetLocalNameUpperCase(field.DOTPropertyCorrespondence.PropertyDefinition.Names))),
-                    Name = string.Format("{0}{1}_Q", NameHelper.NameToConstant(field.DOTPropertyCorrespondence.PropertyDefinition.Names, false), fk != null ? "_ID" : string.Empty),
-                    Value = string.Format("\"\\\"{0}\\\"\"", field.Name)
-                };
-                in_storageClass.Constants.Add(c.Name, c);
-                result.Add(c);
-
-                int decimalPositions = 0;
-                if (field.DOTPropertyCorrespondence.PropertyDefinition.FunctionalType is PFTMoney)
-                {
-                    PFTMoney pftMoney = (PFTMoney)field.DOTPropertyCorrespondence.PropertyDefinition.FunctionalType;
-                    if (pftMoney.DecimalPositions == 0)
-                        throw new ApplicationException(string.Format("Property {0} is PFTMoney but has 0 DecimalPositions.", field.DOTPropertyCorrespondence.PropertyDefinition.Id));
-                    decimalPositions = pftMoney.DecimalPositions;
-                }
-                in_decimalConstants.Add(decimalPositions);
+                decimalConstants.Add(0);
+                continue;
             }
 
-            return result;
+            var vf = field as ValueField;
+            var fk = field as ForeignKeyField;
+
+            if (vf is null && fk is null)
+            {
+                throw new ApplicationException(string.Format("Table {0} contains ITableField {1} that is not of type ValueField or ForeignKeyField: {2}; PropertyDefinition Id = {3}.", tableAndDotCorrespondence.Table.Name, field.Name, field.GetType().Name, tableAndDotCorrespondence.PropertyCorrespondences[0].PropertyDefinition.Id));
+            }
+
+            var c = new CSClassConstant("string", ElementVisibilityClassic.Public, true)
+            {
+                Class = storageClass,
+                DocComment = new XmlComment(string.Format("Table field {0} (variant without quot chars)", NameHelper.GetLocalNameUpperCase(field.DOTPropertyCorrespondence.PropertyDefinition.Names))),
+                Name = string.Format("{0}{1}", NameHelper.NameToConstant(field.DOTPropertyCorrespondence.PropertyDefinition.Names, false), fk != null ? "_ID" : string.Empty),
+                Value = string.Format("\"{0}\"", field.Name)
+            };
+            storageClass.Constants.Add(c.Name, c);
+            result.Add(c);
+
+            c = new CSClassConstant("string", ElementVisibilityClassic.Public, true)
+            {
+                Class = storageClass,
+                DocComment = new XmlComment(string.Format("Table field {0} (variant with quot chars)", NameHelper.GetLocalNameUpperCase(field.DOTPropertyCorrespondence.PropertyDefinition.Names))),
+                Name = string.Format("{0}{1}_Q", NameHelper.NameToConstant(field.DOTPropertyCorrespondence.PropertyDefinition.Names, false), fk != null ? "_ID" : string.Empty),
+                Value = string.Format("\"\\\"{0}\\\"\"", field.Name)
+            };
+            storageClass.Constants.Add(c.Name, c);
+            result.Add(c);
+
+            var decimalPositions = 0;
+
+            if (field.DOTPropertyCorrespondence.PropertyDefinition.FunctionalType is PFTMoney)
+            {
+                var pftMoney = (PFTMoney)field.DOTPropertyCorrespondence.PropertyDefinition.FunctionalType;
+
+                if (pftMoney.DecimalPositions == 0)
+                {
+                    throw new ApplicationException(string.Format("Property {0} is PFTMoney but has 0 DecimalPositions.", field.DOTPropertyCorrespondence.PropertyDefinition.Id));
+                }
+
+                decimalPositions = pftMoney.DecimalPositions;
+            }
+
+            decimalConstants.Add(decimalPositions);
         }
-        static void GenerateConstructor(List<CSClassConstant> in_fieldConstants, CSClass in_storageClass, string in_dotClassName, string in_storageClassName, DOTDefinition in_dotDef, TableAndDOTCorrespondenceJson in_tableAndDotCorrespondence, List<int> in_decimalConstants)
+
+        return result;
+    }
+
+    private static void GenerateConstructor(List<CSClassConstant> fieldConstants, CSClass storageClass, string dotClassName, string storageClassName, DOTDefinition dotDef, TableAndDOTCorrespondence tableAndDotCorrespondence, List<int> decimalConstants)
+    {
+        var ctor = new CSConstructor(storageClass)
         {
-            CSConstructor ctor = new CSConstructor(in_storageClass)
-            {
-                Class = in_storageClass,
-                DocComment = new XmlComment("Конструктор хранилища"),
-                HintSingleLineBody = false,
-                Visibility = ElementVisibilityClassic.Public
-            };
-            in_storageClass.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
+            Class = storageClass,
+            DocComment = new XmlComment("Storage constructor"),
+            HintSingleLineBody = false,
+            Visibility = ElementVisibilityClassic.Public
+        };
+        storageClass.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
 
-            ctor.BodyStrings.Add(string.Format("_tableName = \"{0}\";", in_tableAndDotCorrespondence.Table.Name));
-            ctor.BodyStrings.Add(string.Format("_tableNameQ = \"\\\"{0}\\\"\";", in_tableAndDotCorrespondence.Table.Name));
+        ctor.BodyStrings.Add(string.Format("_tableName = \"{0}\";", tableAndDotCorrespondence.Table.Name));
+        ctor.BodyStrings.Add(string.Format("_tableNameQ = \"\\\"{0}\\\"\";", tableAndDotCorrespondence.Table.Name));
 
-            foreach (int decConstant in in_decimalConstants)
-                ctor.BodyStrings.Add(string.Format("_decimalFields.Add({0});", decConstant));
-
-            #region Поля БД.
-            ctor.BodyStrings.Add("_fields = new string[]");
-            ctor.BodyStrings.Add("{");
-
-            ctor.BodyStrings.Add(string.Format("{0}c_fieldId{1}", CSharpHelper.C_TAB, in_fieldConstants.Count > 0 ? "," : string.Empty));
-
-            for (int i = 0; i < in_fieldConstants.Count; i += 2)
-            {
-                ctor.BodyStrings.Add(string.Format("{0}{1}{2}",
-                    CSharpHelper.C_TAB,
-                    in_fieldConstants[i].Name,
-                    i != in_fieldConstants.Count - 1 ? "," : string.Empty)
-                );
-            }
-
-            ctor.BodyStrings.Add("};");
-            #endregion
-
-            #region Поля БД на человеческом языке.
-            ctor.BodyStrings.Add("_fieldsHuman = new string[]");
-            ctor.BodyStrings.Add("{");
-
-            ctor.BodyStrings.Add(string.Format("{0}\"id\"{1}", CSharpHelper.C_TAB, in_fieldConstants.Count > 0 ? "," : string.Empty));
-
-            for (int i = 0; i < in_fieldConstants.Count; i += 2)
-            {
-                PropertyCorrespondenceJson corr = null;
-                for (int j = 0; j < in_tableAndDotCorrespondence.PropertyCorrespondences.Count; j++)
-                {
-                    string fc = in_fieldConstants[i].Value.Substring(1, in_fieldConstants[i].Value.Length - 2);
-                    if (in_tableAndDotCorrespondence.PropertyCorrespondences[j].TableField.Name == fc)
-                    {
-                        corr = in_tableAndDotCorrespondence.PropertyCorrespondences[j];
-                        break;
-                    }
-                }
-                string humanName = corr.PropertyDefinition.Names[MetaModel.Names.HumanLanguageEnum.Ru].Replace("\"", "\\\"");
-
-                ctor.BodyStrings.Add(string.Format("{0}\"{1}\"{2}",
-                    CSharpHelper.C_TAB,
-                    humanName,
-                    (i != in_fieldConstants.Count - 1) ? "," : string.Empty)
-                );
-            }
-
-            ctor.BodyStrings.Add("};");
-            #endregion
-
-            ctor.BodyStrings.Add("InitParams();");
-
-            // Заполнение словаря Id предопределенных объектов.
-            if (in_dotDef.PredefinedDOs.Count != 0)
-            {
-                ctor.BodyStrings.Add(string.Empty);
-                foreach (PredefinedDO pdo in in_dotDef.PredefinedDOs)
-                    ctor.BodyStrings.Add(string.Format("_predefinedObjects.Add(new Guid(\"{0}\"), null);", pdo.Id));
-            }
-
-            #region Формирование упорядочивания списка по умолчанию.
-            bool reverseOrder;
-            PropertyDefinition orderByProperty = GeneralHelper.GetListSortProperty(in_dotDef, out reverseOrder);
-            if (orderByProperty != null)
-            {
-                string quoteSymbol = in_tableAndDotCorrespondence.DBSchemaMetaModel.SchemaDeploymentScript.QuoteSymbol;
-                if (quoteSymbol == "\"")
-                    quoteSymbol = "\\" + quoteSymbol;
-                ctor.BodyStrings.Add(string.Format("_defaultOrderBy = \"{0}{1}{0}{2}\";", quoteSymbol, NameHelper.NameToUnderscoreSeparatedName(orderByProperty.Names), reverseOrder ? " desc" : string.Empty));
-            }
-            #endregion
+        foreach (var decConstant in decimalConstants)
+        {
+            ctor.BodyStrings.Add(string.Format("_decimalFields.Add({0});", decConstant));
         }
-        static void GenerateFillDOFromReader(CSClass in_storageClass, string in_dotClassName, TableAndDOTCorrespondenceJson in_tableAndDotCorrespondence)
+
+        #region Database fields
+        ctor.BodyStrings.Add("_fields = new string[]");
+        ctor.BodyStrings.Add("{");
+
+        ctor.BodyStrings.Add(string.Format("{0}c_fieldId{1}", CSharpHelper.C_TAB, fieldConstants.Count > 0 ? "," : string.Empty));
+
+        for (var i = 0; i < fieldConstants.Count; i += 2)
         {
-            #region Шапка метода.
-            CSMethod method = new CSMethod()
-            {
-                AdditionalKeywords = "override",
-                Class = in_storageClass,
-                DocComment = new XmlComment("Заполнение свойств ОД из DbDataReader"),
-                HintSingleLineBody = false,
-                IsStatic = false,
-                Name = "FillDOFromReader",
-                ReturnType = "void",
-                Visibility = ElementVisibilityClassic.Public
-            };
+            ctor.BodyStrings.Add(string.Format(
+                "{0}{1}{2}",
+                CSharpHelper.C_TAB,
+                fieldConstants[i].Name,
+                i != fieldConstants.Count - 1 ? "," : string.Empty
+            ));
+        }
 
-            CSParameter param = new CSParameter()
-            {
-                Name = "in_reader",
-                Type = "DbDataReader"
-            };
-            method.Params.Add(param.Name, param);
+        ctor.BodyStrings.Add("};");
+        #endregion
 
-            param = new CSParameter()
-            {
-                Name = "in_o",
-                Type = in_dotClassName
-            };
-            method.Params.Add(param.Name, param);
+        #region Database fields in human language
+        ctor.BodyStrings.Add("_fieldsHuman = new string[]");
+        ctor.BodyStrings.Add("{");
 
-            in_storageClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        ctor.BodyStrings.Add(string.Format("{0}\"id\"{1}", CSharpHelper.C_TAB, fieldConstants.Count > 0 ? "," : string.Empty));
+
+        for (var i = 0; i < fieldConstants.Count; i += 2)
+        {
+            PropertyCorrespondence? corr = null;
+
+            for (var j = 0; j < tableAndDotCorrespondence.PropertyCorrespondences.Count; j++)
+            {
+                var fc = fieldConstants[i].Value.Substring(1, fieldConstants[i].Value.Length - 2);
+
+                if (tableAndDotCorrespondence.PropertyCorrespondences[j].TableField.Name == fc)
+                {
+                    corr = tableAndDotCorrespondence.PropertyCorrespondences[j];
+                    break;
+                }
+            }
+            
+            var humanName = corr.PropertyDefinition.Names[MetaModel.Names.HumanLanguageEnum.Ru].Replace("\"", "\\\"");
+
+            ctor.BodyStrings.Add(string.Format(
+                "{0}\"{1}\"{2}",
+                CSharpHelper.C_TAB,
+                humanName,
+                (i != fieldConstants.Count - 1) ? "," : string.Empty
+            ));
+        }
+
+        ctor.BodyStrings.Add("};");
+        #endregion
+
+        ctor.BodyStrings.Add("InitParams();");
+
+        // Fill an Id dictionary of predefined objects
+        if (dotDef.PredefinedDOs.Count != 0)
+        {
+            ctor.BodyStrings.Add(string.Empty);
+
+            foreach (var pdo in dotDef.PredefinedDOs)
+            {
+                ctor.BodyStrings.Add(string.Format("_predefinedObjects.Add(new Guid(\"{0}\"), null);", pdo.Id));
+            }
+        }
+
+        #region Creating a default ordering
+        bool reverseOrder;
+        var orderByProperty = GeneralHelper.GetListSortProperty(dotDef, out reverseOrder);
+
+        if (orderByProperty is not null)
+        {
+            var quoteSymbol = tableAndDotCorrespondence.DBSchemaMetaModel.SchemaDeploymentScript.QuoteSymbol;
+
+            if (quoteSymbol == "\"")
+            {
+                quoteSymbol = "\\" + quoteSymbol;
+            }
+
+            ctor.BodyStrings.Add(string.Format("_defaultOrderBy = \"{0}{1}{0}{2}\";", quoteSymbol, NameHelper.NameToUnderscoreSeparatedName(orderByProperty.Names), reverseOrder ? " desc" : string.Empty));
+        }
+        #endregion
+    }
+    
+    private static void GenerateFillDOFromReader(CSClass storageClass, string dotClassName, TableAndDOTCorrespondence tableAndDotCorrespondence)
+    {
+        #region Method heading
+        var method = new CSMethod()
+        {
+            AdditionalKeywords = "override",
+            Class = storageClass,
+            DocComment = new XmlComment("Fill data object properties from DbDataReader"),
+            HintSingleLineBody = false,
+            IsStatic = false,
+            Name = "FillDOFromReader",
+            ReturnType = "void",
+            Visibility = ElementVisibilityClassic.Public
+        };
+
+        var param = new CSParameter()
+        {
+            Name = "in_reader",
+            Type = "DbDataReader"
+        };
+        method.Params.Add(param.Name, param);
+
+        param = new CSParameter()
+        {
+            Name = "in_o",
+            Type = dotClassName
+        };
+        method.Params.Add(param.Name, param);
+
+        storageClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        #endregion
+
+        method.BodyStrings.Add("orm.Db.DbProviderFactory factory = orm.Db.DbProviderFactory.Instance;");
+
+        var dotDef = tableAndDotCorrespondence.DOTDefinition;
+
+        for (var i = 1; i < tableAndDotCorrespondence.Table.AllFields.Count; i++)
+        {
+            #region Search for table field
+            var field = tableAndDotCorrespondence.Table.AllFields[i];
+            PropertyCorrespondence? corr = null;
+
+            foreach (var c in tableAndDotCorrespondence.PropertyCorrespondences)
+            {
+                if (c.TableField.Name == field.Name)
+                {
+                    corr = c;
+                    break;
+                }
+            }
             #endregion
 
-            method.BodyStrings.Add("orm.Db.DbProviderFactory factory = orm.Db.DbProviderFactory.Instance;");
+            var isId = false;
+            var isNullable = corr.PropertyDefinition.FunctionalType.Nullable;
+            string rightPart;
 
-            DOTDefinition dotDef = in_tableAndDotCorrespondence.DOTDefinition;
-            for (int i = 1; i < in_tableAndDotCorrespondence.Table.AllFields.Count; i++)
+            if (!(corr.PropertyDefinition.FunctionalType is PFTLink))
             {
-                #region Поиск поля таблицы.
-                ITableFieldJson field = in_tableAndDotCorrespondence.Table.AllFields[i];
-                PropertyCorrespondenceJson corr = null;
-                foreach (PropertyCorrespondenceJson c in in_tableAndDotCorrespondence.PropertyCorrespondences)
+                if (corr.PropertyDefinition.FunctionalType is PFTBoolean)
                 {
-                    if (c.TableField.Name == field.Name)
-                    {
-                        corr = c;
-                        break;
-                    }
+                    rightPart = $"factory.ReadBool{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
                 }
-                #endregion
-
-                bool isId = false;
-                bool isNullable = corr.PropertyDefinition.FunctionalType.Nullable;
-                string rightPart;
-                if (!(corr.PropertyDefinition.FunctionalType is PFTLink))
+                else if (corr.PropertyDefinition.FunctionalType is PFTDateTime)
                 {
-                    if (corr.PropertyDefinition.FunctionalType is PFTBoolean)
-                        rightPart = $"factory.ReadBool{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
-                    else if (corr.PropertyDefinition.FunctionalType is PFTDateTime)
-                        rightPart = $"factory.ReadDateTime{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
-                    else if (corr.PropertyDefinition.FunctionalType is PFTDecimal)
-                        rightPart = $"factory.ReadDecimal{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
-                    else if (corr.PropertyDefinition.FunctionalType is PFTInteger)
-                        rightPart = $"factory.ReadInt{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
-                    else if (corr.PropertyDefinition.FunctionalType is PFTString)
-                        rightPart = $"factory.ReadStringFromReader(in_reader, {i}, {(isNullable ? "true" : "false")});";
-                    else if (corr.PropertyDefinition.FunctionalType is PFTUniqueCode)
-                        rightPart = $"factory.ReadGuid{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
-                    else
-                        throw new ApplicationException(string.Format("Unexpected non-reference PropertyFunctionalType {0} in PropertyDefinition Id {1} for constructing FillDOFromReader.", corr.PropertyDefinition.FunctionalType.GetType().Name, corr.PropertyDefinition.Id));
+                    rightPart = $"factory.ReadDateTime{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
+                }
+                else if (corr.PropertyDefinition.FunctionalType is PFTDecimal)
+                {
+                    rightPart = $"factory.ReadDecimal{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
+                }
+                else if (corr.PropertyDefinition.FunctionalType is PFTInteger)
+                {
+                    rightPart = $"factory.ReadInt{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
+                }
+                else if (corr.PropertyDefinition.FunctionalType is PFTString)
+                {
+                    rightPart = $"factory.ReadStringFromReader(in_reader, {i}, {(isNullable ? "true" : "false")});";
+                }
+                else if (corr.PropertyDefinition.FunctionalType is PFTUniqueCode)
+                {
+                    rightPart = $"factory.ReadGuid{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
                 }
                 else
                 {
-                    if (corr.PropertyDefinition.FunctionalType is PFTBackReferencedTable ||
-                        corr.PropertyDefinition.FunctionalType is PFTConnector ||
-                        corr.PropertyDefinition.FunctionalType is PFTReferenceValue ||
-                        corr.PropertyDefinition.FunctionalType is PFTTableOwner)
-                    {
-                        isId = true;
-                        rightPart = $"factory.ReadGuid{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
-                    }
-                    else
-                    {
-                        throw new ApplicationException(string.Format("Unexpected reference type: {0} in PropertyDefinition Id {1} when constructing values for FillDOFromReader.", corr.PropertyDefinition.FunctionalType.GetType().Name, corr.PropertyDefinition.Id));
-                    }
+                    throw new ApplicationException(string.Format("Unexpected non-reference PropertyFunctionalType {0} in PropertyDefinition Id {1} for constructing FillDOFromReader.", corr.PropertyDefinition.FunctionalType.GetType().Name, corr.PropertyDefinition.Id));
                 }
-
-                string propName = NameHelper.NamesToHungarianName(corr.PropertyDefinition.Names);
-                if (isId)
-                    propName += "Id";
-
-                method.BodyStrings.Add($"in_o.{propName} = {rightPart}");
             }
-        }
-        static void GenerateFillParameters(CSClass in_storageClass, string in_dotClassName, TableAndDOTCorrespondenceJson in_tableAndDotCorrespondence)
-        {
-            #region Шапка метода.
-            CSMethod method = new CSMethod()
+            else
             {
-                AdditionalKeywords = "override",
-                Class = in_storageClass,
-                DocComment = new XmlComment("Заполнение параметров для записи состояния ОД в БД"),
-                HintSingleLineBody = false,
-                IsStatic = false,
-                Name = "FillParameters",
-                ReturnType = "void",
-                Visibility = ElementVisibilityClassic.Protected
-            };
-
-            CSParameter param = new CSParameter()
-            {
-                Name = "in_params",
-                Type = "DbParameterCollection"
-            };
-            method.Params.Add(param.Name, param);
-
-            param = new CSParameter()
-            {
-                Name = "in_o",
-                Type = in_dotClassName
-            };
-            method.Params.Add(param.Name, param);
-
-            in_storageClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
-            #endregion
-
-            method.BodyStrings.Add("orm.Db.DbProviderFactory factory = orm.Db.DbProviderFactory.Instance;");
-
-            DOTDefinition dotDef = in_tableAndDotCorrespondence.DOTDefinition;
-            for (int i = 1; i < in_tableAndDotCorrespondence.Table.AllFields.Count; i++)
-            {
-                #region Поиск поля таблицы.
-                ITableFieldJson field = in_tableAndDotCorrespondence.Table.AllFields[i];
-                PropertyCorrespondenceJson corr = null;
-                foreach (PropertyCorrespondenceJson c in in_tableAndDotCorrespondence.PropertyCorrespondences)
+                if (corr.PropertyDefinition.FunctionalType is PFTBackReferencedTable ||
+                    corr.PropertyDefinition.FunctionalType is PFTConnector ||
+                    corr.PropertyDefinition.FunctionalType is PFTReferenceValue ||
+                    corr.PropertyDefinition.FunctionalType is PFTTableOwner)
                 {
-                    if (c.TableField.Name == field.Name)
-                    {
-                        corr = c;
-                        break;
-                    }
-                }
-                #endregion
-
-                bool isNullable, isId;
-                string typeName;
-                CSharpHelper.GetTypeInfoForFillDOFromReaderRow(corr.PropertyDefinition, out isNullable, out isId, out typeName);
-
-                string propName = NameHelper.NamesToHungarianName(corr.PropertyDefinition.Names);
-                if (isId)
-                {
-                    string propNameWOId = propName;
-                    propName += "Id";
-                    method.BodyStrings.Add(string.Format("if (!in_o.{0}Id.HasValue && in_o.{0} != null)", propNameWOId));
-                    method.BodyStrings.Add(CSharpHelper.C_TAB + string.Format("in_params.Add(factory.CreateParameter(_params[{1}], in_o.{0}.Id.Value, typeof(Guid?), true));", propNameWOId, i));
-                    method.BodyStrings.Add("else");
-                    method.BodyStrings.Add(CSharpHelper.C_TAB + string.Format("in_params.Add(factory.CreateParameter(_params[{0}], in_o.{1}, typeof({2}), {3}));", i, propName, typeName, isNullable ? "true" : "false"));
+                    isId = true;
+                    rightPart = $"factory.ReadGuid{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
                 }
                 else
                 {
-                    method.BodyStrings.Add(string.Format("in_params.Add(factory.CreateParameter(_params[{0}], in_o.{1}, typeof({2}), {3}));", i, propName, typeName, isNullable ? "true" : "false"));
+                    throw new ApplicationException(string.Format("Unexpected reference type: {0} in PropertyDefinition Id {1} when constructing values for FillDOFromReader.", corr.PropertyDefinition.FunctionalType.GetType().Name, corr.PropertyDefinition.Id));
                 }
             }
+
+            var propName = NameHelper.NamesToPascalCase(corr.PropertyDefinition.Names);
+
+            if (isId)
+            {
+                propName += "Id";
+            }
+
+            method.BodyStrings.Add($"in_o.{propName} = {rightPart}");
         }
-        static void GenerateRestoreByNameMethod(CSClass in_storageClass, string in_dotClassName, TableAndDOTCorrespondenceJson in_tableAndDotCorrespondence)
+    }
+
+    private static void GenerateFillParameters(CSClass storageClass, string dotClassName, TableAndDOTCorrespondence tableAndDotCorrespondence)
+    {
+        #region Method heading
+        var method = new CSMethod()
         {
-            // 1. Выясняем, есть ли у ТОД поле, соответствующее наименованию.
-            PropertyCorrespondenceJson candidate = null;
-            foreach (PropertyCorrespondenceJson c in in_tableAndDotCorrespondence.PropertyCorrespondences)
+            AdditionalKeywords = "override",
+            Class = storageClass,
+            DocComment = new XmlComment("Fill parameters for writing the state of a data object to a database"),
+            HintSingleLineBody = false,
+            IsStatic = false,
+            Name = "FillParameters",
+            ReturnType = "void",
+            Visibility = ElementVisibilityClassic.Protected
+        };
+
+        var param = new CSParameter()
+        {
+            Name = "in_params",
+            Type = "DbParameterCollection"
+        };
+        method.Params.Add(param.Name, param);
+
+        param = new CSParameter()
+        {
+            Name = "in_o",
+            Type = dotClassName
+        };
+        method.Params.Add(param.Name, param);
+
+        storageClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        #endregion
+
+        method.BodyStrings.Add("orm.Db.DbProviderFactory factory = orm.Db.DbProviderFactory.Instance;");
+
+        var dotDef = tableAndDotCorrespondence.DOTDefinition;
+
+        for (var i = 1; i < tableAndDotCorrespondence.Table.AllFields.Count; i++)
+        {
+            #region Search for a table field
+            var field = tableAndDotCorrespondence.Table.AllFields[i];
+            PropertyCorrespondence? corr = null;
+
+            foreach (var c in tableAndDotCorrespondence.PropertyCorrespondences)
             {
-                if (c.PropertyDefinition.FunctionalType is PFTName)
+                if (c.TableField.Name == field.Name)
                 {
-                    if (candidate == null || (!candidate.PropertyDefinition.FunctionalType.Unique && c.PropertyDefinition.FunctionalType.Unique))
-                        candidate = c;
+                    corr = c;
+                    break;
                 }
             }
-            if (candidate == null) // Если поля-наименования нет, то и метод чтения объектов по нему бессмысленнен.
-                return;
-
-            // 2. Создаем метод.
-            #region Шапка метода.
-            string propName = NameHelper.NamesToHungarianName(candidate.PropertyDefinition.Names, false);
-            string constName = NameHelper.NameToConstant(candidate.PropertyDefinition.Names, false) + "_Q";
-            bool isSingle = candidate.PropertyDefinition.FunctionalType.Unique;
-            string nameHuman = candidate.PropertyDefinition.Names[MetaModel.Names.HumanLanguageEnum.Ru].Substring(0, 1).ToUpper();
-            if (candidate.PropertyDefinition.Names[MetaModel.Names.HumanLanguageEnum.Ru].Length > 1)
-                nameHuman += candidate.PropertyDefinition.Names[MetaModel.Names.HumanLanguageEnum.Ru].Substring(1);
-            CSMethod method = new CSMethod()
-            {
-                Visibility = ElementVisibilityClassic.Public,
-                AdditionalKeywords = "virtual",
-                ReturnType = isSingle ? in_dotClassName : $"List<{in_dotClassName}>",
-                Class = in_storageClass,
-                Name = $"ReadBy{NameHelper.NamesToHungarianName(candidate.PropertyDefinition.Names)}",
-                DocComment = new XmlComment($"Чтение {(isSingle ? "объекта" : "коллекции объектов")} по значению свойства {nameHuman.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;").Replace("\'", "&apos;")}"),
-                HintSingleLineBody = false,
-                IsStatic = false
-            };
-
-            CSParameter param = new CSParameter()
-            {
-                Name = $"in_{propName}",
-                Type = "string"
-            };
-            method.Params.Add(param.Name, param);
-
-            param = new CSParameter()
-            {
-                Name = $"in_transaction",
-                Type = "DbTransaction",
-                Value = "null"
-            };
-            method.Params.Add(param.Name, param);
-
-            in_storageClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
             #endregion
 
-            method.BodyStrings.Add($"if (in_{propName} == null)");
-            method.BodyStrings.Add($"    throw new ArgumentException(\"{propName}\");");
-            method.BodyStrings.Add($"DbParameter[] dbParams = new DbParameter[] {{ orm.Db.DbProviderFactory.Instance.CreateParameter(\"@in_{propName}\", in_{propName}, typeof(string), false) }};");
-            method.BodyStrings.Add($"List<{in_dotClassName}> result = ReadAsCollection(");
-            method.BodyStrings.Add($"    in_where: {constName} + \" = @in_{propName}\",");
-            method.BodyStrings.Add($"    in_params: dbParams,");
-            method.BodyStrings.Add($"    in_transaction: in_transaction");
-            method.BodyStrings.Add($");");
-            method.BodyStrings.Add($"return result{(isSingle ? ".Count != 0 ? result[0] : null" : string.Empty)};");
-        }
+            bool isNullable, isId;
+            string typeName;
+            CSharpHelper.GetTypeInfoForFillDOFromReaderRow(corr.PropertyDefinition, out isNullable, out isId, out typeName);
 
-        public static CSClass CreateStorageClass(CSComponent component, DOTDefinition dotDefinition, DBSchemaMetaModelJson dbModel)
-        {
-            var dotClassName = CSharpHelper.GenerateDOTClassName(dotDefinition);
-            var storageClassName = dotClassName + "Storage";
-            var correspondence = (TableAndDOTCorrespondenceJson)dbModel.TableAndSourceCorrespondence[dotDefinition.Id];
+            var propName = NameHelper.NamesToPascalCase(corr.PropertyDefinition.Names);
 
-            var storageClass = new CSClass
+            if (isId)
             {
-                Component = component,
-                DocComment = new XmlComment("Хранилище объектов " + NameHelper.GetLocalNameUpperCase(correspondence.DOTDefinition.Names)),
-                Name = storageClassName,
-                InheritsFrom = $"DOStorage<{storageClassName}, {dotClassName}>",
-                Partial = true
-            };
-            component.Classes.Add(storageClass.Name, storageClass);
-
-            // Создание констант, соответствующих полям таблицы.
-            var decimalConstants = new List<int>();
-            var fieldConstants = GenerateFieldConstants(correspondence, storageClass, decimalConstants);
-
-            // Создание конструктора.
-            GenerateConstructor(fieldConstants, storageClass, dotClassName, storageClassName, dotDefinition, correspondence, decimalConstants);
-
-            // Метод FillDOFromReader.
-            GenerateFillDOFromReader(storageClass, dotClassName, correspondence);
-
-            // Метод FillParameters.
-            GenerateFillParameters(storageClass, dotClassName, correspondence);
-
-            // Метод RestoreByName, если применимо.
-            GenerateRestoreByNameMethod(storageClass, dotClassName, correspondence);
-
-            return storageClass;
+                var propNameWOId = propName;
+                propName += "Id";
+                method.BodyStrings.Add(string.Format("if (!in_o.{0}Id.HasValue && in_o.{0} != null)", propNameWOId));
+                method.BodyStrings.Add(CSharpHelper.C_TAB + string.Format("in_params.Add(factory.CreateParameter(_params[{1}], in_o.{0}.Id.Value, typeof(Guid?), true));", propNameWOId, i));
+                method.BodyStrings.Add("else");
+                method.BodyStrings.Add(CSharpHelper.C_TAB + string.Format("in_params.Add(factory.CreateParameter(_params[{0}], in_o.{1}, typeof({2}), {3}));", i, propName, typeName, isNullable ? "true" : "false"));
+            }
+            else
+            {
+                method.BodyStrings.Add(string.Format("in_params.Add(factory.CreateParameter(_params[{0}], in_o.{1}, typeof({2}), {3}));", i, propName, typeName, isNullable ? "true" : "false"));
+            }
         }
+    }
 
-        public Storage(StoragePackage parentPackage, DOTDefinition dotDefinition, string rootNamespace, DBSchemaMetaModelJson dbModel)
+    private static void GenerateRestoreByNameMethod(CSClass in_storageClass, string in_dotClassName, TableAndDOTCorrespondence in_tableAndDotCorrespondence)
+    {
+        // 1. Detect do the data object type has a field that corresponds to its name
+        PropertyCorrespondence? candidate = null;
+
+        foreach (var c in in_tableAndDotCorrespondence.PropertyCorrespondences)
         {
-            var dotClassName = CSharpHelper.GenerateDOTClassName(dotDefinition);
-            var storageClassName = dotClassName + "Storage";
-
-            Package = parentPackage;
-            Name = storageClassName + ".cs";
-            DOTDefinition = dotDefinition;
-            Namespace = $"{rootNamespace}.Model.Storage";
-
-            SystemUsings.Add("System");
-            SystemUsings.Add("System.Collections.Generic");
-            SystemUsings.Add("System.Data.Common");
-            UserUsings.Add("orm.Db");
-            //UserUsings.Add("orm.Util");
-            UserUsings.Add($"{rootNamespace}.Model.DOT");
-
-            var storageClass = CreateStorageClass(this, dotDefinition, dbModel);
-            MainClass = storageClass;
+            if (c.PropertyDefinition.FunctionalType is PFTName)
+            {
+                if (candidate is null || (!candidate.PropertyDefinition.FunctionalType.Unique && c.PropertyDefinition.FunctionalType.Unique))
+                {
+                    candidate = c;
+                }
+            }
         }
-    };
+
+        if (candidate is null) // If no name-field, then the method for extracting an object by name has no sense
+        {
+            return;
+        }
+
+        // 2. Create a method
+        #region Method heading
+        var propName = NameHelper.NamesToPascalCase(candidate.PropertyDefinition.Names, false);
+        var constName = NameHelper.NameToConstant(candidate.PropertyDefinition.Names, false) + "_Q";
+        var isSingle = candidate.PropertyDefinition.FunctionalType.Unique;
+        var nameHuman = candidate.PropertyDefinition.Names[MetaModel.Names.HumanLanguageEnum.Ru].Substring(0, 1).ToUpper();
+
+        if (candidate.PropertyDefinition.Names[MetaModel.Names.HumanLanguageEnum.Ru].Length > 1)
+        {
+            nameHuman += candidate.PropertyDefinition.Names[MetaModel.Names.HumanLanguageEnum.Ru].Substring(1);
+        }
+
+        var method = new CSMethod
+        {
+            Visibility = ElementVisibilityClassic.Public,
+            AdditionalKeywords = "virtual",
+            ReturnType = isSingle ? in_dotClassName : $"List<{in_dotClassName}>",
+            Class = in_storageClass,
+            Name = $"ReadBy{NameHelper.NamesToPascalCase(candidate.PropertyDefinition.Names)}",
+            DocComment = new XmlComment($"Reading {(isSingle ? "object" : "collection of objects")} by a value of a property {nameHuman.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;").Replace("\'", "&apos;")}"),
+            HintSingleLineBody = false,
+            IsStatic = false
+        };
+
+        var param = new CSParameter
+        {
+            Name = $"in_{propName}",
+            Type = "string"
+        };
+        method.Params.Add(param.Name, param);
+
+        param = new CSParameter
+        {
+            Name = $"in_transaction",
+            Type = "DbTransaction",
+            Value = "null"
+        };
+        method.Params.Add(param.Name, param);
+
+        in_storageClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        #endregion
+
+        method.BodyStrings.Add($"if (in_{propName} == null)");
+        method.BodyStrings.Add($"    throw new ArgumentException(\"{propName}\");");
+        method.BodyStrings.Add($"DbParameter[] dbParams = new DbParameter[] {{ orm.Db.DbProviderFactory.Instance.CreateParameter(\"@in_{propName}\", in_{propName}, typeof(string), false) }};");
+        method.BodyStrings.Add($"List<{in_dotClassName}> result = ReadAsCollection(");
+        method.BodyStrings.Add($"    in_where: {constName} + \" = @in_{propName}\",");
+        method.BodyStrings.Add($"    in_params: dbParams,");
+        method.BodyStrings.Add($"    in_transaction: in_transaction");
+        method.BodyStrings.Add($");");
+        method.BodyStrings.Add($"return result{(isSingle ? ".Count != 0 ? result[0] : null" : string.Empty)};");
+    }
+
+    public static CSClass CreateStorageClass(CSComponent component, DOTDefinition dotDefinition, DBSchemaMetaModel dbModel)
+    {
+        var dotClassName = CSharpHelper.GenerateDOTClassName(dotDefinition);
+        var storageClassName = dotClassName + "Storage";
+        var correspondence = (TableAndDOTCorrespondence)dbModel.TableAndSourceCorrespondence[dotDefinition.Id];
+
+        var storageClass = new CSClass
+        {
+            Component = component,
+            DocComment = new XmlComment("Storage of objects " + NameHelper.GetLocalNameUpperCase(correspondence.DOTDefinition.Names)),
+            Name = storageClassName,
+            InheritsFrom = $"DOStorage<{storageClassName}, {dotClassName}>",
+            Partial = true
+        };
+        component.Classes.Add(storageClass.Name, storageClass);
+
+        // Create constants corresponding to table fields
+        var decimalConstants = new List<int>();
+        var fieldConstants = GenerateFieldConstants(correspondence, storageClass, decimalConstants);
+
+        // Create constructor
+        GenerateConstructor(fieldConstants, storageClass, dotClassName, storageClassName, dotDefinition, correspondence, decimalConstants);
+
+        // FillDOFromReader method
+        GenerateFillDOFromReader(storageClass, dotClassName, correspondence);
+
+        // FillParameters method
+        GenerateFillParameters(storageClass, dotClassName, correspondence);
+
+        // RestoreByName method, if applicable
+        GenerateRestoreByNameMethod(storageClass, dotClassName, correspondence);
+
+        return storageClass;
+    }
+
+    public Storage(StoragePackage parentPackage, DOTDefinition dotDefinition, string rootNamespace, DBSchemaMetaModel dbModel)
+    {
+        var dotClassName = CSharpHelper.GenerateDOTClassName(dotDefinition);
+        var storageClassName = dotClassName + "Storage";
+
+        Package = parentPackage;
+        Name = storageClassName + ".cs";
+        DOTDefinition = dotDefinition;
+        Namespace = $"{rootNamespace}.Model.Storage";
+
+        SystemUsings.Add("System");
+        SystemUsings.Add("System.Collections.Generic");
+        SystemUsings.Add("System.Data.Common");
+        UserUsings.Add("orm.Db");
+        //UserUsings.Add("orm.Util");
+        UserUsings.Add($"{rootNamespace}.Model.DOT");
+
+        var storageClass = CreateStorageClass(this, dotDefinition, dbModel);
+        MainClass = storageClass;
+    }
 }

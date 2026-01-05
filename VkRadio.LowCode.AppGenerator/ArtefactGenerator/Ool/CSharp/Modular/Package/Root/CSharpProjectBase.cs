@@ -1,23 +1,20 @@
-﻿using System;
+﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Modular.Component.ProjectRoot;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Modular.Package.Model;
 
-using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Modular.Component.ProjectRoot;
-using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Modular.Package.Model;
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Modular.Package.Root;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Modular.Package.Root
+public class CSharpProjectBase : CSharpProjectAbstract
 {
-    public class CSharpProjectBase: CSharpProjectAbstract
+    public CSharpProjectBase(CSharpSolution solution, Guid projectGuid)
+        : base(solution, "base", projectGuid)
     {
-        public CSharpProjectBase(CSharpSolution in_solution, Guid in_projectGuid)
-            : base(in_solution, "base", in_projectGuid)
-        {
-            ModelPackage = new ModelPackage(this);
-            _subpackages.Add(ModelPackage.Name, ModelPackage);
+        ModelPackage = new ModelPackage(this);
+        _subpackages.Add(ModelPackage.Name, ModelPackage);
 
-            ProjectFile = new ProjectFileBase(this);
-            _components.Add(ProjectFile.Name, ProjectFile);
-        }
+        ProjectFile = new ProjectFileBase(this);
+        _components.Add(ProjectFile.Name, ProjectFile);
+    }
 
-        new public CSharpSolution ParentPackage { get { return (CSharpSolution)_parentPackage; } }
-        public ModelPackage ModelPackage { get; private set; }
-    };
+    new public CSharpSolution ParentPackage { get { return (CSharpSolution)_parentPackage; } }
+    public ModelPackage ModelPackage { get; private set; }
 }

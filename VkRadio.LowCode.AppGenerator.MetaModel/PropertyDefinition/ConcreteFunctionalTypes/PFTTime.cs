@@ -1,30 +1,23 @@
-﻿using MetaModel.Names;
+﻿using VkRadio.LowCode.AppGenerator.MetaModel.Names;
 
-namespace MetaModel.PropertyDefinition.ConcreteFunctionalTypes
+namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
+
+/// <summary>
+/// Functional property type - time
+/// </summary>
+public class PFTTime: PFTDateTime
 {
-    /// <summary>
-    /// Функциональный тип свойства - время
-    /// </summary>
-    public class PFTTime: PFTDateTime
+    public PFTTime()
     {
-        /// <summary>
-        /// Конструктор фунционального типа свойства - времени
-        /// </summary>
-        public PFTTime()
-        {
-            _defaultValue   = null;
-            _nullable       = true;
-            _quantitative   = false;
-            _stringCode     = C_STRING_CODE;
-            _unique         = false;
+        _defaultValue = null;
+        _nullable = true;
+        _quantitative = false;
+        _stringCode = C_STRING_CODE;
+        _unique = false;
 
-            _defaultNames.Add(HumanLanguageEnum.En, C_STRING_CODE);
-            _defaultNames.Add(HumanLanguageEnum.Ru, "время");
-        }
+        _defaultNames.Add(HumanLanguageEnum.En, C_STRING_CODE);
+        _defaultNames.Add(HumanLanguageEnum.Ru, "время");
+    }
 
-        /// <summary>
-        /// Строковый код фунционального типа свойства (используется в файле метамодели)
-        /// </summary>
-        public const string C_STRING_CODE = "time";
-    };
+    public const string C_STRING_CODE = "time";
 }

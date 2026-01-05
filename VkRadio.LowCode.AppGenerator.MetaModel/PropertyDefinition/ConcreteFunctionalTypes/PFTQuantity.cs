@@ -1,32 +1,25 @@
-﻿using MetaModel.Names;
+﻿using VkRadio.LowCode.AppGenerator.MetaModel.Names;
 
-namespace MetaModel.PropertyDefinition.ConcreteFunctionalTypes
+namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
+
+/// <summary>
+/// Functional property type - quantity
+/// </summary>
+public class PFTQuantity : PFTInteger
 {
-    /// <summary>
-    /// Функциональный тип свойства - количество
-    /// </summary>
-    public class PFTQuantity: PFTInteger
+    public PFTQuantity()
     {
-        /// <summary>
-        /// Конструктор функционального типа свойства - количества
-        /// </summary>
-        public PFTQuantity()
-        {
-            //_defaultValue   = 0;
-            _defaultValue   = null;
-            _nullable       = true;
-            _quantitative   = true;
-            _stringCode     = C_STRING_CODE;
-            _unique         = false;
+        //_defaultValue = 0;
+        _defaultValue = null;
+        _nullable = true;
+        _quantitative = true;
+        _stringCode = C_STRING_CODE;
+        _unique = false;
 
-            _defaultNames.Clear();
-            _defaultNames.Add(HumanLanguageEnum.En, C_STRING_CODE);
-            _defaultNames.Add(HumanLanguageEnum.Ru, "количество");
-        }
+        _defaultNames.Clear();
+        _defaultNames.Add(HumanLanguageEnum.En, C_STRING_CODE);
+        _defaultNames.Add(HumanLanguageEnum.Ru, "количество");
+    }
 
-        /// <summary>
-        /// Строковый код фунционального типа свойства (используется в файле метамодели)
-        /// </summary>
-        new public const string C_STRING_CODE = "quantity";
-    };
+    new public const string C_STRING_CODE = "quantity";
 }

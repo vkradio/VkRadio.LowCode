@@ -1,89 +1,98 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
-using mm = MetaModel;
-using MetaModel.Names;
+using MM = VkRadio.LowCode.AppGenerator.MetaModel;
+using VkRadio.LowCode.AppGenerator.MetaModel.Names;
 
 namespace VkRadio.LowCode.AppGenerator;
 
 /// <summary>
-/// Описание проекта генерации артефактов
+/// Artefact generation project description
 /// </summary>
-public class ArtefactGenerationProject: IUnique
+public class ArtefactGenerationProject : IUnique
 {
     /// <summary>
-    /// Уникальный идентификатор проекта
+    /// Unique identifier of a project
     /// </summary>
     public Guid Id { get; private set; }
     /// <summary>
-    /// Наименование проекта
+    /// Project name
     /// </summary>
     public string Name { get; private set; }
     /// <summary>
-    /// Метамодель
+    /// MetaModel
     /// </summary>
-    public mm.MetaModel MetaModel { get; private set; }
+    public MM.MetaModel MetaModel { get; private set; }
     /// <summary>
-    /// Цели генерирования артефактов проекта
+    /// Targets of artefact generation
     /// </summary>
     public IList<ArtefactGenerationTarget> ArtefactGenerationTargets { get; private set; } = new List<ArtefactGenerationTarget>();
     /// <summary>
-    /// Директория проекта.
+    /// Project root path
     /// </summary>
     public string ProjectRootPath { get; private set; }
     /// <summary>
-    /// Корневая директория рабочей копии SVN
+    /// Root folder of an SVN repository
     /// </summary>
-    public string SvnWcRootPath { get; private set; }
+    public string? SvnWcRootPath { get; private set; }
     /// <summary>
-    /// Часовой пояс исполняемого кода.
+    /// Timezone of an executable code
     /// </summary>
     public TimeZoneInfo TimeZone { get; private set; }
 
     /// <summary>
-    /// Добавление сообщения о генерации (используется в методе GenerateArtefacts)
+    /// Append message about generation
     /// </summary>
-    /// <param name="in_oldMessage">Предыдущее накопленное сообщение (может быть null)</param>
-    /// <param name="in_newMessage">Сообщение, которое следует добавить</param>
-    /// <returns>Сообщения, разделенные переводом строки</returns>
-    string AppendMessage(string in_oldMessage, string in_newMessage)
+    /// <param name="oldMessage"></param>
+    /// <param name="newMessage"></param>
+    /// <returns>Newline separated messages</returns>
+    private string AppendMessage(string? oldMessage, string newMessage)
     {
-        if (in_oldMessage == null)
-            return in_newMessage;
+        if (oldMessage is null)
+        {
+            return newMessage;
+        }
         else
-            return in_oldMessage + Environment.NewLine + in_newMessage;
+        {
+            return oldMessage + Environment.NewLine + newMessage;
+        }            
     }
 
     /// <summary>
-    /// Загрузка проекта генерирации артефактов (ПГА) из файла
+    /// Load an artefact generation project from a file
     /// </summary>
-    /// <param name="in_filePath">Путь к файлу проекта</param>
-    /// <returns>Проект генерации артефактов</returns>
-    public static ArtefactGenerationProject Load(string in_filePath)
+    /// <param name="filePath"></param>
+    /// <returns></returns>
+    public static ArtefactGenerationProject Load(string filePath)
     {
-        var xelRoot = XElement.Load(in_filePath);
-        if (xelRoot.Name != "ArtefactGenerationProject")
-            throw new ApplicationException("XML root element is not ArtefactGenerationProject.");
+        var xelRoot = XElement.Load(filePath);
 
-        var id = new Guid(xelRoot.Element("Id").Value);
-        var name = xelRoot.Element("Name").Value;
-        var metaModelFilePath = xelRoot.Element("MetaModelFilePath").Value;
-        var projectRootPath = Path.GetDirectoryName(in_filePath);
+        if (xelRoot.Name != "ArtefactGenerationProject")
+        {
+            throw new ApplicationException("XML root element is not ArtefactGenerationProject.");
+        }
+
+        var id = new Guid(xelRoot.Element("Id")!.Value);
+        var name = xelRoot.Element("Name")!.Value;
+        var metaModelFilePath = xelRoot.Element("MetaModelFilePath")!.Value;
+        var projectRootPath = Path.GetDirectoryName(filePath)!;
         metaModelFilePath = Path.Combine(projectRootPath, metaModelFilePath);
         var xelSvnWcRootRelativeDir = xelRoot.Element("SvnWcRootRelativeDir");
-        if (xelSvnWcRootRelativeDir == null || string.IsNullOrWhiteSpace(xelSvnWcRootRelativeDir.Value))
-            throw new ApplicationException("В корне файла <ArtefactGenerationProject> не задан элемент <SvnWcRootRelativeDir>.");
+
+        if (xelSvnWcRootRelativeDir is null || string.IsNullOrWhiteSpace(xelSvnWcRootRelativeDir.Value))
+        {
+            // TODO: Remove it, we mostly use git now
+            throw new ApplicationException("In the root <ArtefactGenerationProject> there is not value of <SvnWcRootRelativeDir>.");
+        }
+
         var svnWcRootDirRelativePath = xelSvnWcRootRelativeDir.Value.Trim();
 
-        #region Установка часового пояса исполнения программного кода.
-        // Полный список часовых поясов:
+        #region Set the timezone of an executing code
+        // Full list of timezones:
         // http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/territory_containment_un_m_49.html
         var xelTz = xelRoot.Element("TimeZone");
-        TimeZoneInfo tz = null;
-        if (xelTz == null || xelTz.Value.Contains("00:00"))
+        TimeZoneInfo? tz = null;
+        if (xelTz is null || xelTz.Value.Contains("00:00"))
         {
             tz = TimeZoneInfo.Utc;
         }
@@ -92,12 +101,15 @@ public class ArtefactGenerationProject: IUnique
             var r = new Regex(@"^\((GMT|UTC)(?<gmtVal>.+)\).+$");
 
             var sysTimeZones = TimeZoneInfo.GetSystemTimeZones();
+
             foreach (var stz in sysTimeZones)
             {
                 var m = r.Match(stz.DisplayName);
+
                 if (m.Success)
                 {
                     var offsetValueStr = m.Groups["gmtVal"].Value;
+
                     if (offsetValueStr == xelTz.Value)
                     {
                         tz = stz;
@@ -105,12 +117,15 @@ public class ArtefactGenerationProject: IUnique
                     }
                 }
             }
-            if (tz == null)
+
+            if (tz is null)
+            {
                 throw new ApplicationException(string.Format(@"Time zone {0} not found in system time zone collection. (See HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\Time Zones\Display.)", xelTz.Value));
+            }
         }
         #endregion
 
-        var metaModel = mm.MetaModel.Load(metaModelFilePath);
+        var metaModel = MM.MetaModel.Load(metaModelFilePath);
 
         var project = new ArtefactGenerationProject
         {
@@ -122,30 +137,35 @@ public class ArtefactGenerationProject: IUnique
             SvnWcRootPath = Path.Combine(projectRootPath, svnWcRootDirRelativePath)
         };
 
-        var xelTargets = xelRoot.Element("ArtefactGenerationTargets");
-        foreach (var xel in xelTargets.Elements("Target"))
-            project.ArtefactGenerationTargets.Add(ArtefactGenerationTarget.LoadFromXElement(project, xel));
+        var xelTargets = xelRoot.Element("ArtefactGenerationTargets")!;
 
-        // Отложенное связывание зависимостей целей.
+        foreach (var xel in xelTargets.Elements("Target"))
+        {
+            project.ArtefactGenerationTargets.Add(ArtefactGenerationTarget.LoadFromXElement(project, xel));
+        }
+
+        // Deferred linking of target dependencies
         foreach (var tgt in project.ArtefactGenerationTargets)
+        {
             tgt.DeferredLinkDependencies(project.ArtefactGenerationTargets);
+        }
 
         return project;
     }
 
     /// <summary>
-    /// Генерирование всех артефактов проекта
+    /// Generate all artefacts of a project
     /// </summary>
-    /// <returns>null, если генерация успешна, или сообщение о проблемах</returns>
-    public string GenerateArtefacts()
+    /// <returns>null for successful generation, or an error message otherwise</returns>
+    public string? GenerateArtefacts()
     {
-        string message = null;
+        string? message = null;
 
-        // TODO: Пока не учитываем зависимости - считаем, что в файле описания проекта
-        // цели записаны в нужном порядке.
+        // TODO: For not ignore dependencies and execute targets in their defined order
         foreach (var target in ArtefactGenerationTargets)
         {
             var prevTargetsFailed = false;
+
             foreach (var depTarget in target.DependsOn.Values)
             {
                 if (!depTarget.GenerateSuccess)
@@ -157,13 +177,16 @@ public class ArtefactGenerationProject: IUnique
 
             if (prevTargetsFailed)
             {
-                message = AppendMessage(message, "Генерация следующих целей не производится.");
+                message = AppendMessage(message, "Next targets won't be generated.");
                 break;
             }
 
             var targetMessage = target.GenerateArtefacts();
-            if (targetMessage != null)
+
+            if (targetMessage is not null)
+            {
                 message = AppendMessage(message, targetMessage);
+            }
         }
 
         return message;

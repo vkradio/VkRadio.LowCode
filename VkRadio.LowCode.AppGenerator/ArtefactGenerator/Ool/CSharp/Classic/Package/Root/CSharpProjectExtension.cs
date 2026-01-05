@@ -1,12 +1,9 @@
-﻿using System;
+﻿namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Root;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Classic.Package.Root
+public class CSharpProjectExtension : CSharpProjectAbstract
 {
-    public class CSharpProjectExtension: CSharpProjectAbstract
+    public CSharpProjectExtension(CSharpSolution miniSolution, Guid projectGuid)
+        : base(miniSolution, "extension", projectGuid)
     {
-        public CSharpProjectExtension(CSharpSolution in_miniSolution, Guid in_projectGuid)
-            : base(in_miniSolution, "extension", in_projectGuid)
-        {
-        }
-    };
+    }
 }

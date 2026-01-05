@@ -7,7 +7,7 @@ namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Component;
 /// </summary>
 public class ComponentWPredefinedCode: Component
 {
-    protected List<string> _predefinedCode = new List<string>();
+    protected List<string> _predefinedCode = [];
     protected bool _emitUtf8Bom;
     protected bool _lastLineWNewLine = true;
 

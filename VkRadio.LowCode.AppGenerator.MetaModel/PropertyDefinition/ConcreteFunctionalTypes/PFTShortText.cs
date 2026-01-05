@@ -1,34 +1,27 @@
-﻿using MetaModel.Names;
+﻿using VkRadio.LowCode.AppGenerator.MetaModel.Names;
 
-namespace MetaModel.PropertyDefinition.ConcreteFunctionalTypes
+namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
+
+/// <summary>
+/// Functional property type - short string of text
+/// </summary>
+public class PFTShortText : PFTString
 {
-    /// <summary>
-    /// Функциональный тип свойства - коротка строка текста
-    /// </summary>
-    public class PFTShortText: PFTString
+    public PFTShortText()
     {
-        /// <summary>
-        /// Конструктор функционального типа свойства - короткой строки текста
-        /// </summary>
-        public PFTShortText()
-        {
-            _defaultValue       = null;
-            _nullable           = true;
-            _quantitative       = false;
-            _stringCode         = C_STRING_CODE;
-            _unique             = false;
-            _defaultMaxLength   = 100;
-            _defaultMinLength   = 0;
-            _maxLength          = 100;
-            _minLength          = 0;
+        _defaultValue = null;
+        _nullable = true;
+        _quantitative = false;
+        _stringCode = C_STRING_CODE;
+        _unique = false;
+        _defaultMaxLength = 100;
+        _defaultMinLength = 0;
+        _maxLength = 100;
+        _minLength = 0;
 
-            _defaultNames.Add(HumanLanguageEnum.En, C_STRING_CODE);
-            _defaultNames.Add(HumanLanguageEnum.Ru, "короткий текст");
-        }
+        _defaultNames.Add(HumanLanguageEnum.En, C_STRING_CODE);
+        _defaultNames.Add(HumanLanguageEnum.Ru, "короткий текст");
+    }
 
-        /// <summary>
-        /// Строковый код фунционального типа свойства (используется в файле метамодели)
-        /// </summary>
-        public const string C_STRING_CODE = "short text";
-    };
+    public const string C_STRING_CODE = "short text";
 }

@@ -1,18 +1,20 @@
 ﻿using System.Xml.Linq;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Sql
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql;
+
+public class TargetSql : ArtefactGenerationTarget
 {
-    public class TargetSql : ArtefactGenerationTarget
+    public DbParams DbParams { get; private set; }
+
+    protected override void InitConcrete(XElement xelTarget)
     {
-        public DbParams DbParams { get; private set; }
+        var xel = xelTarget.Element("DevelopmentDbParams");
 
-        protected override void InitConcrete(XElement in_xelTarget)
+        if (xel is not null)
         {
-            var xel = in_xelTarget.Element("DevelopmentDbParams");
-            if (xel != null)
-                DbParams = DbParams.ReadFromXElement(xel);
+            DbParams = DbParams.ReadFromXElement(xel);
         }
-
-        public new ArtefactGeneratorSql Generator => (ArtefactGeneratorSql)base.Generator;
     }
+
+    public new ArtefactGeneratorSql Generator => (ArtefactGeneratorSql)base.Generator;
 }

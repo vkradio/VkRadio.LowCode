@@ -1,38 +1,47 @@
-﻿using System.Collections.Generic;
+﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract;
 
-using ArtefactGenerationProject.ArtefactGenerator.Ool.Abstract;
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Method;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Common.Class.Method
+public class CSConstructor : CSMethod
 {
-    public class CSConstructor: CSMethod
+    public CSConstructor(CSClass @class) => _name = @class.Name;
+
+    protected override string GenerateMethodNameString()
     {
-        public CSConstructor(CSClass in_class) => _name = in_class.Name;
+        var methodParams = GenerateMethodParamsString();
 
-        protected override string GenerateMethodNameString()
+        var firstWords = new List<string>();
+
+        if (_visibility.Value != ElementVisibilityEnum.Private)
         {
-            var methodParams = GenerateMethodParamsString();
-
-            var firstWords = new List<string>();
-            if (_visibility.Value != ElementVisibilityEnum.Private)
-                firstWords.Add(_visibility.ToString());
-            if (_isStatic)
-                firstWords.Add("static");
-            firstWords.Add(_name);
-            var firstWordsLine = string.Join(" ", firstWords);
-
-            var addKeywords = string.Empty;
-            if (_isStatic)
-                addKeywords += "static ";
-            string methodNameString = string.Format(
-                "    {0}({1}){2}",
-                firstWordsLine,
-                methodParams,
-                BaseText != null ? (" " + BaseText) : string.Empty
-            );
-
-            return methodNameString;
+            firstWords.Add(_visibility.ToString());
         }
 
-        public string BaseText { get; set; }
-    };
+        if (_isStatic)
+        {
+            firstWords.Add("static");
+        }
+
+        firstWords.Add(_name);
+
+        var firstWordsLine = string.Join(" ", firstWords);
+
+        var addKeywords = string.Empty;
+
+        if (_isStatic)
+        {
+            addKeywords += "static ";
+        }
+
+        var methodNameString = string.Format(
+            "    {0}({1}){2}",
+            firstWordsLine,
+            methodParams,
+            BaseText != null ? (" " + BaseText) : string.Empty
+        );
+
+        return methodNameString;
+    }
+
+    public string BaseText { get; set; }
 }

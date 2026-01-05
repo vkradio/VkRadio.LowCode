@@ -1,18 +1,23 @@
-﻿using System.Collections.Generic;
+﻿namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Property.Setter;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Common.Class.Property.Setter
+public class CSPropertySetterCachedObjectId : CSPropertySetter
 {
-    public class CSPropertySetterCachedObjectId: CSPropertySetter
+    public CSPropertySetterCachedObjectId(CSProperty property)
+        : base(property)
     {
-        public CSPropertySetterCachedObjectId(CSProperty in_property) : base(in_property) {}
+    }
 
-        protected override string[] GenerateLinesSetValue()
+    protected override string[] GenerateLinesSetValue()
+    {
+        var text = new List<string>
         {
-            var text = new List<string>();
-            text.Add($"{Property.NameFieldCorresponding} = value;");
-            var objectFieldName = Property.NameFieldCorresponding.Substring(0, Property.NameFieldCorresponding.Length - 2);
-            text.Add($"{objectFieldName} = null;");
-            return text.ToArray();
-        }
-    };
+            $"{Property.NameFieldCorresponding} = value;"
+        };
+
+        var objectFieldName = Property.NameFieldCorresponding.Substring(0, Property.NameFieldCorresponding.Length - 2);
+
+        text.Add($"{objectFieldName} = null;");
+
+        return text.ToArray();
+    }
 }

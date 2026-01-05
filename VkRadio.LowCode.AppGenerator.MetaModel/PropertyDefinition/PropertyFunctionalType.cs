@@ -11,204 +11,165 @@ namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
 public abstract class PropertyFunctionalType
 {
     protected IPropertyDefinition _propertyDefinition;
-    protected object _defaultValue;
+    protected object? _defaultValue;
     protected bool _nullable;
     protected bool _quantitative;
     protected string _stringCode;
     protected bool _unique;
     protected Type _systemType;
-    protected Dictionary<HumanLanguageEnum, string> _defaultNames = new Dictionary<HumanLanguageEnum,string>();
+    protected Dictionary<HumanLanguageEnum, string> _defaultNames = new();
 
     /// <summary>
-    /// Определение свойства ТОД или значения регистра, к которому относится данный ФТ
+    /// Property type definition of a data object type or a register, that own this functional type
     /// </summary>
     public IPropertyDefinition PropertyDefinition { get { return _propertyDefinition; } set { _propertyDefinition = value; } }
     /// <summary>
-    /// Значение типа свойства по умолчанию
+    /// Default value of a property
     /// </summary>
-    public object DefaultValue { get { return _defaultValue; } set { _defaultValue = value; } }
+    public object? DefaultValue { get { return _defaultValue; } set { _defaultValue = value; } }
     /// <summary>
-    /// Допускает ли тип свойства отсутствующее значение
+    /// Is it possible to have missing values
     /// </summary>
     public bool Nullable { get { return _nullable; } set { _nullable = value; } }
     /// <summary>
-    /// Является ли тип свойства количественным
+    /// Is it a qualitative type
     /// </summary>
     public bool Quantitative { get { return _quantitative; } }
     /// <summary>
-    /// Строковый код типа
+    /// String code of a type
     /// </summary>
     public string StringCode { get { return _stringCode; } }
     /// <summary>
-    /// Является ли тип свойства уникальным значением (среди однородных свойств объектов-владельцев)
+    /// Is it a unique value (among other properties withing a full list of owning objects)
     /// </summary>
     public bool Unique { get { return _unique; } set { _unique = value; } }
     /// <summary>
-    /// Системный тип, с помощью которого хранится значение
-    /// (это свойство не описывается в файле метамодели, а служит только
-    /// для ее функционирования внутри среды исполнения, в данном случае .NET)
+    /// System (.NET) type, containing a value (this value is not stored in a MetaModel, but only
+    /// serves for its functioning withing a runtime environment)
     /// </summary>
     public Type SystemType { get { return _systemType; } }
     /// <summary>
-    /// Имена для свойства по умолчанию.
-    /// Если в определении свойства не задано имя на том или ином языке, оно берется по умолчанию
-    /// отсюда - из функционального типа. При этом ссылочные ФТ имеют имена, совпадающие с именами
-    /// определений ТОД, на которые они ссылаются.
+    /// Default property names.
+    /// If a property definition does not contain a name for a particular language, it is being extracted
+    /// from this property. In this case a reference functional types have names, that match with names
+    /// of referenced data object types.
     /// </summary>
     public IDictionary<HumanLanguageEnum, string> DefaultNames { get { return _defaultNames; } }
 
     /// <summary>
-    /// Извлечение значения свойства из строки XML
+    /// Extracting property values from an XML string
     /// </summary>
-    /// <param name="in_xmlString">Строка XML, содержащая извлекаемое значение</param>
-    /// <returns>Типизированное значение свойства</returns>
-    public abstract object ParseValueFromXmlString(string in_xmlString);
+    /// <param name="xmlString">XML string containing a value</param>
+    /// <returns>Typed property value</returns>
+    public abstract object? ParseValueFromXmlString(string xmlString);
 
     /// <summary>
-    /// Инициализация расширенного набора параметров для функционального типа
+    /// Initializing of an extended set of parameters for a functional type
     /// </summary>
-    /// <param name="in_xelPropertyDefinition">Элемент XML, содержащий определение свойства</param>
-    protected virtual void InitExtendedParams(XElement in_xelPropertyDefinition) {}
-
-    /// <summary>
-    /// Извлечение функционального типа свойства из узла XML, содержащего определение свойства
-    /// </summary>
-    /// <param name="in_xel">Узел XML, содержащий определение свойства</param>
-    /// <param name="in_metaModel">Метамодель</param>
-    /// <returns>Функциональный тип свойства</returns>
-    public static PropertyFunctionalType LoadFromXElement(XElement in_xel, MetaModel in_metaModel)
+    /// <param name="xelPropertyDefinition">XML node containing a property definition</param>
+    protected virtual void InitExtendedParams(XElement xelPropertyDefinition)
     {
-        XElement xel = in_xel.Element("Nullable");
-        bool? nullable = xel != null ? (bool?)bool.Parse(xel.Value) : null;
-        xel = in_xel.Element("Unique");
-        bool? unique = xel != null ? (bool?)bool.Parse(xel.Value) : null;
+    }
 
-        string ftName = in_xel.Element("FunctionalType").Value;
-        PropertyFunctionalType result;
-        switch (ftName)
+    /// <summary>
+    /// Extracting a function type of a property from an XML node that contains a property definition
+    /// </summary>
+    /// <param name="containingXel">XML node that contains a property definition</param>
+    /// <param name="metaModel">MetaModel</param>
+    /// <returns>Functional property type</returns>
+    public static PropertyFunctionalType LoadFromXElement(XElement containingXel, MetaModel metaModel)
+    {
+        var xel = containingXel.Element("Nullable");
+        var nullable = xel is not null
+            ? bool.Parse(xel.Value)
+            : (bool?)null;
+
+        xel = containingXel.Element("Unique");
+        var unique = xel is not null
+            ? bool.Parse(xel.Value)
+            : (bool?)null;
+
+        var ftName = containingXel.Element("FunctionalType")!.Value;
+
+        PropertyFunctionalType result = ftName switch
         {
-            case PFTBackReferencedTable.C_STRING_CODE:
-                result = new PFTBackReferencedTable();
-                break;
-            case PFTBoolean.C_STRING_CODE:
-                result = new PFTBoolean();
-                break;
-            case PFTConnector.C_STRING_CODE:
-                result = new PFTConnector();
-                break;
-            case PFTDate.C_STRING_CODE:
-                result = new PFTDate();
-                break;
-            case PFTDateAndTime.C_STRING_CODE:
-                result = new PFTDateAndTime();
-                break;
-            case PFTDecimal.C_STRING_CODE:
-                result = new PFTDecimal();
-                break;
-            case PFTEmail.C_STRING_CODE:
-                result = new PFTEmail();
-                break;
-            case PFTFilePath.C_STRING_CODE:
-                result = new PFTFilePath();
-                break;
-            case PFTInteger.C_STRING_CODE:
-                result = new PFTInteger();
-                break;
-            case PFTMoney.C_STRING_CODE:
-                result = new PFTMoney();
-                break;
-            case PFTName.C_STRING_CODE:
-                result = new PFTName();
-                break;
-            case PFTOrderNumber.C_STRING_CODE:
-                result = new PFTOrderNumber();
-                break;
-            case PFTPassword.C_STRING_CODE:
-                result = new PFTPassword();
-                break;
-            case PFTPrice.C_STRING_CODE:
-                result = new PFTPrice();
-                break;
-            case PFTQuantity.C_STRING_CODE:
-                result = new PFTQuantity();
-                break;
-            case PFTReferenceValue.C_STRING_CODE:
-                result = new PFTReferenceValue();
-                break;
-            case PFTShortText.C_STRING_CODE:
-                result = new PFTShortText();
-                break;
-            case PFTTableOwner.C_STRING_CODE:
-                result = new PFTTableOwner();
-                break;
-            case PFTTablePart.C_STRING_CODE:
-                result = new PFTTablePart();
-                break;
-            case PFTText.C_STRING_CODE:
-                result = new PFTText();
-                break;
-            case PFTTime.C_STRING_CODE:
-                result = new PFTTime();
-                break;
-            case PFTUniqueCode.C_STRING_CODE:
-                result = new PFTUniqueCode();
-                break;
-            default:
-                throw new ApplicationException(string.Format("Property functional type not supported: {0}.", ftName ?? "<NULL>"));
-        }
+            PFTBackReferencedTable.C_STRING_CODE => new PFTBackReferencedTable(),
+            PFTBoolean.C_STRING_CODE => new PFTBoolean(),
+            PFTConnector.C_STRING_CODE => new PFTConnector(),
+            PFTDate.C_STRING_CODE => new PFTDate(),
+            PFTDateAndTime.C_STRING_CODE => new PFTDateAndTime(),
+            PFTDecimal.C_STRING_CODE => new PFTDecimal(),
+            PFTEmail.C_STRING_CODE => new PFTEmail(),
+            PFTFilePath.C_STRING_CODE => new PFTFilePath(),
+            PFTInteger.C_STRING_CODE => new PFTInteger(),
+            PFTMoney.C_STRING_CODE => new PFTMoney(),
+            PFTName.C_STRING_CODE => new PFTName(),
+            PFTOrderNumber.C_STRING_CODE => new PFTOrderNumber(),
+            PFTPassword.C_STRING_CODE => new PFTPassword(),
+            PFTPrice.C_STRING_CODE => new PFTPrice(),
+            PFTQuantity.C_STRING_CODE => new PFTQuantity(),
+            PFTReferenceValue.C_STRING_CODE => new PFTReferenceValue(),
+            PFTShortText.C_STRING_CODE => new PFTShortText(),
+            PFTTableOwner.C_STRING_CODE => new PFTTableOwner(),
+            PFTTablePart.C_STRING_CODE => new PFTTablePart(),
+            PFTText.C_STRING_CODE => new PFTText(),
+            PFTTime.C_STRING_CODE => new PFTTime(),
+            PFTUniqueCode.C_STRING_CODE => new PFTUniqueCode(),
+            _ => throw new ApplicationException(string.Format("Property functional type not supported: {0}.", ftName ?? "<NULL>")),
+        };
 
-        if (nullable.HasValue)
-            result.Nullable = nullable.Value;
-        if (unique.HasValue)
-            result.Unique = unique.Value;
+        result.Nullable = nullable ?? false;
+        result.Unique = unique ?? false;
 
-        IPFTDependentLink dependentLink = result as IPFTDependentLink;
-        if (dependentLink != null)
+        var dependentLink = result as IPFTDependentLink;
+
+        if (dependentLink is not null)
         {
-            xel = in_xel.Element("OnRefObjectDelete");
-            if (xel != null)
+            xel = containingXel.Element("OnRefObjectDelete");
+
+            if (xel is not null)
             {
-                switch (xel.Value)
+                dependentLink.OnDeleteAction = xel.Value switch
                 {
-                    case "ignore":
-                        dependentLink.OnDeleteAction = OnDeleteActionEnum.Ingnore;
-                        break;
-                    case "delete":
-                        dependentLink.OnDeleteAction = OnDeleteActionEnum.Delete;
-                        break;
-                    case "block":
-                        dependentLink.OnDeleteAction = OnDeleteActionEnum.CannotDelete;
-                        break;
-                    case "set default value":
-                        dependentLink.OnDeleteAction = OnDeleteActionEnum.ResetToDefault;
-                        break;
-                    case "set null":
-                        dependentLink.OnDeleteAction = OnDeleteActionEnum.ResetToNull;
-                        break;
-                    default:
-                        throw new ApplicationException(string.Format("Property {0} has unsupported OnRefObjectDelete value: {1}.", in_xel.Element("Id") != null ? in_xel.Element("Id").Value : "<NULL>", xel.Value ?? "<NULL>"));
-                }
+                    "ignore" => OnDeleteActionEnum.Ingnore,
+                    "delete" => OnDeleteActionEnum.Delete,
+                    "block" => OnDeleteActionEnum.CannotDelete,
+                    "set default value" => OnDeleteActionEnum.ResetToDefault,
+                    "set null" => OnDeleteActionEnum.ResetToNull,
+
+                    _ => throw new ApplicationException(string.Format(
+                        "Property {0} has unsupported OnRefObjectDelete value: {1}.",
+                        containingXel.Element("Id") is not null
+                            ? containingXel.Element("Id")!.Value
+                            : "<NULL>",
+                        xel.Value ?? "<NULL>"
+                    )),
+                };
             }
             else
             {
-                if (in_metaModel.DefaultLinksStrict)
+                if (metaModel.DefaultLinksStrict)
                 {
                     if (result.Nullable)
+                    {
                         dependentLink.OnDeleteAction = OnDeleteActionEnum.ResetToNull;
+                    }
                     else
+                    {
                         dependentLink.SetDefaultOnDeleteAction();
+                    }
                 }
             }
         }
 
-        result.InitExtendedParams(in_xel);
+        result.InitExtendedParams(containingXel);
 
         return result;
     }
 
     /// <summary>
-    /// Создание типизированной заготовки для хранения значения.
+    /// Creating a typed prefab for storing a value
     /// </summary>
-    /// <returns>Заготовка для значения свойства</returns>
+    /// <returns>Prefab for a property value</returns>
     public abstract IPropertyValue CreatePropertyValue();
-};
+}

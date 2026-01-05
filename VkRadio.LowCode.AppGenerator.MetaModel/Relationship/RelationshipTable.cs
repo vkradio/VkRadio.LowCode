@@ -1,70 +1,71 @@
-﻿using System;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
+using VkRadio.LowCode.AppGenerator.MetaModel.Names;
+using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
 
-using MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
-using MetaModel.Names;
+namespace VkRadio.LowCode.AppGenerator.MetaModel.Relationship;
 
-namespace MetaModel.Relationship
+/// <summary>
+/// Relationship of type &quot;object and its related table&quot;
+/// </summary>
+public class RelationshipTable: Relationship
 {
+    bool _supportsHierarchy;
+    PropertyDefinition.PropertyDefinition _propertyDefinitionInOwner;
+    PropertyDefinition.PropertyDefinition _propertyDefinitionInTable;
+
     /// <summary>
-    /// Связь типа &quot;объект и подчиненная ему таблица&quot;
+    /// Relationship constructor
     /// </summary>
-    public class RelationshipTable: Relationship
+    /// <param name="id">Relationship Id</param>
+    /// <param name="metaModel">MetaModel</param>
+    public RelationshipTable(Guid id, MetaModel metaModel)
+        : base(id, metaModel)
     {
-        bool _supportsHierarchy;
-        PropertyDefinition.PropertyDefinition _propertyDefinitionInOwner;
-        PropertyDefinition.PropertyDefinition _propertyDefinitionInTable;
+    }
 
-        /// <summary>
-        /// Конструктор связи
-        /// </summary>
-        /// <param name="in_id">Id связи</param>
-        /// <param name="in_metaModel">Метамодель</param>
-        public RelationshipTable(Guid in_id, MetaModel in_metaModel) : base(in_id, in_metaModel) {}
+    /// <summary>
+    /// Whether it supports hierarchies. Allows to have empty root owner
+    /// </summary>
+    public bool SupportsHierarchy { get { return _supportsHierarchy; } }
+    /// <summary>
+    /// Definition of a property that is an owner of a table part
+    /// </summary>
+    public PropertyDefinition.PropertyDefinition PropertyDefinitionInOwner { get { return _propertyDefinitionInOwner; } }
+    /// <summary>
+    /// Definition of a property that is a table part, that points to its owner (Foreign Key in a database)
+    /// </summary>
+    public PropertyDefinition.PropertyDefinition PropertyDefinitionInTable { get { return _propertyDefinitionInTable; } }
 
-        /// <summary>
-        /// Поддержка иерархических структур. Позволяет отсутствовать владельцу у корневого узла
-        /// </summary>
-        public bool SupportsHierarchy { get { return _supportsHierarchy; } }
-        /// <summary>
-        /// Определение свойства - владельца табличной части (представлено как коллекция в ООП)
-        /// </summary>
-        public PropertyDefinition.PropertyDefinition PropertyDefinitionInOwner { get { return _propertyDefinitionInOwner; } }
-        /// <summary>
-        /// Определение свойства табличной части, указывающей на ее владельца (представлено как ВК в БД)
-        /// </summary>
-        public PropertyDefinition.PropertyDefinition PropertyDefinitionInTable { get { return _propertyDefinitionInTable; } }
+    /// <summary>
+    /// Relationship type code
+    /// </summary>
+    public const string C_TYPE_CODE = "table";
 
-        /// <summary>
-        /// Код типа связи
-        /// </summary>
-        public const string C_TYPE_CODE = "table";
+    /// <summary>
+    /// Load of concrete properties of a relationship from an XML node
+    /// </summary>
+    /// <param name="containingXel">XML node</param>
+    protected override void LoadFromXElement(XElement containingXel)
+    {
+        var xel = containingXel.Element("SupportsHierarchy");
+        _supportsHierarchy = xel is not null
+            ? (bool)xel
+            : false;
 
-        /// <summary>
-        /// Догрузка конкретных свойств связи из узла XML
-        /// </summary>
-        /// <param name="in_xel">Узел XML, содержащий описание связи</param>
-        protected override void LoadFromXElement(XElement in_xel)
-        {
-            XElement xel = in_xel.Element("SupportsHierarchy");
-            _supportsHierarchy = xel != null ? (bool)xel : false;
+        var ownerPropertyDefinitionId = new Guid(containingXel.Element("PropertyDefinitionIdInOwner")!.Value);
+        _propertyDefinitionInOwner = _metaModel.AllPropertyDefinitions[ownerPropertyDefinitionId];
+        var ftTablePart = (PFTTablePart)_propertyDefinitionInOwner.FunctionalType;
+        ftTablePart.RelationshipTable = this;
 
-            Guid ownerPropertyDefinitionId = new Guid(in_xel.Element("PropertyDefinitionIdInOwner").Value);
-            _propertyDefinitionInOwner = _metaModel.AllPropertyDefinitions[ownerPropertyDefinitionId];
-            PFTTablePart ftTablePart = (PFTTablePart)_propertyDefinitionInOwner.FunctionalType;
-            ftTablePart.RelationshipTable = this;
+        var tablePropertyDefinitionId = new Guid(containingXel.Element("PropertyDefinitionIdInTable")!.Value);
+        _propertyDefinitionInTable = _metaModel.AllPropertyDefinitions[tablePropertyDefinitionId];
+        PFTTableOwner ftTableOwner = (PFTTableOwner)_propertyDefinitionInTable.FunctionalType;
+        ftTableOwner.RelationshipTable = this;
+        _propertyDefinitionInTable.FunctionalType.Nullable = _supportsHierarchy;
 
-            Guid tablePropertyDefinitionId = new Guid(in_xel.Element("PropertyDefinitionIdInTable").Value);
-            _propertyDefinitionInTable = _metaModel.AllPropertyDefinitions[tablePropertyDefinitionId];
-            PFTTableOwner ftTableOwner = (PFTTableOwner)_propertyDefinitionInTable.FunctionalType;
-            ftTableOwner.RelationshipTable = this;
-            _propertyDefinitionInTable.FunctionalType.Nullable = _supportsHierarchy;
-
-            // Отложенное обогащение словарей имен свойств. Если какое-либо свойство не имело имени
-            // на каком-либо языке, такое имя берется из определения ТОД, на который оно указывает, если только
-            // такое имя есть у ТОД.
-            NameDictionary.EnrichNamesForCollection(_propertyDefinitionInOwner.Names, _propertyDefinitionInTable.OwnerDefinition.Names);
-            NameDictionary.EnrichNames(_propertyDefinitionInTable.Names, _propertyDefinitionInOwner.OwnerDefinition.Names);
-        }
-    };
+        // Deferred enrichment of dictionaries of property names. If some property had no name in some language, it is being extracted
+        // from a data object type definition to that it points, if exists.
+        NameDictionary.EnrichNamesForCollection(_propertyDefinitionInOwner.Names, _propertyDefinitionInTable.OwnerDefinition.Names);
+        NameDictionary.EnrichNames(_propertyDefinitionInTable.Names, _propertyDefinitionInOwner.OwnerDefinition.Names);
+    }
 }

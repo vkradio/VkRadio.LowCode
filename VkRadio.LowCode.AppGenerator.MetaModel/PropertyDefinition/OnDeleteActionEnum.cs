@@ -1,29 +1,28 @@
-﻿namespace MetaModel.PropertyDefinition
+﻿namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
+
+/// <summary>
+/// What to do when the object, having a Foreign Key to this object, is being deleted
+/// </summary>
+public enum OnDeleteActionEnum
 {
     /// <summary>
-    /// Действие при удаление объекта, на который ссылается ВК
+    /// Do nothing, leave a &quot;gap&quot;
     /// </summary>
-    public enum OnDeleteActionEnum
-    {
-        /// <summary>
-        /// Ничего не делать, оставлять &quot;дырку&quot;
-        /// </summary>
-        Ingnore,
-        /// <summary>
-        /// Удаление объекта невозможно
-        /// </summary>
-        CannotDelete,
-        /// <summary>
-        /// Удалить связанные объекты каскадно
-        /// </summary>
-        Delete,
-        /// <summary>
-        /// Сбросить ВК связанных объектов в NULL
-        /// </summary>
-        ResetToNull,
-        /// <summary>
-        /// Сбросить ВК связанных объектов в значение по умолчанию
-        /// </summary>
-        ResetToDefault
-    };
+    Ingnore,
+    /// <summary>
+    /// Deletion is impossible
+    /// </summary>
+    CannotDelete,
+    /// <summary>
+    /// Cascade delete
+    /// </summary>
+    Delete,
+    /// <summary>
+    /// Set the Foreign Key values to NULL
+    /// </summary>
+    ResetToNull,
+    /// <summary>
+    /// Set the Foreign Key values to a default value
+    /// </summary>
+    ResetToDefault
 }

@@ -1,42 +1,41 @@
-﻿using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Modular.Component;
-using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Modular.Package.Root;
-using PackNS = ArtefactGenerationProject.ArtefactGenerator.Ool.Abstract.Package;
+﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Modular.Component;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Modular.Package.Root;
+using PackNS = VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Package;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Modular.Package.Model
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Modular.Package.Model;
+
+public class ModelPackage : PackNS.Package
 {
-    public class ModelPackage : PackNS.Package
+    DOTPackage _dotPackage;
+    StoragePackage _storagePackage;
+
+    public ModelPackage(CSharpProjectBase parentPackage)
+        : base(parentPackage, "Model")
     {
-        DOTPackage _dotPackage;
-        StoragePackage _storagePackage;
-
-        public ModelPackage(CSharpProjectBase in_parentPackage)
-            : base(in_parentPackage, "Model")
+        if (parentPackage.ParentPackage.ArtefactGenerationTarget.AllDOTsInSingleFile)
         {
-            if (in_parentPackage.ParentPackage.ArtefactGenerationTarget.AllDOTsInSingleFile)
-            {
-                DOTSingleFile = new DOTSingleFile(this);
-                _components.Add(DOTSingleFile.Name, DOTSingleFile);
+            DOTSingleFile = new DOTSingleFile(this);
+            _components.Add(DOTSingleFile.Name, DOTSingleFile);
 
-                StorageSingleFile = new StorageSingleFile(this);
-                _components.Add(StorageSingleFile.Name, StorageSingleFile);
+            StorageSingleFile = new StorageSingleFile(this);
+            _components.Add(StorageSingleFile.Name, StorageSingleFile);
 
-                StoragePackage.CreateStorageRegistryComponent(in_parentPackage.ParentPackage.DomainModel, this, StorageSingleFile.Namespace);
-            }
-            else
-            {
-                _storagePackage = new StoragePackage(this);
-                _subpackages.Add(_storagePackage.Name, _storagePackage);
-
-                _dotPackage = new DOTPackage(this);
-                _subpackages.Add(_dotPackage.Name, _dotPackage);
-            }
+            StoragePackage.CreateStorageRegistryComponent(parentPackage.ParentPackage.DomainModel, this, StorageSingleFile.Namespace);
         }
+        else
+        {
+            _storagePackage = new StoragePackage(this);
+            _subpackages.Add(_storagePackage.Name, _storagePackage);
 
-        public new CSharpProjectBase ParentPackage { get { return (CSharpProjectBase)_parentPackage; } }
+            _dotPackage = new DOTPackage(this);
+            _subpackages.Add(_dotPackage.Name, _dotPackage);
+        }
+    }
 
-        //public DOTPackage DOTPackage { get { return _dotPackage; } }
-        public DOTSingleFile DOTSingleFile { get; private set; }
-        //public StoragePackage StoragePackage { get { return _storagePackage; } }
-        public StorageSingleFile StorageSingleFile { get; private set; }
-    };
+    public new CSharpProjectBase ParentPackage { get { return (CSharpProjectBase)_parentPackage; } }
+
+    //public DOTPackage DOTPackage { get { return _dotPackage; } }
+    public DOTSingleFile DOTSingleFile { get; private set; }
+    //public StoragePackage StoragePackage { get { return _storagePackage; } }
+    public StorageSingleFile StorageSingleFile { get; private set; }
 }

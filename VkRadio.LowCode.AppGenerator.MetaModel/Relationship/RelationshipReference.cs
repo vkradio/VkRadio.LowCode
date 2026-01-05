@@ -1,88 +1,91 @@
-﻿using System;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
+using PD = VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
+using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
+using VkRadio.LowCode.AppGenerator.MetaModel.Names;
 
-using pd = MetaModel.PropertyDefinition;
-using MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
-using MetaModel.Names;
+namespace VkRadio.LowCode.AppGenerator.MetaModel.Relationship;
 
-namespace MetaModel.Relationship
+/// <summary>
+/// Relationship of type &quot;reference of a dictionary value&quot;
+/// </summary>
+public class RelationshipReference: Relationship
 {
+    PD.IPropertyDefinition _ownerPropertyDefinition;
+    PD.PropertyDefinition _backRefTablePropertyDefinition;
+    DOTDefinition.DOTDefinition _referenceDefinition;
+
     /// <summary>
-    /// Связь типа &quot;ссылка на значение справочника&quot;
+    /// Relationship consctructor
     /// </summary>
-    public class RelationshipReference: Relationship
+    /// <param name="id">Relationship Id</param>
+    /// <param name="metaModel">MetaModel</param>
+    public RelationshipReference(Guid id, MetaModel metaModel)
+        : base(id, metaModel)
     {
-        pd.IPropertyDefinition _ownerPropertyDefinition;
-        pd.PropertyDefinition _backRefTablePropertyDefinition;
-        DOTDefinition.DOTDefinition _referenceDefinition;
+    }
 
-        /// <summary>
-        /// Конструктор связи
-        /// </summary>
-        /// <param name="in_id">Id связи</param>
-        /// <param name="in_metaModel">Метамодель</param>
-        public RelationshipReference(Guid in_id, MetaModel in_metaModel) : base(in_id, in_metaModel) {}
+    /// <summary>
+    /// Definition of a data object type property or a register, that contains a reference to a dictionary value
+    /// </summary>
+    public PD.IPropertyDefinition OwnerPropertyDefinition { get { return _ownerPropertyDefinition; } }
+    /// <summary>
+    /// Definition of a data object type property that is an implicitly inferred from references table of objects.
+    /// May be absent for ordinary relationships with dictionaries (most of relationships are of that type)
+    /// </summary>
+    public PD.PropertyDefinition BackRefTablePropertyDefinition { get { return _backRefTablePropertyDefinition; } }
+    /// <summary>
+    /// Data object type definition of a dictionary
+    /// </summary>
+    public DOTDefinition.DOTDefinition ReferenceDefinition { get { return _referenceDefinition; } }
 
-        /// <summary>
-        /// Определение свойства ТОД или значения регистра, содержащее ссылку на значение
-        /// справочника (другими словами, ВК на справочник)
-        /// </summary>
-        public pd.IPropertyDefinition OwnerPropertyDefinition { get { return _ownerPropertyDefinition; } }
-        /// <summary>
-        /// Определение свойства ТОД справочника, являющегося неявно выводимой таблицей объектов из ссылок
-        /// на этот справочник. Может отсутствовать для обычных связей со справочниками (большинство
-        /// связей именно такие).
-        /// </summary>
-        public pd.PropertyDefinition BackRefTablePropertyDefinition { get { return _backRefTablePropertyDefinition; } }
-        /// <summary>
-        /// Определение ТОД справочника
-        /// </summary>
-        public DOTDefinition.DOTDefinition ReferenceDefinition { get { return _referenceDefinition; } }
+    /// <summary>
+    /// Reference type code
+    /// </summary>
+    public const string C_TYPE_CODE = "reference";
 
-        /// <summary>
-        /// Код типа связи
-        /// </summary>
-        public const string C_TYPE_CODE = "reference";
+    /// <summary>
+    /// Load of concrete properties of a relationship from an XML node
+    /// </summary>
+    /// <param name="containingXel">XML node</param>
+    protected override void LoadFromXElement(XElement containingXel)
+    {
+        var ownerPropertyDefinitionId = new Guid(containingXel.Element("OwnerPropertyDefinitionId")!.Value);
 
-        /// <summary>
-        /// Догрузка конкретных свойств связи из узла XML
-        /// </summary>
-        /// <param name="in_xel">Узел XML, содержащий описание связи</param>
-        protected override void LoadFromXElement(XElement in_xel)
+        _ownerPropertyDefinition = //_metaModel.AllPropertyDefinitions.ContainsKey(ownerPropertyDefinitionId)
+                                   //?
+            _metaModel.AllPropertyDefinitions[ownerPropertyDefinitionId];
+            //: _metaModel.AllRegisterValueDefinitions[ownerPropertyDefinitionId];
+
+        var xel = containingXel.Element("ReferenceDefinitionId");
+
+        if (xel is null)
         {
-            Guid ownerPropertyDefinitionId = new Guid(in_xel.Element("OwnerPropertyDefinitionId").Value);
-            _ownerPropertyDefinition = _metaModel.AllPropertyDefinitions.ContainsKey(ownerPropertyDefinitionId) ?
-                (pd.IPropertyDefinition)_metaModel.AllPropertyDefinitions[ownerPropertyDefinitionId] :
-                (pd.IPropertyDefinition)_metaModel.AllRegisterValueDefinitions[ownerPropertyDefinitionId];
+            var backRefTablePropertyDefinitionId = new Guid(containingXel.Element("BackRefTablePropertyDefinitionId")!.Value);
+            _backRefTablePropertyDefinition = _metaModel.AllPropertyDefinitions[backRefTablePropertyDefinitionId];
 
-            XElement xel = in_xel.Element("ReferenceDefinitionId");
-            if (xel == null)
-            {
-                Guid backRefTablePropertyDefinitionId = new Guid(in_xel.Element("BackRefTablePropertyDefinitionId").Value);
-                _backRefTablePropertyDefinition = (pd.PropertyDefinition)_metaModel.AllPropertyDefinitions[backRefTablePropertyDefinitionId];
+            // Back referencing of a property with this relationship
+            var ftBackRefTable = (PFTBackReferencedTable)_backRefTablePropertyDefinition.FunctionalType;
+            ftBackRefTable.RelationshipReference = this;
 
-                // Обратное связывание свойства с данной связью.
-                PFTBackReferencedTable ftBackRefTable = (PFTBackReferencedTable)_backRefTablePropertyDefinition.FunctionalType;
-                ftBackRefTable.RelationshipReference = this;
-
-                _referenceDefinition = _backRefTablePropertyDefinition.OwnerDefinition;
-            }
-            else
-            {
-                Guid referenceDefinitionId = new Guid(xel.Value);
-                _referenceDefinition = _metaModel.AllDOTDefinitions[referenceDefinitionId];
-            }
-
-            // Обратное связывание свойства с данной связью.
-            PFTReferenceValue ftRefValue = (PFTReferenceValue)_ownerPropertyDefinition.FunctionalType;
-            ftRefValue.RelationshipReference = this;
-
-            // Отложенное обогащение словаря имен свойства. Если какое-либо свойство не имело имени
-            // на каком-либо языке, такое имя берется из определения ТОД, на который оно указывает, если только
-            // такое имя есть у ТОД.
-            NameDictionary.EnrichNames(_ownerPropertyDefinition.Names, _referenceDefinition.Names);
-            if (_backRefTablePropertyDefinition != null) // TODO: Здесь после реализации регистров возможен глюк, т.к. считаем, что определение свойства только из ТОД, но не из регистра.
-                NameDictionary.EnrichNames(_backRefTablePropertyDefinition.Names, ((pd.PropertyDefinition)_ownerPropertyDefinition).OwnerDefinition.Names);
+            _referenceDefinition = _backRefTablePropertyDefinition.OwnerDefinition;
         }
-    };
+        else
+        {
+            var referenceDefinitionId = new Guid(xel.Value);
+            _referenceDefinition = _metaModel.AllDOTDefinitions[referenceDefinitionId];
+        }
+
+        // Back referencing of a property with this relationship
+        var ftRefValue = (PFTReferenceValue)_ownerPropertyDefinition.FunctionalType;
+        ftRefValue.RelationshipReference = this;
+
+        // Deferred enrichment of a dictionary of property names. If some property had no name in some language, that name
+        // is being extracted from a data object type definition, from that it pointing to, if that exists
+        NameDictionary.EnrichNames(_ownerPropertyDefinition.Names, _referenceDefinition.Names);
+
+        if (_backRefTablePropertyDefinition is not null) // TODO: Here after implementing of register a bug is possible, because we assume that DOT definitions are only from DOTs and not from registers
+        {
+            NameDictionary.EnrichNames(_backRefTablePropertyDefinition.Names, ((PD.PropertyDefinition)_ownerPropertyDefinition).OwnerDefinition.Names);
+        }
+    }
 }

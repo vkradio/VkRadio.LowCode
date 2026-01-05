@@ -1,7 +1,7 @@
 ﻿namespace VkRadio.LowCode.AppGenerator;
 
 /// <summary>
-/// Тип кода генерируемых артефактов
+/// Types of artefacts to be generated
 /// </summary>
 public enum ArtefactTypeCodeEnum
 {
@@ -34,11 +34,11 @@ public enum ArtefactTypeCodeEnum
     /// </summary>
     SQLite,
     /// <summary>
-    /// Сохранение предыдущей версии артефактов C#
+    /// Save the previous version of C# artefacts
     /// </summary>
     CSharpOldVersionSave,
     /// <summary>
-    /// Вычисление номера версии проекта C#
+    /// Calculate a version number of a C# project
     /// </summary>
     CSharpProjectVersion,
     /// <summary>
@@ -49,4 +49,4 @@ public enum ArtefactTypeCodeEnum
     /// MSBuild
     /// </summary>
     MSBuild
-};
+}

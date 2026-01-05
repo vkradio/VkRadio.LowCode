@@ -1,16 +1,14 @@
-﻿using MetaModel.Names;
-using MetaModel.Names.Translit.RU;
-using System;
-using System.Collections.Generic;
+﻿using VkRadio.LowCode.AppGenerator.MetaModel.Names;
+using VkRadio.LowCode.AppGenerator.MetaModel.Names.Translit.RU;
 
 namespace VkRadio.LowCode.AppGenerator;
 
 public class NameHelper
 {
-    static bool LastLetterIsSLike(string in_word)
+    static bool LastLetterIsSLike(string word)
     {
-        char lastLetter = in_word[in_word.Length - 1];
-        char prevLastLetter = in_word[in_word.Length - 2];
+        char lastLetter = word[word.Length - 1];
+        char prevLastLetter = word[word.Length - 2];
 
         return
             lastLetter == 's' ||
@@ -18,9 +16,9 @@ public class NameHelper
             (prevLastLetter == 'c' && lastLetter == 'h');
     }
 
-    public static string[] GetNameWords(string in_name)
+    public static string[] GetNameWords(string name)
     {
-        string name = in_name
+        var preparedName = name
             .Replace("(", string.Empty)
             .Replace(")", string.Empty)
             .Replace(":", string.Empty)
@@ -34,30 +32,25 @@ public class NameHelper
             .Replace("\"", string.Empty)
             .Replace("%", string.Empty)
             .Trim();
-        return name.Split(new char[] { ' ', '-', '/' });
-    }
-    public static string[] GetNameWords(IDictionary<HumanLanguageEnum, string> in_names)
-    {
-        return GetNameWords(in_names[HumanLanguageEnum.En]);
+
+        return preparedName.Split([' ', '-', '/']);
     }
 
-    /// <summary>
-    /// Получение имени объекта в венгерской нотации (слова пишутся слитно, но
-    /// выделяются заглавными буквами, при этом первое слово также опционально пишется
-    /// с заглавной буквы)
-    /// </summary>
-    /// <param name="in_names">Пакет имен объекта на разных языках</param>
-    /// <param name="in_firstLetterUpperCase">Делать ли заглавной первую букву имени</param>
-    /// <returns>Имя объекта в венгерской нотации</returns>
-    public static string NamesToHungarianName(IDictionary<HumanLanguageEnum, string> in_names, bool in_firstLetterUpperCase)
+    public static string[] GetNameWords(IDictionary<HumanLanguageEnum, string> names)
     {
-        string[] words = GetNameWords(in_names);
-        string name = string.Empty;
-        for (int i = 0; i < words.Length; i++)
+        return GetNameWords(names[HumanLanguageEnum.En]);
+    }
+
+    public static string NamesToPascalCase(IDictionary<HumanLanguageEnum, string> names, bool firstLetterUpperCase)
+    {
+        var words = GetNameWords(names);
+        var name = string.Empty;
+
+        for (var i = 0; i < words.Length; i++)
         {
-            string nextWord = words[i].ToLower();
+            var nextWord = words[i].ToLower();
 
-            if (i != 0 || in_firstLetterUpperCase)
+            if (i != 0 || firstLetterUpperCase)
             {
                 if (nextWord != string.Empty)
                 {
@@ -70,26 +63,17 @@ public class NameHelper
                 name += nextWord;
             }
         }
+
         return name;
     }
-    /// <summary>
-    /// Получение имени объекта в венгерской нотации (слова пишутся слитно, но
-    /// каждое из них пишется с заглавной буквы)
-    /// </summary>
-    /// <param name="in_names">Пакет имен объекта на разных языках</param>
-    /// <returns>Имя объекта в венгерской нотации</returns>
-    public static string NamesToHungarianName(IDictionary<HumanLanguageEnum, string> in_names)
-    {
-        return NamesToHungarianName(in_names, true);
-    }
 
-    public static string NamesToCamelCase(IDictionary<HumanLanguageEnum, string> in_names)
+    public static string NamesToPascalCase(IDictionary<HumanLanguageEnum, string> names) => NamesToPascalCase(names, true);
+
+    public static string NamesToCamelCase(IDictionary<HumanLanguageEnum, string> names) => NamesToPascalCase(names, false);
+
+    public static string NamesToCamelCasePlural(IDictionary<HumanLanguageEnum, string> names)
     {
-        return NamesToHungarianName(in_names, false);
-    }
-    public static string NamesToCamelCasePlural(IDictionary<HumanLanguageEnum, string> in_names)
-    {
-        string result = NamesToCamelCase(in_names);
+        var result = NamesToCamelCase(names);
 
         if (result.Length > 1)
         {
@@ -111,18 +95,18 @@ public class NameHelper
     }
 
     /// <summary>
-    /// Если ли следующие непустые слова
+    /// Are there next non-empty words
     /// </summary>
-    /// <param name="in_words">Слова</param>
-    /// <param name="in_thisIndex">Индекс (начиная с нуля) текущего слова, после которого ищутся непустые слова</param>
+    /// <param name="words">Words</param>
+    /// <param name="thisIndex">Zero-based index of a current workd, beginning from which searching for non-empty words</param>
     /// <returns></returns>
-    static bool NextWordsAreNotEmpty(string[] in_words, int in_thisIndex)
+    static bool NextWordsAreNotEmpty(string[] words, int thisIndex)
     {
-        bool result = false;
+        var result = false;
 
-        for (int i = in_thisIndex + 1; i < in_words.Length; i++)
+        for (var i = thisIndex + 1; i < words.Length; i++)
         {
-            if (in_words[i] != string.Empty)
+            if (words[i] != string.Empty)
             {
                 result = true;
                 break;
@@ -131,195 +115,208 @@ public class NameHelper
 
         return result;
     }
+
     /// <summary>
-    /// Получение имени, слова в котором разделены знаком подчеркивания (_), из имени ТОД
-    /// (определения его самого, его свойства и т.д.)
+    /// Extract a name, words from which separated by a _ symbol, from a DOT name
     /// </summary>
-    /// <param name="in_dotName">Имя, которое берется за основу</param>
-    public static string NameToUnderscoreSeparatedName(string in_dotName)
+    /// <param name="dotName">DOT name as a base</param>
+    public static string NameToUnderscoreSeparatedName(string dotName)
     {
-        string[] words = GetNameWords(in_dotName);
-        string name = string.Empty;
-        for (int i = 0; i < words.Length; i++)
+        var words = GetNameWords(dotName);
+        var name = string.Empty;
+
+        for (var i = 0; i < words.Length; i++)
         {
-            string nextWord = words[i].ToLower();
+            var nextWord = words[i].ToLower();
 
             if (nextWord != string.Empty)
             {
                 name += nextWord;
+
                 if (NextWordsAreNotEmpty(words, i))
+                {
                     name += "_";
+                }
             }
         }
+
         return name;
     }
-    /// <summary>
-    /// Получение имени, слова в котором разделены знаком подчеркивания (_), из имени ТОД
-    /// (определения его самого, его свойства и т.д.)
-    /// </summary>
-    /// <param name="in_dotName">Имя, которое берется за основу</param>
-    public static string NameToUnderscoreSeparatedName(IDictionary<HumanLanguageEnum, string> in_names)
-    {
-        return NameToUnderscoreSeparatedName(in_names[HumanLanguageEnum.En]);
-    }
 
     /// <summary>
-    /// Получение имени константы Id из имен объекта. Приоритет отдается англоязычному имени,
-    /// но если его нет, транслитерируется локальное имя.
+    /// Extract a name, words from which separated by a _ symbol, from a DOT name
     /// </summary>
-    /// <param name="in_names">Пакет имен объекта</param>
-    /// <returns>Имя константы вида C_ID_WORD1_WORD2_WORDN</returns>
-    public static string NameToConstantId(IDictionary<HumanLanguageEnum, string> in_names)
-    {
-        return NameToConstant(in_names, true, true);
-    }
-    /// <summary>
-    /// Получение имени константы из имен объекта. Приоритет отдается англоязычному имени,
-    /// но если его нет, транслитерируется локальное имя.
-    /// </summary>
-    /// <param name="in_names">Пакет имен объекта</param>
-    /// <param name="in_idConstant">Является ли константа Id объекта (false по умолчанию)</param>
-    /// <returns>Имя константы вида C_[ID_]WORD1_WORD2_WORDN</returns>
-    public static string NameToConstant(IDictionary<HumanLanguageEnum, string> in_names, bool in_addCPrefix = true, bool in_idConstant = false)
-    {
-        string name = in_names.ContainsKey(HumanLanguageEnum.En) ?
-            in_names[HumanLanguageEnum.En] :
-            Transliteration.Front(in_names[HumanLanguageEnum.Ru]);
+    /// <param name="in_dotName">DOT name as a base</param>
+    public static string NameToUnderscoreSeparatedName(IDictionary<HumanLanguageEnum, string> names) => NameToUnderscoreSeparatedName(names[HumanLanguageEnum.En]);
 
-        string[] words = GetNameWords(name);
-        string result = string.Empty;
-        foreach (string word in words)
+    /// <summary>
+    /// Get an Id constant name from an object name, with a priority for English name (but if does not exist, transliterate a localized value)
+    /// </summary>
+    /// <param name="names">Object name package</param>
+    /// <returns>Constant name looking like C_ID_WORD1_WORD2_WORDN</returns>
+    public static string NameToConstantId(IDictionary<HumanLanguageEnum, string> names) => NameToConstant(names, true, true);
+
+    /// <summary>
+    /// Get an Id constant name from an object name, with a priority for English name (but if does not exist, transliterate a localized value)
+    /// </summary>
+    /// <param name="names">Object name package</param>
+    /// <param name="addCPrefix">Add C_ prefix</param>
+    /// <param name="idConstant">Is the constant an Id of an object (false by default)</param>
+    /// <returns>Constant name looking like C_[ID_]WORD1_WORD2_WORDN</returns>
+    public static string NameToConstant(IDictionary<HumanLanguageEnum, string> names, bool addCPrefix = true, bool idConstant = false)
+    {
+        var name = names.ContainsKey(HumanLanguageEnum.En)
+            ? names[HumanLanguageEnum.En]
+            : Transliteration.Front(names[HumanLanguageEnum.Ru]);
+
+        var words = GetNameWords(name);
+        var result = string.Empty;
+
+        foreach (var word in words)
         {
             if (result != string.Empty)
+            {
                 result += "_";
+            }
+
             result += word.ToUpper();
         }
-        return string.Format("{0}{1}{2}", in_addCPrefix ? "C_" : string.Empty, in_idConstant ? "ID_" : string.Empty, result);
+
+        return string.Format("{0}{1}{2}", addCPrefix ? "C_" : string.Empty, idConstant ? "ID_" : string.Empty, result);
     }
 
     /// <summary>
-    /// Формирование имени на локальном языке с заглавной буквы
+    /// Create a name in a localized language beginning from a big letter
     /// </summary>
-    /// <param name="in_names">Словарь имен</param>
-    /// <returns>Имя на локальном языке с заглавной буквы</returns>
-    public static string GetLocalNameUpperCase(IDictionary<HumanLanguageEnum, string> in_names)
+    /// <param name="names">Name dictionary</param>
+    /// <returns>Localized name with a big first letter</returns>
+    public static string GetLocalNameUpperCase(IDictionary<HumanLanguageEnum, string> names)
     {
-        string localName = GetLocalNameLowerCase(in_names);
+        var localName = GetLocalNameLowerCase(names);
+
         if (localName.Length > 0)
-            localName = char.ToUpper(localName[0]) + (localName.Length > 1 ? localName.Substring(1) : string.Empty);
-        return localName;
-    }
-    /// <summary>
-    /// Формирование имени на локальном языке с маленькой буквы
-    /// </summary>
-    /// <param name="in_names">Словарь имен</param>
-    /// <returns>Имя на локальном языке с маленькой буквы</returns>
-    public static string GetLocalNameLowerCase(IDictionary<HumanLanguageEnum, string> in_names)
-    {
-        string localName = in_names.ContainsKey(HumanLanguageEnum.Ru) ?
-            in_names[HumanLanguageEnum.Ru] :
-            in_names[HumanLanguageEnum.En];
-        return localName;
-    }
-
-    /// <summary>
-    /// "Забивание" строки эскейпами так, чтобы они представлялись нормальныим литералами C#
-    /// </summary>
-    /// <param name="in_string"></param>
-    /// <returns></returns>
-    public static string GetStringSuitableToCSharp(string in_string)
-    {
-        return in_string.Replace("\"", "\\\"");
-    }
-    /// <summary>
-    /// "Забивание" строки эскейпами так, чтобы она представлялась нормальной текстовой
-    /// строкой, пригодной для размещения между тегами XML.
-    /// </summary>
-    /// <param name="in_string"></param>
-    /// <returns></returns>
-    public static string GetStringSuitableToXmlText(string in_string)
-    {
-        return in_string
-            .Replace("&", "&amp;")
-            .Replace("\"", "&quot;")
-            .Replace("<", "&lt;")
-            .Replace(">", "&gt;");
-    }
-
-    /// <summary>
-    /// Если строка начинается с цифры (в общем случае в будущем должен поддерживаться
-    /// любой недопустимый в начале наименований символ), в ее начало добавляется
-    /// большая или маленькая N (в зависимости от значения in_bigN)
-    /// </summary>
-    /// <param name="in_original">Изначальное значение строки</param>
-    /// <param name="in_bigN">Если true, то добавляемая N большая, иначе маленькая</param>
-    /// <returns></returns>
-    public static string AddBeginningNIfNeeded(string in_original, bool in_bigN = true)
-    {
-        char[] invalidChars = new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-        if (string.IsNullOrWhiteSpace(in_original))
         {
-            return in_original;
+            localName = char.ToUpper(localName[0]) + (localName.Length > 1 ? localName.Substring(1) : string.Empty);
+        }
+
+        return localName;
+    }
+
+    /// <summary>
+    /// Create a name in a localized language beginning from a small letter
+    /// </summary>
+    /// <param name="names">Name dictionary</param>
+    /// <returns>Localized name with a small first letter</returns>
+    public static string GetLocalNameLowerCase(IDictionary<HumanLanguageEnum, string> names)
+    {
+        var localName = names.ContainsKey(HumanLanguageEnum.Ru)
+            ? names[HumanLanguageEnum.Ru]
+            : names[HumanLanguageEnum.En];
+
+        return localName;
+    }
+
+    /// <summary>
+    /// Filling a string with escapes such that they are represented a valid C# string literal
+    /// </summary>
+    /// <param name="stringValue"></param>
+    /// <returns></returns>
+    public static string GetStringSuitableToCSharp(string stringValue) => stringValue.Replace("\"", "\\\"");
+
+    /// <summary>
+    /// Filling a string with escapes such that they are represented a valid XML tag value
+    /// </summary>
+    /// <param name="stringValue"></param>
+    /// <returns></returns>
+    public static string GetStringSuitableToXmlText(string stringValue) => stringValue
+        .Replace("&", "&amp;")
+        .Replace("\"", "&quot;")
+        .Replace("<", "&lt;")
+        .Replace(">", "&gt;");
+
+    /// <summary>
+    /// If string starts with a digit, add N to the beginning
+    /// </summary>
+    /// <param name="originalStringValue"></param>
+    /// <param name="bigN"></param>
+    /// <returns></returns>
+    public static string AddBeginningNIfNeeded(string originalStringValue, bool bigN = true)
+    {
+        var invalidChars = new char[] {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+
+        if (string.IsNullOrWhiteSpace(originalStringValue))
+        {
+            return originalStringValue;
         }
         else
         {
             foreach (char ch in invalidChars)
             {
-                if (ch == in_original[0])
+                if (ch == originalStringValue[0])
                 {
-                    string addN = in_bigN ? "N" : "n";
-                    return addN + in_original;
+                    var addN = bigN ? "N" : "n";
+                    return addN + originalStringValue;
                 }
             }
-            return in_original;
+
+            return originalStringValue;
         }
     }
 }
 
 public static class NameHelperExtension
 {
-    static readonly char[] c_consonants = { 'б', 'в', 'г', 'д', 'ж', 'з', 'к', 'л', 'м', 'н', 'п', 'р', 'с', 'т', 'ф', 'х', 'ц', 'ч', 'ш', 'щ' };
+    static readonly char[] c_consonants = ['б', 'в', 'г', 'д', 'ж', 'з', 'к', 'л', 'м', 'н', 'п', 'р', 'с', 'т', 'ф', 'х', 'ц', 'ч', 'ш', 'щ'];
 
     /// <summary>
-    /// Сокращение наименования
+    /// Shorten a name
     /// </summary>
-    /// <param name="in_this">Полное наименование</param>
-    /// <param name="in_maxSymbols">Опция: Максимальное количество символов</param>
+    /// <param name="thisName">Full name</param>
+    /// <param name="maxSymbols">Optionally: max number of symbols</param>
     /// <returns></returns>
-    public static string Shorten(this string in_this, int? in_maxSymbols = null)
+    public static string Shorten(this string thisName, int? maxSymbols = null)
     {
-        char[] splitChars = new char[] { ' ', '-', '.', ',', '(', ')', '?', '!', ':', ';' };
+        char[] splitChars = [' ', '-', '.', ',', '(', ')', '?', '!', ':', ';'];
 
-        #region Сначала только сокращаем слова, но не удаляем их.
-        string result = string.Empty;
-        string[] words = in_this.Split(splitChars, StringSplitOptions.RemoveEmptyEntries);
-        List<string> wordsWOEmpty = new List<string>();
-        foreach (string w in words)
+        #region First only shorten words, but do not remove them
+        var result = string.Empty;
+        var words = thisName.Split(splitChars, StringSplitOptions.RemoveEmptyEntries);
+        var wordsWOEmpty = new List<string>();
+
+        foreach (var w in words)
         {
             if (w.Trim() != string.Empty)
+            {
                 wordsWOEmpty.Add(w.Trim());
+            }
         }
+
         words = wordsWOEmpty.ToArray();
-        char[] nextChars = new char[words.Length - 1];
-        int startIndex = 0;
-        for (int i = 0; i < words.Length - 1; i++)
+        var nextChars = new char[words.Length - 1];
+        var startIndex = 0;
+
+        for (var i = 0; i < words.Length - 1; i++)
         {
             startIndex += words[i].Length;
-            nextChars[i] = in_this[startIndex];
+            nextChars[i] = thisName[startIndex];
             startIndex++;
         }
+
         bool shortened;
-        for (int i = 0; i < words.Length; i++)
+
+        for (var i = 0; i < words.Length; i++)
         {
             shortened = false;
             words[i] = words[i].Trim();
+
             if (words[i].Length > 3)
             {
-                for (int j = 2; j < words[i].Length - 2; j++)
+                for (var j = 2; j < words[i].Length - 2; j++)
                 {
-                    char thisChar = words[i][j].ToString().ToLower()[0];
-                    bool isConsonant = false;
-                    foreach (char consChar in c_consonants)
+                    var thisChar = words[i][j].ToString().ToLower()[0];
+                    var isConsonant = false;
+
+                    foreach (var consChar in c_consonants)
                     {
                         if (thisChar == consChar)
                         {
@@ -327,6 +324,7 @@ public static class NameHelperExtension
                             break;
                         }
                     }
+
                     if (isConsonant)
                     {
                         words[i] = words[i].Substring(0, j + 1) + ".";
@@ -337,45 +335,60 @@ public static class NameHelperExtension
             }
 
             result += words[i];
+
             if (shortened)
             {
                 if (i != words.Length - 1 && nextChars[i] != '.' && nextChars[i] != ' ')
+                {
                     result += nextChars[i];
+                }
             }
             else
             {
                 if (i != words.Length - 1)
+                {
                     result += nextChars[i];
+                }
             }
         }
         #endregion
 
-        #region Если задано максимальное количество символов и результат его превышает, пытаемся удалить слова с конца.
-        if (in_maxSymbols.HasValue && result.Length > in_maxSymbols.Value)
+        #region If the max chanrs value is set, and result is more than that value, try remove words, beginning from the end
+        if (maxSymbols.HasValue && result.Length > maxSymbols.Value)
         {
             words = result.Split(splitChars, StringSplitOptions.RemoveEmptyEntries);
             wordsWOEmpty = new List<string>();
-            foreach (string w in words)
+
+            foreach (var w in words)
             {
                 if (w.Trim() != string.Empty)
+                {
                     wordsWOEmpty.Add(w.Trim());
+                }
             }
+
             words = wordsWOEmpty.ToArray();
             nextChars = new char[words.Length - 1];
             startIndex = 0;
-            for (int i = 0; i < words.Length - 1; i++)
+
+            for (var i = 0; i < words.Length - 1; i++)
             {
                 startIndex += words[i].Length;
                 nextChars[i] = result[startIndex];
                 startIndex++;
             }
+
             result = string.Empty;
-            for (int i = 0; i < words.Length; i++)
+
+            for (var i = 0; i < words.Length; i++)
             {
-                if (result.Length + (i != 0 ? 1 : 0) + words[i].Length <= in_maxSymbols.Value)
+                if (result.Length + (i != 0 ? 1 : 0) + words[i].Length <= maxSymbols.Value)
                 {
                     if (i != 0)
+                    {
                         result += nextChars[i - 1];
+                    }
+
                     result += words[i];
                 }
                 else

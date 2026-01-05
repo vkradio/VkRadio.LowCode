@@ -1,127 +1,97 @@
-﻿using System;
-
-namespace VkRadio.LowCode.AppGenerator;
+﻿namespace VkRadio.LowCode.AppGenerator;
 
 /// <summary>
-/// Тип артефактов
+/// Artefact type
 /// </summary>
 public class ArtefactType
 {
-    ArtefactTypeCodeEnum _code;
+    private ArtefactTypeCodeEnum _code;
 
     /// <summary>
-    /// Тип кода генерируемых артефактов
+    /// Code of generated artefact type
     /// </summary>
     public ArtefactTypeCodeEnum Code { get { return _code; } set { _code = value; } }
 
-    /// <summary>
-    /// Парсинг стркового значения кода типа артефактов в его представление типа ArtefactTypeCodeEnum
-    /// </summary>
-    /// <param name="in_value">Строковый код типа артефакта</param>
-    /// <returns>Тип артефакта ArtefactTypeCodeEnum</returns>
-    public static ArtefactTypeCodeEnum Parse(string in_value)
+    public static ArtefactTypeCodeEnum Parse(string value)
     {
-        switch (in_value)
+        return value switch
         {
-            case C_TYPE_MYSQL:
-                return ArtefactTypeCodeEnum.MySql;
-            case C_TYPE_MSSQL:
-                return ArtefactTypeCodeEnum.MsSql;
-            case C_TYPE_SQLITE:
-                return ArtefactTypeCodeEnum.SQLite;
-            case C_TYPE_CSHARP:
-                return ArtefactTypeCodeEnum.CSharp;
-            case C_TYPE_CSHARP_APPLICATION:
-                return ArtefactTypeCodeEnum.CSharpApplication;
-            case C_TYPE_CSHARP_PROJECT_MODEL:
-                return ArtefactTypeCodeEnum.CSharpProjectModel;
-            case C_TYPE_PHP_ZF:
-                return ArtefactTypeCodeEnum.PhpZf;
-            case C_TYPE_CSHARP_OLD_VERSION_SAVE:
-                return ArtefactTypeCodeEnum.CSharpOldVersionSave;
-            case C_TYPE_CSHARP_PROJECT_VERSION:
-                return ArtefactTypeCodeEnum.CSharpProjectVersion;
-            case C_TYPE_INNO_SETUP:
-                return ArtefactTypeCodeEnum.InnoSetup;
-            case C_TYPE_MSBUILD:
-                return ArtefactTypeCodeEnum.MSBuild;
-            default:
-                throw new ApplicationException(string.Format("Unknown ArtefactType code: {0}.", in_value));
-        }
+            C_TYPE_MYSQL => ArtefactTypeCodeEnum.MySql,
+            C_TYPE_MSSQL => ArtefactTypeCodeEnum.MsSql,
+            C_TYPE_SQLITE => ArtefactTypeCodeEnum.SQLite,
+            C_TYPE_CSHARP => ArtefactTypeCodeEnum.CSharp,
+            C_TYPE_CSHARP_APPLICATION => ArtefactTypeCodeEnum.CSharpApplication,
+            C_TYPE_CSHARP_PROJECT_MODEL => ArtefactTypeCodeEnum.CSharpProjectModel,
+            C_TYPE_PHP_ZF => ArtefactTypeCodeEnum.PhpZf,
+            C_TYPE_CSHARP_OLD_VERSION_SAVE => ArtefactTypeCodeEnum.CSharpOldVersionSave,
+            C_TYPE_CSHARP_PROJECT_VERSION => ArtefactTypeCodeEnum.CSharpProjectVersion,
+            C_TYPE_INNO_SETUP => ArtefactTypeCodeEnum.InnoSetup,
+            C_TYPE_MSBUILD => ArtefactTypeCodeEnum.MSBuild,
+            _ => throw new ApplicationException(string.Format("Unknown ArtefactType code: {0}.", value)),
+        };
     }
-    public static string ToStringLiteral(ArtefactTypeCodeEnum in_code)
+
+    public static string ToStringLiteral(ArtefactTypeCodeEnum code)
     {
-        switch (in_code)
+        return code switch
         {
-            case ArtefactTypeCodeEnum.MySql:
-                return C_TYPE_MYSQL;
-            case ArtefactTypeCodeEnum.MsSql:
-                return C_TYPE_MSSQL;
-            case ArtefactTypeCodeEnum.SQLite:
-                return C_TYPE_SQLITE;
-            case ArtefactTypeCodeEnum.CSharp:
-                return C_TYPE_CSHARP;
-            case ArtefactTypeCodeEnum.CSharpApplication:
-                return C_TYPE_CSHARP_APPLICATION;
-            case ArtefactTypeCodeEnum.CSharpProjectModel:
-                return C_TYPE_CSHARP_PROJECT_MODEL;
-            case ArtefactTypeCodeEnum.PhpZf:
-                return C_TYPE_PHP_ZF;
-            case ArtefactTypeCodeEnum.CSharpOldVersionSave:
-                return C_TYPE_CSHARP_OLD_VERSION_SAVE;
-            case ArtefactTypeCodeEnum.CSharpProjectVersion:
-                return C_TYPE_CSHARP_PROJECT_VERSION;
-            case ArtefactTypeCodeEnum.InnoSetup:
-                return C_TYPE_INNO_SETUP;
-            case ArtefactTypeCodeEnum.MSBuild:
-                return C_TYPE_MSBUILD;
-            default:
-                throw new ApplicationException($"Тип {Enum.GetName(typeof(ArtefactTypeCodeEnum), in_code)} не поддерживается.");
-        }
+            ArtefactTypeCodeEnum.MySql => C_TYPE_MYSQL,
+            ArtefactTypeCodeEnum.MsSql => C_TYPE_MSSQL,
+            ArtefactTypeCodeEnum.SQLite => C_TYPE_SQLITE,
+            ArtefactTypeCodeEnum.CSharp => C_TYPE_CSHARP,
+            ArtefactTypeCodeEnum.CSharpApplication => C_TYPE_CSHARP_APPLICATION,
+            ArtefactTypeCodeEnum.CSharpProjectModel => C_TYPE_CSHARP_PROJECT_MODEL,
+            ArtefactTypeCodeEnum.PhpZf => C_TYPE_PHP_ZF,
+            ArtefactTypeCodeEnum.CSharpOldVersionSave => C_TYPE_CSHARP_OLD_VERSION_SAVE,
+            ArtefactTypeCodeEnum.CSharpProjectVersion => C_TYPE_CSHARP_PROJECT_VERSION,
+            ArtefactTypeCodeEnum.InnoSetup => C_TYPE_INNO_SETUP,
+            ArtefactTypeCodeEnum.MSBuild => C_TYPE_MSBUILD,
+            _ => throw new ApplicationException($"Тип {Enum.GetName(typeof(ArtefactTypeCodeEnum), code)} не поддерживается."),
+        };
     }
 
     /// <summary>
-    /// Строковый код артефакта - скрипта генерации БД MySQL
+    /// MySQL database
     /// </summary>
     public const string C_TYPE_MYSQL = "MySQL";
     /// <summary>
-    /// Строковый код артефакта - скрипта генерации БД MS SQL (версии 2010)
+    /// MS SQL database (v. 2010)
     /// </summary>
     public const string C_TYPE_MSSQL = "MS SQL";
     /// <summary>
-    /// Строковый код артефакта - скрипта генерации БД SQLite 3
+    /// SQLite 3 database
     /// </summary>
     public const string C_TYPE_SQLITE = "SQLite";
     /// <summary>
-    /// Строковый код артефактов - пакета компонентов на C#
+    /// Package of components in C#
     /// </summary>
     public const string C_TYPE_CSHARP = "C#";
     /// <summary>
-    /// Строковый код артефактов - приложение на языке C# (в новом модульном стиле)
+    /// C# App (modular style)
     /// </summary>
     public const string C_TYPE_CSHARP_APPLICATION = "C# application";
     /// <summary>
-    /// Строковый код артефактов - проект МПОБ на языке C#
+    /// MetaModel defined in C#
     /// </summary>
     public const string C_TYPE_CSHARP_PROJECT_MODEL = "C# project - model";
     /// <summary>
-    /// Строковый код артефактов - пакета компонентов на PHP с использованием ZF
+    /// PHP ZF
     /// </summary>
     public const string C_TYPE_PHP_ZF = "PHP ZF";
     /// <summary>
-    /// Строковый код артефактов - сохранения предыдущей версии артефактов проекта C# base
+    /// Save the previous version of C# base artefacts
     /// </summary>
     public const string C_TYPE_CSHARP_OLD_VERSION_SAVE = "C# old version save";
     /// <summary>
-    /// Строковый код артефактов - вычисление новой версии проекта C# base
+    /// Calculate a new C# base version
     /// </summary>
     public const string C_TYPE_CSHARP_PROJECT_VERSION = "C# project version";
     /// <summary>
-    /// Строковый код артефактов - пакет скриптов Inno Setup для сборки пакета развертывания
+    /// Inno Setup scripts package to create a deployment package
     /// </summary>
     public const string C_TYPE_INNO_SETUP = "Inno Setup";
     /// <summary>
-    /// Строковый код артефактов - сборка проекта с помощью MSBuild
+    /// Build a project using MSBuild
     /// </summary>
     public const string C_TYPE_MSBUILD = "MSBuild";
-};
+}

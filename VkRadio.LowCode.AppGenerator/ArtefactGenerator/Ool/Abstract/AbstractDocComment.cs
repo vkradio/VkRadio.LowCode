@@ -1,23 +1,21 @@
-﻿namespace ArtefactGenerationProject.ArtefactGenerator.Ool.Abstract
+﻿namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract;
+
+/// <summary>
+/// Abstract comment in style of PHPDoc, XMLDoc, etc.
+/// </summary>
+public abstract class AbstractDocComment
 {
-    /// <summary>
-    /// Абстрактный комментарий в стиле PHPDoc, XMLDoc и т.п.
-    /// </summary>
-    public abstract class AbstractDocComment
+    protected string _text;
+
+    public AbstractDocComment(string text)
     {
-        protected string _text;
+        _text = text;
+    }
 
-        /// <summary>
-        /// Конструктор с инициализацией текстовым содержимым
-        /// </summary>
-        /// <param name="in_text">Текст комментария</param>
-        public AbstractDocComment(string in_text) { _text = in_text; }
+    /// <summary>
+    /// Comment text
+    /// </summary>
+    public string Text { get { return _text; } set { _text = value; } }
 
-        /// <summary>
-        /// Текст комментария
-        /// </summary>
-        public string Text { get { return _text; } set { _text = value; } }
-
-        public abstract string[] GenerateText();
-    };
+    public abstract string[] GenerateText();
 }

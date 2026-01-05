@@ -1,10 +1,9 @@
-﻿namespace ArtefactGenerationProject.ArtefactGenerator.Sql.MsSql
+﻿namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql.MsSql;
+
+public class MsSqlPredefinedInsert : PredefinedInsert
 {
-    public class MsSqlPredefinedInsert : PredefinedInsert
+    public MsSqlPredefinedInsert()
     {
-        public MsSqlPredefinedInsert()
-        {
-            _quoteSymbol = "\"";
-        }
+        _quoteSymbol = "\"";
     }
 }

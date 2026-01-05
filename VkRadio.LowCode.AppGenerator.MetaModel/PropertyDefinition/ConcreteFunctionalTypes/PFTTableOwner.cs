@@ -1,51 +1,51 @@
-﻿namespace MetaModel.PropertyDefinition.ConcreteFunctionalTypes
+﻿namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
+
+/// <summary>
+/// Functional property type - link to a table owner
+/// </summary>
+public class PFTTableOwner : PFTLink, IPFTDependentLink
 {
-    /// <summary>
-    /// Функциональный тип свойства - ссылка на владельца таблицы
-    /// </summary>
-    public class PFTTableOwner: PFTLink, IPFTDependentLink
+    Relationship.RelationshipTable _relationshipTable;
+
+    public PFTTableOwner()
     {
-        Relationship.RelationshipTable _relationshipTable;
+        _stringCode = C_STRING_CODE;
+    }
 
-        /// <summary>
-        /// Конструктор функционального типа свойства - ссылки на владельца таблицы
-        /// </summary>
-        public PFTTableOwner()
+    /// <summary>
+    /// Relationship
+    /// </summary>
+    public Relationship.RelationshipTable RelationshipTable
+    {
+        get
         {
-            _stringCode = C_STRING_CODE;
+            return _relationshipTable;
         }
-
-        /// <summary>
-        /// Связь
-        /// </summary>
-        public Relationship.RelationshipTable RelationshipTable
+        set
         {
-            get { return _relationshipTable; }
-            set
-            {
-                _relationshipTable = value;
+            _relationshipTable = value;
 
-                // Извлекаем имена из определения ТОД, на который указывает связь, и делаем
-                // их именами по умолчанию для данного свойства.
-                //_defaultNames.Clear();
-                //if (_relationshipTable != null)
-                //{
-                //    DOTDefinition.DOTDefinition otherDOT = _relationshipTable.OwnerPropertyDefinition.Id == _propertyDefinition.Id ?
-                //        _relationshipTable.TablePropertyDefinition.OwnerDefinition :
-                //        _relationshipTable.OwnerPropertyDefinition.OwnerDefinition;
-
-                //    foreach (var name in otherDOT.Names)
-                //        _defaultNames.Add(name.Key, name.Value);
-                //}
-            }
+            //_defaultNames.Clear();
+            //
+            //if (_relationshipTable != null)
+            //{
+            //    DOTDefinition.DOTDefinition otherDOT = _relationshipTable.OwnerPropertyDefinition.Id == _propertyDefinition.Id
+            //        ? _relationshipTable.TablePropertyDefinition.OwnerDefinition
+            //        : _relationshipTable.OwnerPropertyDefinition.OwnerDefinition;
+            //
+            //    foreach (var name in otherDOT.Names)
+            //    {
+            //        _defaultNames.Add(name.Key, name.Value);
+            //    }
+            //}
         }
+    }
 
-        /// <summary>
-        /// Строковый код фунционального типа свойства (используется в файле метамодели)
-        /// </summary>
-        public const string C_STRING_CODE = "table owner";
+    public const string C_STRING_CODE = "table owner";
 
-        public OnDeleteActionEnum OnDeleteAction { get; set; }
-        public void SetDefaultOnDeleteAction() { OnDeleteAction = OnDeleteActionEnum.Delete; }
-    };
+    public OnDeleteActionEnum OnDeleteAction { get; set; }
+    public void SetDefaultOnDeleteAction()
+    {
+        OnDeleteAction = OnDeleteActionEnum.Delete;
+    }
 }

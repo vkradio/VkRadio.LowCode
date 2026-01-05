@@ -1,58 +1,42 @@
-﻿using System;
+﻿using VkRadio.LowCode.AppGenerator.MetaModel.Names;
+using VkRadio.LowCode.AppGenerator.MetaModel.PredefinedDO;
+using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.SystemFunctionalTypes;
 
-using MetaModel.Names;
-using MetaModel.PredefinedDO;
-using MetaModel.PropertyDefinition.SystemFunctionalTypes;
+namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
 
-namespace MetaModel.PropertyDefinition.ConcreteFunctionalTypes
+/// <summary>
+/// Functional property type - unique code (GUID)
+/// </summary>
+public class PFTUniqueCode: PropertyFunctionalType
 {
-    /// <summary>
-    /// Функциональный тип свойства - уникальный код (GUID)
-    /// </summary>
-    public class PFTUniqueCode: PropertyFunctionalType
+    const string C_GENERATE_MARK = "generate";
+
+    public PFTUniqueCode()
     {
-        const string C_GENERATE_MARK = "generate";
+        _defaultValue = null;
+        _nullable = true;
+        _quantitative = false;
+        _unique = true;
+        _stringCode = C_STRING_CODE;
 
-        /// <summary>
-        /// Конструктор функционального типа свойства - уникального кода (GUID)
-        /// </summary>
-        public PFTUniqueCode()
+        _defaultNames.Add(HumanLanguageEnum.En, C_STRING_CODE);
+        _defaultNames.Add(HumanLanguageEnum.Ru, "уникальный код");
+    }
+
+    public override object ParseValueFromXmlString(string xmlString)
+    {
+        return xmlString == C_GENERATE_MARK
+            ? new SGuid()
+            : new SGuid(Guid.Parse(xmlString));
+    }
+
+    public override IPropertyValue CreatePropertyValue()
+    {
+        return new PropertyValue<SGuid>
         {
-            _defaultValue   = null;
-            _nullable       = true;
-            _quantitative   = false;
-            _unique         = true;
-            _stringCode     = C_STRING_CODE;
+            Definition = (PropertyDefinition)_propertyDefinition
+        };
+    }
 
-            _defaultNames.Add(HumanLanguageEnum.En, C_STRING_CODE);
-            _defaultNames.Add(HumanLanguageEnum.Ru, "уникальный код");
-        }
-
-        /// <summary>
-        /// Извлечение значения свойства уникального кода из строки XML
-        /// </summary>
-        /// <param name="in_xmlString">Строка XML, содержащая извлекаемое значение</param>
-        /// <returns>Типизированное значение свойства, либо специальная строковая метка "generate",
-        /// если требуется сгенерировать уникальный код во время исполнения модели</returns>
-        public override object ParseValueFromXmlString(string in_xmlString)
-        {
-            return in_xmlString == C_GENERATE_MARK ?
-                new SGuid() :
-                new SGuid(Guid.Parse(in_xmlString));
-        }
-
-        /// <summary>
-        /// Создание типизированной заготовки для хранения значения.
-        /// </summary>
-        /// <returns>Заготовка для значения свойства</returns>
-        public override IPropertyValue CreatePropertyValue()
-        {
-            return new PropertyValue<SGuid>() { Definition = (PropertyDefinition)_propertyDefinition };
-        }
-
-        /// <summary>
-        /// Строковый код фунционального типа свойства (используется в файле метамодели)
-        /// </summary>
-        public const string C_STRING_CODE = "unique code";
-    };
+    public const string C_STRING_CODE = "unique code";
 }

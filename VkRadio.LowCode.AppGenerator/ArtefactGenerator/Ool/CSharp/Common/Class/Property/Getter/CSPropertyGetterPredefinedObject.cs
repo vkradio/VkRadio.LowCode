@@ -1,18 +1,20 @@
-﻿using MetaModel.PredefinedDO;
+﻿using VkRadio.LowCode.AppGenerator.MetaModel.PredefinedDO;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Common.Class.Property.Getter
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Property.Getter;
+
+public class CSPropertyGetterPredefinedObject : CSPropertyGetter
 {
-    public class CSPropertyGetterPredefinedObject: CSPropertyGetter
+    public CSPropertyGetterPredefinedObject(CSProperty property)
+        : base(property)
     {
-        public CSPropertyGetterPredefinedObject(CSProperty property) : base(property) {}
+    }
 
-        public override string[] GenerateText()
-        {
-            var dotClassName = CSharpHelper.GenerateDOTClassName(CorrespondingPDO.DOTDefinition);
-            return new string[] { $"get => ({dotClassName})StorageRegistry.Instance.{dotClassName}Storage.Restore({IdConstName});" };
-        }
+    public override string[] GenerateText()
+    {
+        var dotClassName = CSharpHelper.GenerateDOTClassName(CorrespondingPDO.DOTDefinition);
+        return [$"get => ({dotClassName})StorageRegistry.Instance.{dotClassName}Storage.Restore({IdConstName});"];
+    }
 
-        public PredefinedDO CorrespondingPDO { get; set; }
-        public string IdConstName { get; set; }
-    };
+    public PredefinedDO CorrespondingPDO { get; set; }
+    public string IdConstName { get; set; }
 }

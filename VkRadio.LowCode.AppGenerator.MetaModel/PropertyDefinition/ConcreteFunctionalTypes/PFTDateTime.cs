@@ -1,53 +1,51 @@
-﻿using System;
-using System.Xml;
+﻿using System.Xml;
+using VkRadio.LowCode.AppGenerator.MetaModel.PredefinedDO;
+using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.SystemFunctionalTypes;
 
-using MetaModel.PredefinedDO;
-using MetaModel.PropertyDefinition.SystemFunctionalTypes;
+namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
 
-namespace MetaModel.PropertyDefinition.ConcreteFunctionalTypes
+/// <summary>
+/// Abstract functional type of a property containing date and/or time
+/// </summary>
+public abstract class PFTDateTime : PropertyFunctionalType
 {
     /// <summary>
-    /// Абстрактный функциональный тип свойства, содержащий дату и/или время
+    /// Constructor
     /// </summary>
-    public abstract class PFTDateTime: PropertyFunctionalType
+    public PFTDateTime()
     {
-        /// <summary>
-        /// Конструктор функционального типа свойства, содержащего дату и/или время
-        /// </summary>
-        public PFTDateTime()
-        {
-            _defaultValue       = null;
-            _nullable           = true;
-            _quantitative       = false;
-            _unique             = false;
-        }
+        _defaultValue = null;
+        _nullable = true;
+        _quantitative = false;
+        _unique = false;
+    }
 
-        /// <summary>
-        /// Извлечение значения свойства даты и времени из строки XML
-        /// </summary>
-        /// <param name="in_xmlString">Строка XML, содержащая извлекаемое значение</param>
-        /// <returns>Типизированное значение свойства, либо специальная строковая метка "runtime",
-        /// если требуется использовать текущее системное время исполнения модели</returns>
-        public override object ParseValueFromXmlString(string in_xmlString)
-        {
-            return in_xmlString == C_RUNTIME_MARK ?
-                new SDateTime() :
-                new SDateTime(XmlConvert.ToDateTime(in_xmlString, XmlDateTimeSerializationMode.RoundtripKind));
-        }
+    /// <summary>
+    /// Extracting a value of date and time from an XML string
+    /// </summary>
+    /// <param name="xmlString">XML string</param>
+    /// <returns>Typed property value, or a special literal &quot;runtime&quot;, if the current runtime value is required</returns>
+    public override object? ParseValueFromXmlString(string xmlString)
+    {
+        return xmlString == C_RUNTIME_MARK
+            ? new SDateTime()
+            : new SDateTime(XmlConvert.ToDateTime(xmlString, XmlDateTimeSerializationMode.RoundtripKind));
+    }
 
-        /// <summary>
-        /// Создание типизированной заготовки для хранения значения.
-        /// </summary>
-        /// <returns>Заготовка для значения свойства</returns>
-        public override IPropertyValue CreatePropertyValue()
+    /// <summary>
+    /// Creating a typed prefab for storing a value
+    /// </summary>
+    /// <returns>Prefab of a property value</returns>
+    public override IPropertyValue CreatePropertyValue()
+    {
+        return new PropertyValue<SDateTime>()
         {
-            return new PropertyValue<SDateTime>() { Definition = (PropertyDefinition)_propertyDefinition };
-        }
+            Definition = (PropertyDefinition)_propertyDefinition
+        };
+    }
 
-        /// <summary>
-        /// Строковый код, указывающий на использование системного времени
-        /// исполнения модели
-        /// </summary>
-        public const string C_RUNTIME_MARK = "runtime";
-    };
+    /// <summary>
+    /// String code defining a usage of a current runtime value
+    /// </summary>
+    public const string C_RUNTIME_MARK = "runtime";
 }

@@ -1,372 +1,426 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
+using VkRadio.LowCode.AppGenerator.MetaModel.Names;
+using VkRadio.LowCode.AppGenerator.MetaModel.PredefinedDO;
+using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
+using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.SystemFunctionalTypes;
 
-using MetaModel.Names;
-using MetaModel.PredefinedDO;
-using MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
-using MetaModel.PropertyDefinition.SystemFunctionalTypes;
+namespace VkRadio.LowCode.AppGenerator.MetaModel;
 
-namespace MetaModel
+/// <summary>
+/// MetaModel (synonim: problem space)
+/// </summary>
+public class MetaModel : INamed
 {
+    Dictionary<HumanLanguageEnum, string> _names;
+    //int _engineFeaturesetRev = 0;
+    //IDictionary<int, EngineFeaturesetRevDesc> _aboveEngineFeaturesetRevs;
+    Dictionary<Guid, PredefinedDO.PredefinedDO> _allPredefinedDOs;
+    Dictionary<Guid, DOTDefinition.DOTDefinition> _allDOTDefinitions;
+    Dictionary<Guid, RegisterDefinition.RegisterDefinition> _allRegisterDefinitions;
+    Dictionary<Guid, Relationship.Relationship> _allRelationships;
+    Dictionary<Guid, PropertyDefinition.PropertyDefinition> _allPropertyDefinitions;
+    //Dictionary<Guid, RegisterDefinition.RegisterValueDefinition> _allRegisterValueDefinitions;
+
     /// <summary>
-    /// Метамодель (синонимы: словарь предметной области, МПОБ)
+    /// Private MetaModel constructor
     /// </summary>
-    public class MetaModel: INamed
+    MetaModel()
     {
-        Dictionary<HumanLanguageEnum, string> _names;
-        //int _engineFeaturesetRev = 0;
-        //IDictionary<int, EngineFeaturesetRevDesc> _aboveEngineFeaturesetRevs;
-        Dictionary<Guid, PredefinedDO.PredefinedDO> _allPredefinedDOs;
-        Dictionary<Guid, DOTDefinition.DOTDefinition> _allDOTDefinitions;
-        Dictionary<Guid, RegisterDefinition.RegisterDefinition> _allRegisterDefinitions;
-        Dictionary<Guid, Relationship.Relationship> _allRelationships;
-        Dictionary<Guid, PropertyDefinition.PropertyDefinition> _allPropertyDefinitions;
-        Dictionary<Guid, RegisterDefinition.RegisterValueDefinition> _allRegisterValueDefinitions;
+        _allPredefinedDOs = [];
+        _allDOTDefinitions = [];
+        _allRegisterDefinitions = [];
+        _allRelationships = [];
+    }
 
-        /// <summary>
-        /// Закрытый конструктор метамодели
-        /// </summary>
-        MetaModel()
+    #region Private methods for loading MetaModel from a file
+    /// <summary>
+    /// Private load of MetaModel from a file
+    /// </summary>
+    /// <param name="filePath">path to a MetaModel file</param>
+    private void PrivateLoad(string filePath)
+    {
+        var xelRoot = XElement.Load(filePath);
+
+        var xelDefaultLinks = xelRoot.Element("DefaultLinks");
+
+        if (xelDefaultLinks is not null)
         {
-            _allPredefinedDOs = new Dictionary<Guid, PredefinedDO.PredefinedDO>();
-            _allDOTDefinitions = new Dictionary<Guid, DOTDefinition.DOTDefinition>();
-            _allRegisterDefinitions = new Dictionary<Guid, RegisterDefinition.RegisterDefinition>();
-            _allRelationships = new Dictionary<Guid, Relationship.Relationship>();
-        }
-
-        #region Закрытые методы загрузки метамодели из файла
-        /// <summary>
-        /// Закрытая загрузка метамодели из файла
-        /// </summary>
-        /// <param name="in_filePath">Путь к файлу метамодели</param>
-        void PrivateLoad(string in_filePath)
-        {
-            XElement xelRoot = XElement.Load(in_filePath);
-
-            XElement xelDefaultLinks = xelRoot.Element("DefaultLinks");
-            if (xelDefaultLinks != null)
+            if (xelDefaultLinks.Value == "strict")
             {
-                if (xelDefaultLinks.Value == "strict")
-                    DefaultLinksStrict = true;
-                else if (xelDefaultLinks.Value == "free")
-                    DefaultLinksStrict = false;
-                else
-                    throw new ApplicationException(string.Format("Unsupported root metamodel DefaultLinks value: \"{0}\". Supported values: \"strict\", \"free\" (default).", xelDefaultLinks.Value ?? "<NULL>"));
+                DefaultLinksStrict = true;
             }
-
-            if (xelRoot.Name != "MetaModel")
+            else if (xelDefaultLinks.Value == "free")
             {
-                if (xelRoot.Name != "MetaModelCompound")
-                    throw new ApplicationException("Root metamodel element is not MetaModel or MetaModelCompound.");
-
-                // Загружаем все файлы набора МПОБ.
-                XElement xelPackages = xelRoot.Element("Packages");
-                if (xelPackages == null)
-                    throw new ApplicationException("Packages element not found in MetaModelCompound.");
-                Dictionary<string, XElement> xelPackageRoots = new Dictionary<string, XElement>();
-                foreach (XElement xelPackagePath in xelPackages.Elements("PackagePath"))
-                {
-                    FileInfo fi = new FileInfo(in_filePath);
-                    string path = Path.Combine(fi.DirectoryName, xelPackagePath.Value);
-                    XElement xelPackageRoot = XElement.Load(path);
-                    if (xelPackageRoot.Name != "MetaModelPackage")
-                        throw new ApplicationException("Root metamodel element is not MetaModelPackage.");
-
-                    xelPackageRoots.Add(path, xelPackageRoot);
-                }
-
-                // Загрузка определений типов объектов данных и их свойств.
-                foreach (XElement xel in xelPackageRoots.Values)
-                    LoadDOTDefinitions(xel);
-                // Загрузка определений регистров, их ключей, значений, источников.
-                foreach (XElement xel in xelPackageRoots.Values)
-                    LoadRegisterDefinitions(xel);
-                // Загрузка связей. Ссылки на типы объектов данных и свойства проставляются сразу,
-                // и одновременно у соответствующих свойств устанавливаются ссылки на соответствующие им связи.
-                foreach (XElement xel in xelPackageRoots.Values)
-                    LoadRelationships(xel);
-                // Загрузка предопределенных объектов.
-                foreach (XElement xel in xelPackageRoots.Values)
-                    LoadPredefinedDOs(xel);
+                DefaultLinksStrict = false;
             }
             else
             {
-                // Загрузка определений типов объектов данных и их свойств.
-                LoadDOTDefinitions(xelRoot);
-                // Загрузка определений регистров, их ключей, значений, источников.
-                LoadRegisterDefinitions(xelRoot);
-                // Загрузка связей. Ссылки на типы объектов данных и свойства проставляются сразу,
-                // и одновременно у соответствующих свойств устанавливаются ссылки на соответствующие им связи.
-                LoadRelationships(xelRoot);
-                // Загрузка предопределенных объектов.
-                LoadPredefinedDOs(xelRoot);
-            }
-
-            _names = NameDictionary.LoadNamesFromContainingXElement(xelRoot);
-
-            // Выполняем отложенное связывание значений функциональных типов по умолчанию в виде
-            // ссылок на ТОД.
-            ChangePredefinedDOGuidsToRefsInDefaults();
-            // Выполняем отложенное связывание ссылочных значений предопределенных объектов.
-            ChangePredefinedDOGuidsToRefsInPredefinedDOPropValues();
-            // Проверка определений свойств ТОД ссылочного типа и значений регистров ссылочного типа на отсутствие
-            // непрогрузок.
-            CheckRefPropertyIntegrity();
-        }
-        /// <summary>
-        /// Загрузка определений ТОД
-        /// </summary>
-        /// <param name="in_xelRoot">Корневой элемент XML файла метамодели</param>
-        void LoadDOTDefinitions(XElement in_xelRoot)
-        {
-            XElement xelDOTDefinitions = in_xelRoot.Element("DOTDefinitions");
-            if (xelDOTDefinitions == null)
-                throw new ApplicationException("Element DOTDefinitions not found in metamodel.");
-
-            foreach (XElement xelDOTDefinition in xelDOTDefinitions.Elements("DOTDefinition"))
-            {
-                DOTDefinition.DOTDefinition dotDef = DOTDefinition.DOTDefinition.LoadFromXElement(this, xelDOTDefinition);
-                _allDOTDefinitions.Add(dotDef.Id, dotDef);
+                throw new ApplicationException(string.Format("Unsupported root metamodel DefaultLinks value: \"{0}\". Supported values: \"strict\", \"free\" (default).", xelDefaultLinks.Value ?? "<NULL>"));
             }
         }
-        /// <summary>
-        /// Загрузка определений регистров
-        /// </summary>
-        /// <param name="in_xelRoot">Корневой элемент XML файла метамодели</param>
-        void LoadRegisterDefinitions(XElement in_xelRoot)
+
+        if (xelRoot.Name != "MetaModel")
         {
-            XElement xelRegisterDefinitions = in_xelRoot.Element("RegisterDefinitions");
-            if (xelRegisterDefinitions != null)
+            if (xelRoot.Name != "MetaModelCompound")
             {
-                foreach (XElement xelRegisterDefinition in xelRegisterDefinitions.Elements("RegisterDefinition"))
+                throw new ApplicationException("Root metamodel element is not MetaModel or MetaModelCompound.");
+            }
+
+            // Load all files of a set of MetaModels
+            var xelPackages = xelRoot.Element("Packages")
+                ?? throw new ApplicationException("Packages element not found in MetaModelCompound.");
+
+            var xelPackageRoots = new Dictionary<string, XElement>();
+
+            foreach (var xelPackagePath in xelPackages.Elements("PackagePath"))
+            {
+                var fi = new FileInfo(filePath);
+                var path = Path.Combine(fi.DirectoryName!, xelPackagePath.Value);
+                var xelPackageRoot = XElement.Load(path);
+
+                if (xelPackageRoot.Name != "MetaModelPackage")
                 {
-                    RegisterDefinition.RegisterDefinition registerDef = RegisterDefinition.RegisterDefinition.LoadFromXElement(this, xelRegisterDefinition);
-                    _allRegisterDefinitions.Add(registerDef.Id, registerDef);
+                    throw new ApplicationException("Root metamodel element is not MetaModelPackage.");
                 }
-            }
-        }
-        /// <summary>
-        /// Загрузка связей
-        /// </summary>
-        /// <param name="in_xelRoot">Корневой элемент XML файла метамодели</param>
-        void LoadRelationships(XElement in_xelRoot)
-        {
-            XElement xelRels = in_xelRoot.Element("Relationships");
-            if (xelRels == null)
-                throw new ApplicationException("Element Relationships not found in metamodel.");
 
-            foreach (XElement xelRel in xelRels.Elements("Relationship"))
-            {
-                Relationship.Relationship dotRel = Relationship.Relationship.LoadFromXElement(this, xelRel);
-                _allRelationships.Add(dotRel.Id, dotRel);
+                xelPackageRoots.Add(path, xelPackageRoot);
             }
-        }
-        /// <summary>
-        /// Загрузка предопределенных объектов данных
-        /// </summary>
-        /// <param name="in_xelRoot"></param>
-        void LoadPredefinedDOs(XElement in_xelRoot)
-        {
-            XElement xelDOs = in_xelRoot.Element("PredefinedDOs");
-            if (xelDOs == null)
-                throw new ApplicationException("Element PredefinedDOs not found in metamodel.");
 
-            foreach (XElement xelDO in xelDOs.Elements("PredefinedDO"))
+            // Load data object type definitions and definitions of their properties
+            foreach (var xel in xelPackageRoots.Values)
             {
-                PredefinedDO.PredefinedDO pdo = PredefinedDO.PredefinedDO.LoadFromXElement(this, xelDO);
-                try
-                {
-                    _allPredefinedDOs.Add(pdo.Id, pdo);
-                }
-                catch (Exception ex)
-                {
-                    throw new UniquinessException(pdo.Id, "Неуникальный ПОД", ex);
-                }
+                LoadDOTDefinitions(xel);
+            }
+
+            //// Load definitions of registers, their keys, values, sources
+            //foreach (XElement xel in xelPackageRoots.Values)
+            //{
+            //    LoadRegisterDefinitions(xel);
+            //}
+
+            // Load references. References for data object types are being set immediately, and for corresponding
+            // properties the links are being set
+            foreach (XElement xel in xelPackageRoots.Values)
+            {
+                LoadRelationships(xel);
+            }
+
+            // Load predefined objects
+            foreach (XElement xel in xelPackageRoots.Values)
+            {
+                LoadPredefinedDOs(xel);
             }
         }
-        /// <summary>
-        /// Выполняем отложенное связывание значений функциональных типов по умолчанию в виде
-        /// ссылок на ТОД
-        /// </summary>
-        void ChangePredefinedDOGuidsToRefsInDefaults()
+        else
         {
-            foreach (PropertyDefinition.PropertyDefinition def in AllPropertyDefinitions.Values)
+            // Load data object type definitions and definitions of their properties
+            LoadDOTDefinitions(xelRoot);
+
+            //// Load definitions of registers, their keys, values, sources
+            //LoadRegisterDefinitions(xelRoot);
+
+            // Load references. References for data object types are being set immediately, and for corresponding
+            // properties the links are being set
+            LoadRelationships(xelRoot);
+
+            // Load predefined objects
+            LoadPredefinedDOs(xelRoot);
+        }
+
+        _names = NameDictionary.LoadNamesFromContainingXElement(xelRoot);
+
+        // Execute delayed linking of default values of functional types in form of links to data object types
+        ChangePredefinedDOGuidsToRefsInDefaults();
+
+        // Execute delayed linking of reference value of predefined objects
+        ChangePredefinedDOGuidsToRefsInPredefinedDOPropValues();
+
+        // Checking definitions of properties of data object types and register values of reference types for reference integrity
+        CheckRefPropertyIntegrity();
+    }
+
+    /// <summary>
+    /// Load data object type definitions
+    /// </summary>
+    /// <param name="xelRoot">Root XML element of MetaModel file</param>
+    private void LoadDOTDefinitions(XElement xelRoot)
+    {
+        var xelDOTDefinitions = xelRoot.Element("DOTDefinitions")
+            ?? throw new ApplicationException("Element DOTDefinitions not found in metamodel.");
+
+        foreach (var xelDOTDefinition in xelDOTDefinitions.Elements("DOTDefinition"))
+        {
+            var dotDef = DOTDefinition.DOTDefinition.LoadFromXElement(this, xelDOTDefinition);
+            _allDOTDefinitions.Add(dotDef.Id, dotDef);
+        }
+    }
+
+    ///// <summary>
+    ///// Load definitions of registers
+    ///// </summary>
+    ///// <param name="xelRoot">Root XML element of MetaModel file</param>
+    //private void LoadRegisterDefinitions(XElement xelRoot)
+    //{
+    //    var xelRegisterDefinitions = xelRoot.Element("RegisterDefinitions");
+
+    //    if (xelRegisterDefinitions is not null)
+    //    {
+    //        foreach (var xelRegisterDefinition in xelRegisterDefinitions.Elements("RegisterDefinition"))
+    //        {
+    //            var registerDef = RegisterDefinition.RegisterDefinition.LoadFromXElement(this, xelRegisterDefinition);
+    //            _allRegisterDefinitions.Add(registerDef.Id, registerDef);
+    //        }
+    //    }
+    //}
+
+    /// <summary>
+    /// Load relationships
+    /// </summary>
+    /// <param name="xelRoot">Root XML element of MetaModel file</param>
+    void LoadRelationships(XElement xelRoot)
+    {
+        var xelRels = xelRoot.Element("Relationships")
+            ?? throw new ApplicationException("Element Relationships not found in metamodel.");
+
+        foreach (var xelRel in xelRels.Elements("Relationship"))
+        {
+            var dotRel = Relationship.Relationship.LoadFromXElement(this, xelRel);
+            _allRelationships.Add(dotRel.Id, dotRel);
+        }
+    }
+
+    /// <summary>
+    /// Load predefined data objects
+    /// </summary>
+    /// <param name="xelRoot"></param>
+    private void LoadPredefinedDOs(XElement xelRoot)
+    {
+        var xelDOs = xelRoot.Element("PredefinedDOs")
+            ?? throw new ApplicationException("Element PredefinedDOs not found in metamodel.");
+
+        foreach (var xelDO in xelDOs.Elements("PredefinedDO"))
+        {
+            var pdo = PredefinedDO.PredefinedDO.LoadFromXElement(this, xelDO);
+
+            try
             {
-                PFTLink pftLink = def.FunctionalType as PFTLink;
-                if (pftLink != null && pftLink.DefaultValue != null)
-                {
-                    SRefObject refObj = (SRefObject)pftLink.DefaultValue;
-                    refObj.Value = AllPredefinedDOs[refObj.Key];
-                }
+                _allPredefinedDOs.Add(pdo.Id, pdo);
+            }
+            catch (Exception ex)
+            {
+                throw new UniquinessException(pdo.Id, "Non-unique predefined data object", ex);
             }
         }
-        /// <summary>
-        /// Выполняем отложенное связывание ссылочных значений предопределенных объектов
-        /// </summary>
-        void ChangePredefinedDOGuidsToRefsInPredefinedDOPropValues()
+    }
+
+    /// <summary>
+    /// Execute delayed linking of default values of functional types in form of links to data object types
+    /// </summary>
+    private void ChangePredefinedDOGuidsToRefsInDefaults()
+    {
+        foreach (var def in AllPropertyDefinitions.Values)
         {
-            foreach (PredefinedDO.PredefinedDO pdo in AllPredefinedDOs.Values)
+            var pftLink = def.FunctionalType as PFTLink;
+
+            if (pftLink?.DefaultValue is not null)
             {
-                foreach (IPropertyValue pValue in pdo.PropertyValues.Values)
+                var refObj = (SRefObject)pftLink.DefaultValue;
+                refObj.Value = AllPredefinedDOs[refObj.Key];
+            }
+        }
+    }
+
+    /// <summary>
+    /// Execute delayed linking of reference value of predefined objects
+    /// </summary>
+    private void ChangePredefinedDOGuidsToRefsInPredefinedDOPropValues()
+    {
+        foreach (var pdo in AllPredefinedDOs.Values)
+        {
+            foreach (var pValue in pdo.PropertyValues.Values)
+            {
+                var pftLink = pValue.Definition.FunctionalType as PFTLink;
+
+                if (pValue?.ValueObject is not null)
                 {
-                    PFTLink pftLink = pValue.Definition.FunctionalType as PFTLink;
-                    if (pftLink != null && pValue.ValueObject != null)
+                    var refObj = (SRefObject)pValue.ValueObject;
+
+                    try
                     {
-                        SRefObject refObj = (SRefObject)pValue.ValueObject;
-                        try
-                        {
-                            refObj.Value = AllPredefinedDOs[refObj.Key];
-                        }
-                        catch (KeyNotFoundException ex)
-                        {
-                            throw new UniquinessException(refObj.Key, "Отложенное связывание ссылочных значений ПОД", ex);
-                        }
+                        refObj.Value = AllPredefinedDOs[refObj.Key];
+                    }
+                    catch (KeyNotFoundException ex)
+                    {
+                        throw new UniquinessException(refObj.Key, "Deferred linking of reference values of predefined data objects", ex);
                     }
                 }
             }
         }
-        /// <summary>
-        /// Проверка определений свойств ТОД ссылочного типа и значений регистров ссылочного типа
-        /// на отсутствие непрогрузок
-        /// </summary>
-        void CheckRefPropertyIntegrity()
+    }
+
+    /// <summary>
+    /// Checking definitions of properties of data object types and register values of reference types for reference integrity
+    /// </summary>
+    private void CheckRefPropertyIntegrity()
+    {
+        foreach (var propDef in AllPropertyDefinitions.Values)
         {
-            foreach (PropertyDefinition.PropertyDefinition propDef in AllPropertyDefinitions.Values)
+            if (propDef.FunctionalType is PFTLink)
             {
-                if (propDef.FunctionalType is PFTLink)
+                var pftConnector = propDef.FunctionalType as PFTConnector;
+
+                if (pftConnector is not null)
                 {
-                    PFTConnector pftConnector = propDef.FunctionalType as PFTConnector;
-                    if (pftConnector != null)
+                    if (pftConnector.RelationshipConnector is null)
                     {
-                        if (pftConnector.RelationshipConnector == null)
-                            throw new ApplicationException(string.Format("Property {0} have no RelationshipConnector object specified.", propDef.Id));
-                        continue;
-                    }
-                    
-                    PFTReferenceValue pftReferenceValue = propDef.FunctionalType as PFTReferenceValue;
-                    if (pftReferenceValue != null)
-                    {
-                        if (pftReferenceValue.RelationshipReference == null)
-                            throw new ApplicationException(string.Format("Property {0} have no RelationshipReference object specified.", propDef.Id));
-                        continue;
+                        throw new ApplicationException(string.Format("Property {0} have no RelationshipConnector object specified.", propDef.Id));
                     }
 
-                    PFTTableOwner pftTableOwner = propDef.FunctionalType as PFTTableOwner;
-                    if (pftTableOwner != null)
-                    {
-                        if (pftTableOwner.RelationshipTable == null)
-                            throw new ApplicationException(string.Format("Property {0} have no RelationshipTable object specified.", propDef.Id));
-                        continue;
-                    }
-
-                    PFTTablePart pftTablePart = propDef.FunctionalType as PFTTablePart;
-                    if (pftTablePart != null)
-                    {
-                        if (pftTablePart.RelationshipTable == null)
-                            throw new ApplicationException(string.Format("Property {0} have no RelationshipTable object specified.", propDef.Id));
-                        continue;
-                    }
-
-                    PFTBackReferencedTable pftBackRefTable = propDef.FunctionalType as PFTBackReferencedTable;
-                    if (pftBackRefTable != null)
-                    {
-                        if (pftBackRefTable.RelationshipReference == null)
-                            throw new ApplicationException(string.Format("Property {0} have no RelationshipReference object specified.", propDef.Id));
-                        continue;
-                    }
-
-                    throw new ApplicationException(string.Format("Property {0} have unknown PFTLink type FunctionalType ({1}).", propDef.Id, propDef.FunctionalType.GetType().Name));
+                    continue;
                 }
+                
+                var pftReferenceValue = propDef.FunctionalType as PFTReferenceValue;
+
+                if (pftReferenceValue is not null)
+                {
+                    if (pftReferenceValue.RelationshipReference is null)
+                    {
+                        throw new ApplicationException(string.Format("Property {0} have no RelationshipReference object specified.", propDef.Id));
+                    }
+
+                    continue;
+                }
+
+                var pftTableOwner = propDef.FunctionalType as PFTTableOwner;
+
+                if (pftTableOwner is not null)
+                {
+                    if (pftTableOwner.RelationshipTable is null)
+                    {
+                        throw new ApplicationException(string.Format("Property {0} have no RelationshipTable object specified.", propDef.Id));
+                    }
+
+                    continue;
+                }
+
+                var pftTablePart = propDef.FunctionalType as PFTTablePart;
+
+                if (pftTablePart is not null)
+                {
+                    if (pftTablePart.RelationshipTable is null)
+                    {
+                        throw new ApplicationException(string.Format("Property {0} have no RelationshipTable object specified.", propDef.Id));
+                    }
+
+                    continue;
+                }
+
+                var pftBackRefTable = propDef.FunctionalType as PFTBackReferencedTable;
+
+                if (pftBackRefTable is not null)
+                {
+                    if (pftBackRefTable.RelationshipReference is null)
+                    {
+                        throw new ApplicationException(string.Format("Property {0} have no RelationshipReference object specified.", propDef.Id));
+                    }
+
+                    continue;
+                }
+
+                throw new ApplicationException(string.Format("Property {0} have unknown PFTLink type FunctionalType ({1}).", propDef.Id, propDef.FunctionalType.GetType().Name));
             }
         }
-        #endregion
+    }
+    #endregion
 
-        /// <summary>
-        /// Имя метамодели (словаря, МПОБ) на разных ЕЯ
-        /// </summary>
-        public IDictionary<HumanLanguageEnum, string> Names { get { return _names; } }
-        public bool DefaultLinksStrict { get; set; }
-        /// <summary>
-        /// Номер ревизии SVN движка, под который составлена метамодель
-        /// </summary>
-        //public int EngineFeaturesetRev { get { return _engineFeaturesetRev; } }
-        /// <summary>
-        /// Описания вышестоящих (более новых) версий движка
-        /// </summary>
-        //public IDictionary<int, EngineFeaturesetRevDesc> AboveEngineFeaturesetRevs { get { return _aboveEngineFeaturesetRevs; } }
-        /// <summary>
-        /// Полный словарь предопределенных объектов данных
-        /// </summary>
-        public IDictionary<Guid, PredefinedDO.PredefinedDO> AllPredefinedDOs { get { return _allPredefinedDOs; } }
-        /// <summary>
-        /// Полный словарь определений типов объектов данных (ТОД)
-        /// </summary>
-        public IDictionary<Guid, DOTDefinition.DOTDefinition> AllDOTDefinitions { get { return _allDOTDefinitions; } }
-        /// <summary>
-        /// Полный словарь определений регистров
-        /// </summary>
-        public IDictionary<Guid, RegisterDefinition.RegisterDefinition> AllRegisterDefinitions { get { return _allRegisterDefinitions; } }
-        /// <summary>
-        /// Полный словарь связей между объектами данных
-        /// </summary>
-        public IDictionary<Guid, Relationship.Relationship> AllRelationships { get { return _allRelationships; } }
-        /// <summary>
-        /// Полный словарь определений свойств ТОД
-        /// </summary>
-        public IDictionary<Guid, PropertyDefinition.PropertyDefinition> AllPropertyDefinitions
+    /// <summary>
+    /// MetaModel name on different natural languages
+    /// </summary>
+    public IDictionary<HumanLanguageEnum, string> Names { get { return _names; } }
+    public bool DefaultLinksStrict { get; set; }
+    /// <summary>
+    /// SVN rev of an engine, that supports the MetaModel
+    /// </summary>
+    //public int EngineFeaturesetRev { get { return _engineFeaturesetRev; } }
+    /// <summary>
+    /// Descriptions of higher (newest) versions of an engine
+    /// </summary>
+    //public IDictionary<int, EngineFeaturesetRevDesc> AboveEngineFeaturesetRevs { get { return _aboveEngineFeaturesetRevs; } }
+    /// <summary>
+    /// Full dictionary of predefined data objects
+    /// </summary>
+    public IDictionary<Guid, PredefinedDO.PredefinedDO> AllPredefinedDOs { get { return _allPredefinedDOs; } }
+    /// <summary>
+    /// Full dictionary of data object type definitions (DOTs)
+    /// </summary>
+    public IDictionary<Guid, DOTDefinition.DOTDefinition> AllDOTDefinitions { get { return _allDOTDefinitions; } }
+    /// <summary>
+    /// Full dictionary of definitions of registers
+    /// </summary>
+    public IDictionary<Guid, RegisterDefinition.RegisterDefinition> AllRegisterDefinitions { get { return _allRegisterDefinitions; } }
+    /// <summary>
+    /// Full dictionary of relationships between data objects
+    /// </summary>
+    public IDictionary<Guid, Relationship.Relationship> AllRelationships { get { return _allRelationships; } }
+    /// <summary>
+    /// Full dictionary of definitions of properties of data object types
+    /// </summary>
+    public IDictionary<Guid, PropertyDefinition.PropertyDefinition> AllPropertyDefinitions
+    {
+        get
         {
-            get
+            if (_allPropertyDefinitions is null)
             {
-                if (_allPropertyDefinitions == null)
-                {
-                    _allPropertyDefinitions = new Dictionary<Guid,PropertyDefinition.PropertyDefinition>();
+                _allPropertyDefinitions = [];
 
-                    foreach (DOTDefinition.DOTDefinition dotDef in _allDOTDefinitions.Values)
+                foreach (var dotDef in _allDOTDefinitions.Values)
+                {
+                    foreach (var propDef in dotDef.PropertyDefinitions.Values)
                     {
-                        foreach (PropertyDefinition.PropertyDefinition propDef in dotDef.PropertyDefinitions.Values)
-                        {
-                            _allPropertyDefinitions.Add(propDef.Id, propDef);
-                        }
+                        _allPropertyDefinitions.Add(propDef.Id, propDef);
                     }
                 }
-                return _allPropertyDefinitions;
             }
-        }
-        /// <summary>
-        /// Полный словарь определений значений регистров
-        /// </summary>
-        public IDictionary<Guid, RegisterDefinition.RegisterValueDefinition> AllRegisterValueDefinitions
-        {
-            get
-            {
-                if (_allRegisterValueDefinitions == null)
-                {
-                    _allRegisterValueDefinitions = new Dictionary<Guid,RegisterDefinition.RegisterValueDefinition>();
 
-                    foreach (RegisterDefinition.RegisterDefinition registerDef in _allRegisterDefinitions.Values)
-                    {
-                        foreach (RegisterDefinition.RegisterValueDefinition valueDef in registerDef.ValueDefinitions.Values)
-                        {
-                            _allRegisterValueDefinitions.Add(valueDef.Id, valueDef);
-                        }
-                    }
-                }
-                return _allRegisterValueDefinitions;
-            }
+            return _allPropertyDefinitions;
         }
+    }
 
-        /// <summary>
-        /// Загрузка новой метамодели из файла
-        /// </summary>
-        /// <param name="in_filePath">Путь к файлу метамодели</param>
-        /// <returns>Загруженная метамодель</returns>
-        public static MetaModel Load(string in_filePath)
-        {
-            MetaModel metaModel = new MetaModel();
-            metaModel.PrivateLoad(in_filePath);
-            return metaModel;
-        }
-    };
+    ///// <summary>
+    ///// Full dictionary of definitionas of register values
+    ///// </summary>
+    //public IDictionary<Guid, RegisterDefinition.RegisterValueDefinition> AllRegisterValueDefinitions
+    //{
+    //    get
+    //    {
+    //        if (_allRegisterValueDefinitions is null)
+    //        {
+    //            _allRegisterValueDefinitions = [];
+
+    //            foreach (var registerDef in _allRegisterDefinitions.Values)
+    //            {
+    //                foreach (var valueDef in registerDef.ValueDefinitions.Values)
+    //                {
+    //                    _allRegisterValueDefinitions.Add(valueDef.Id, valueDef);
+    //                }
+    //            }
+    //        }
+
+    //        return _allRegisterValueDefinitions;
+    //    }
+    //}
+
+    /// <summary>
+    /// Load a new MetaModel from file
+    /// </summary>
+    /// <param name="in_filePath">Path to a file of MetaModel</param>
+    /// <returns>Loaded MetaModel</returns>
+    public static MetaModel Load(string in_filePath)
+    {
+        var metaModel = new MetaModel();
+
+        metaModel.PrivateLoad(in_filePath);
+
+        return metaModel;
+    }
 }

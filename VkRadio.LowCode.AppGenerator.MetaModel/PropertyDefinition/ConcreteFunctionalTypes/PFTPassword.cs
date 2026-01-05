@@ -1,80 +1,68 @@
-﻿using System;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
+using VkRadio.LowCode.AppGenerator.MetaModel.Names;
 
-using MetaModel.Names;
+namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
 
-namespace MetaModel.PropertyDefinition.ConcreteFunctionalTypes
+/// <summary>
+/// Functional property type - password
+/// </summary>
+public class PFTPassword : PFTString
+{
+    PasswordStoreAs _storeAs;
+
+    public PFTPassword()
+    {
+        _defaultValue = null;
+        _nullable = false;
+        _quantitative = false;
+        _stringCode = C_STRING_CODE;
+        _unique = false;
+        _defaultMaxLength = 255;
+        _defaultMinLength = 8;
+        _maxLength = 255;
+        _minLength = 8;
+        _storeAs = PasswordStoreAs.Md5;
+
+        _defaultNames.Add(HumanLanguageEnum.En, C_STRING_CODE);
+        _defaultNames.Add(HumanLanguageEnum.Ru, "пароль");
+    }
+
+    public const string C_STRING_CODE = "password";
+
+    /// <summary>
+    /// Storage method in a dababase
+    /// </summary>
+    public PasswordStoreAs StoreAs { get { return _storeAs; } set { _storeAs = value; } }
+
+    protected override void InitExtendedParams(XElement xelPropertyDefinition)
+    {
+        base.InitExtendedParams(xelPropertyDefinition);
+
+        var xel = xelPropertyDefinition.Element("StoreAs");
+
+        if (xel is not null)
+        {
+            var strStoreAs = xel.Value;
+
+            _storeAs = strStoreAs switch
+            {
+                "open" => PasswordStoreAs.Open,
+                "md5" => PasswordStoreAs.Md5,
+                _ => throw new ApplicationException(string.Format("Unsupported StoreAs code for password property Id {0}: \"{1}\".", xelPropertyDefinition.Element("Id")!.Value, strStoreAs)),
+            };
+        }
+    }
+}
+
+/// <summary>
+/// Storage method in a database
+/// </summary>
+public enum PasswordStoreAs
 {
     /// <summary>
-    /// Функциональный тип свойства - пароль
+    /// Open store as a plain string
     /// </summary>
-    public class PFTPassword: PFTString
-    {
-        PasswordStoreAs _storeAs;
-
-        /// <summary>
-        /// Конструктор функционального типа свойства - пароля
-        /// </summary>
-        public PFTPassword()
-        {
-            _defaultValue       = null;
-            _nullable           = false;
-            _quantitative       = false;
-            _stringCode         = C_STRING_CODE;
-            _unique             = false;
-            _defaultMaxLength   = 255;
-            _defaultMinLength   = 8;
-            _maxLength          = 255;
-            _minLength          = 8;
-            _storeAs            = PasswordStoreAs.Md5;
-
-            _defaultNames.Add(HumanLanguageEnum.En, C_STRING_CODE);
-            _defaultNames.Add(HumanLanguageEnum.Ru, "пароль");
-        }
-
-        /// <summary>
-        /// Строковый код фунционального типа свойства (используется в файле метамодели)
-        /// </summary>
-        public const string C_STRING_CODE = "password";
-
-        /// <summary>
-        /// Способ хранения пароля в БД
-        /// </summary>
-        public PasswordStoreAs StoreAs { get { return _storeAs; } set { _storeAs = value; } }
-
-        protected override void InitExtendedParams(XElement in_xelPropertyDefinition)
-        {
-            base.InitExtendedParams(in_xelPropertyDefinition);
-
-            XElement xel = in_xelPropertyDefinition.Element("StoreAs");
-            if (xel != null)
-            {
-                string strStoreAs = xel.Value;
-                switch (strStoreAs)
-                {
-                    case "open":
-                        _storeAs = PasswordStoreAs.Open;
-                        break;
-                    case "md5":
-                        _storeAs = PasswordStoreAs.Md5;
-                        break;
-                    default:
-                        throw new ApplicationException(string.Format("Unsupported StoreAs code for password property Id {0}: \"{1}\".", in_xelPropertyDefinition.Element("Id").Value, strStoreAs));
-                }
-            }
-        }
-    };
-
-    /// <summary>
-    /// Способ хранения пароля в БД
-    /// </summary>
-    public enum PasswordStoreAs
-    {
-        /// <summary>
-        /// Хранить в открытом виде
-        /// </summary>
-        Open,
-        // Хранить в виде хэша md5
-        Md5
-    };
+    Open,
+    // MD5 hash
+    Md5
 }

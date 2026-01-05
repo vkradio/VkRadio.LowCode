@@ -1,82 +1,67 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
 
-using MetaModel.PropertyDefinition;
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Sql
+/// <summary>
+/// Link tables using Foreign Keys
+/// </summary>
+public class ForeignKeyConstraint : ITextDefinition
 {
-    /// <summary>Связь между таблицами по внешнему ключу
-    /// <remarks>Этот класс добавлен 27 мая 2015 г. для возможности добивки констрейнтов
-    /// специально в конец файла MS SQL</remarks>
-    /// </summary>
-    public class ForeignKeyConstraint : ITextDefinition
+    protected string _quoteSymbol = "\"";
+
+    public ForeignKeyConstraint(string tableName, string refTableName, string refFieldName, OnDeleteActionEnum onDeleteAction)
     {
-        protected string _quoteSymbol = "\"";
+        TableName = tableName;
+        RefTableName = refTableName;
+        RefFieldName = refFieldName;
+        OnDeleteAction = onDeleteAction;
+    }
 
-        /// <summary>
-        /// Конструктор
-        /// </summary>
-        /// <param name="in_tableName">Имя таблицы, на которую накладывается ограничение</param>
-        /// <param name="in_refTableName">Имя таблицы, на которую ссылается ВК</param>
-        /// <param name="in_refFieldName">Имя поля ВК</param>
-        /// <param name="in_onDeleteAction">Действие при удалении объекта, на который ссылается ВК</param>
-        public ForeignKeyConstraint(string in_tableName, string in_refTableName, string in_refFieldName, OnDeleteActionEnum in_onDeleteAction)
+    /// <summary>
+    /// Table name on that constraint is applied
+    /// </summary>
+    public string TableName { get; private set; }
+    /// <summary>
+    /// Table name on that FK is referencing
+    /// </summary>
+    public string RefTableName { get; private set; }
+    /// <summary>
+    /// FK field name
+    /// </summary>
+    public string RefFieldName { get; private set; }
+    /// <summary>
+    /// What to do when referenced by FK row is being deleted
+    /// </summary>
+    public OnDeleteActionEnum OnDeleteAction { get; private set; }
+
+    public string[] GenerateText()
+    {
+        var result = new List<string>
         {
-            TableName = in_tableName;
-            RefTableName = in_refTableName;
-            RefFieldName = in_refFieldName;
-            OnDeleteAction = in_onDeleteAction;
+            string.Format("alter table {0}{1}{0}", _quoteSymbol, TableName),
+            string.Format("\tadd constraint {0}fk_{1}_{2}{0}", _quoteSymbol, TableName, RefFieldName),
+            string.Format("\tforeign key ({0}{1}{0}) references {0}{2}{0} ({0}id{0})", _quoteSymbol, RefFieldName, RefTableName)
+        };
+
+        if (OnDeleteAction == OnDeleteActionEnum.CannotDelete)
+        {
+            result[result.Count - 1] += ";";
+        }
+        else
+        {
+            var deleteCommand = OnDeleteAction switch
+            {
+                OnDeleteActionEnum.Delete => "cascade",
+                OnDeleteActionEnum.ResetToNull => "set null",
+                OnDeleteActionEnum.ResetToDefault => "set default",
+                _ => throw new ApplicationException(string.Format("ForeignKeyConstraint for table {0}.{1} has unsupported FK delete action: {2}.", TableName, RefFieldName, (int)OnDeleteAction)),
+            };
+
+            result.Add(string.Format("\ton delete {0};", deleteCommand));
         }
 
-        /// <summary>
-        /// Имя таблицы, на которую накладывается ограничение
-        /// </summary>
-        public string TableName { get; private set; }
-        /// <summary>
-        /// Имя таблицы, на которую ссылается ВК
-        /// </summary>
-        public string RefTableName { get; private set; }
-        /// <summary>
-        /// Имя поля ВК
-        /// </summary>
-        public string RefFieldName { get; private set; }
-        /// <summary>
-        /// Действие при удалении объекта, на который ссылается ВК
-        /// </summary>
-        public OnDeleteActionEnum OnDeleteAction { get; private set; }
+        result.Add("go");
 
-        public string[] GenerateText()
-        {
-            List<string> result = new List<string>();
-            result.Add(string.Format("alter table {0}{1}{0}", _quoteSymbol, TableName));
-            result.Add(string.Format("\tadd constraint {0}fk_{1}_{2}{0}", _quoteSymbol, TableName, RefFieldName));
-            result.Add(string.Format("\tforeign key ({0}{1}{0}) references {0}{2}{0} ({0}id{0})", _quoteSymbol, RefFieldName, RefTableName));
-            if (OnDeleteAction == OnDeleteActionEnum.CannotDelete)
-            {
-                result[result.Count - 1] += ";";
-            }
-            else
-            {
-                string deleteCommand;
-                switch (OnDeleteAction)
-                {
-                    case OnDeleteActionEnum.Delete:
-                        deleteCommand = "cascade";
-                        break;
-                    case OnDeleteActionEnum.ResetToNull:
-                        deleteCommand = "set null";
-                        break;
-                    case OnDeleteActionEnum.ResetToDefault:
-                        deleteCommand = "set default";
-                        break;
-                    default:
-                        throw new ApplicationException(string.Format("ForeignKeyConstraint for table {0}.{1} has unsupported FK delete action: {2}.", TableName, RefFieldName, (int)OnDeleteAction));
-                }
-                result.Add(string.Format("\ton delete {0};", deleteCommand));
-            }
-            result.Add("go");
-
-            return result.ToArray();
-        }
-    };
+        return result.ToArray();
+    }
 }

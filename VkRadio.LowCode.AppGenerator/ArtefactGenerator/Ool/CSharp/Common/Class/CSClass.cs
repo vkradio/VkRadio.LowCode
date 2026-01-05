@@ -1,136 +1,181 @@
-﻿using System.Collections.Generic;
+﻿using AbstClassNS = VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Class;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Method;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Property;
 
-using AbstClassNS = ArtefactGenerationProject.ArtefactGenerator.Ool.Abstract.Class;
-using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Common.Class.Method;
-using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Common.Class.Property;
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Common.Class
+/// <summary>
+/// C# class
+/// </summary>
+public class CSClass : AbstClassNS.Class
 {
-    /// <summary>
-    /// C# class
-    /// </summary>
-    public class CSClass: AbstClassNS.Class
+    const string c_tab = "    ";
+
+    protected Dictionary<string, CSProperty> _properties = [];
+    protected Dictionary<string, CSConstructor> _constructors = [];
+
+    protected override string[] GenerateClassDocComment()
     {
-        const string c_tab = "    ";
-
-        protected Dictionary<string, CSProperty> _properties = new Dictionary<string, CSProperty>();
-        protected Dictionary<string, CSConstructor> _constructors = new Dictionary<string, CSConstructor>();
-
-        protected override string[] GenerateClassDocComment()
+        var text = base.GenerateClassDocComment();
+        
+        for (var i = 0; i < text.Length; i++)
         {
-            var text = base.GenerateClassDocComment();
-            
-            for (var i = 0; i < text.Length; i++)
-                text[i] = c_tab + text[i];
-
-            return text;
+            text[i] = c_tab + text[i];
         }
 
-        protected override string[] GenerateClassHeader()
+        return text;
+    }
+
+    protected override string[] GenerateClassHeader()
+    {
+        var text = new List<string>();
+
+        var classNameString = $"public{(Partial ? " partial" : string.Empty)} class {_name}";
+
+        if (!string.IsNullOrEmpty(_inheritsFrom))
         {
-            var text = new List<string>();
-
-            var classNameString = $"public{(Partial ? " partial" : string.Empty)} class {_name}";
-            if (!string.IsNullOrEmpty(_inheritsFrom))
-                classNameString += (": " + _inheritsFrom);
-            text.Add(classNameString);
-            text.Add("{");
-
-            for (var i = 0; i < text.Count; i++)
-                text[i] = c_tab + text[i];
-
-            return text.ToArray();
+            classNameString += (": " + _inheritsFrom);
         }
 
-        protected override string[] GenerateClassBodyLines()
+        text.Add(classNameString);
+        text.Add("{");
+
+        for (var i = 0; i < text.Count; i++)
         {
-            var text = new List<string>();
+            text[i] = c_tab + text[i];
+        }
 
-            var textEmbeddedClass = new List<string>();
-            if (EmbeddedClassPredefined != null)
-                textEmbeddedClass.AddRange(EmbeddedClassPredefined.GenerateText());
+        return text.ToArray();
+    }
 
-            var textFields = new List<string>();
-            foreach (var field in _fields.Values)
-                textFields.AddRange(field.GenerateText());
+    protected override string[] GenerateClassBodyLines()
+    {
+        var text = new List<string>();
 
-            var textConstructors = new List<string>();
-            foreach (var ctor in _constructors.Values)
-                textConstructors.AddRange(ctor.GenerateText());
+        var textEmbeddedClass = new List<string>();
 
-            var textMethods = new List<string>();
-            foreach (var method in _methods.Values)
-                textMethods.AddRange(method.GenerateText());
+        if (EmbeddedClassPredefined != null)
+        {
+            textEmbeddedClass.AddRange(EmbeddedClassPredefined.GenerateText());
+        }
 
-            var textConstants = new List<string>();
-            foreach (var constant in _constants.Values)
-                textConstants.AddRange(constant.GenerateText());
+        var textFields = new List<string>();
 
-            var textProperties = new List<string>();
-            foreach (var prop in _properties.Values)
-                textProperties.AddRange(prop.GenerateText());
+        foreach (var field in _fields.Values)
+        {
+            textFields.AddRange(field.GenerateText());
+        }
 
-            if (textEmbeddedClass.Count != 0)
+        var textConstructors = new List<string>();
+
+        foreach (var ctor in _constructors.Values)
+        {
+            textConstructors.AddRange(ctor.GenerateText());
+        }
+
+        var textMethods = new List<string>();
+
+        foreach (var method in _methods.Values)
+        {
+            textMethods.AddRange(method.GenerateText());
+        }
+
+        var textConstants = new List<string>();
+
+        foreach (var constant in _constants.Values)
+        {
+            textConstants.AddRange(constant.GenerateText());
+        }
+
+        var textProperties = new List<string>();
+
+        foreach (var prop in _properties.Values)
+        {
+            textProperties.AddRange(prop.GenerateText());
+        }
+
+        if (textEmbeddedClass.Count != 0)
+        {
+            text.AddRange(textEmbeddedClass);
+
+            if (textFields.Count != 0 || textMethods.Count != 0 || textConstants.Count != 0 || textProperties.Count != 0)
             {
-                text.AddRange(textEmbeddedClass);
-                if (textFields.Count != 0 || textMethods.Count != 0 || textConstants.Count != 0 || textProperties.Count != 0)
-                    text.Add(string.Empty);
+                text.Add(string.Empty);
             }
-            if (textFields.Count != 0)
+        }
+
+        if (textFields.Count != 0)
+        {
+            text.AddRange(textFields);
+
+            if (textConstructors.Count != 0 || textMethods.Count != 0 || textConstants.Count != 0 || textProperties.Count != 0)
             {
-                text.AddRange(textFields);
-                if (textConstructors.Count != 0 || textMethods.Count != 0 || textConstants.Count != 0 || textProperties.Count != 0)
-                    text.Add(string.Empty);
+                text.Add(string.Empty);
             }
-            if (textConstructors.Count != 0)
+        }
+
+        if (textConstructors.Count != 0)
+        {
+            text.AddRange(textConstructors);
+
+            if (textMethods.Count != 0 || textConstants.Count != 0 || textProperties.Count != 0)
             {
-                text.AddRange(textConstructors);
-                if (textMethods.Count != 0 || textConstants.Count != 0 || textProperties.Count != 0)
-                    text.Add(string.Empty);
+                text.Add(string.Empty);
             }
-            if (textMethods.Count != 0)
+        }
+
+        if (textMethods.Count != 0)
+        {
+            text.AddRange(textMethods);
+
+            if (textConstants.Count != 0 || textProperties.Count != 0)
             {
-                text.AddRange(textMethods);
-                if (textConstants.Count != 0 || textProperties.Count != 0)
-                    text.Add(string.Empty);
+                text.Add(string.Empty);
             }
-            if (textConstants.Count != 0)
-            {
-                text.AddRange(textConstants);
-                if (textProperties.Count != 0)
-                    text.Add(string.Empty);
-            }
+        }
+
+        if (textConstants.Count != 0)
+        {
+            text.AddRange(textConstants);
+
             if (textProperties.Count != 0)
             {
-                text.AddRange(textProperties);
+                text.Add(string.Empty);
             }
-
-            for (var i = 0; i < text.Count; i++)
-            {
-                if (!string.IsNullOrWhiteSpace(text[i]))
-                    text[i] = c_tab + text[i];
-            }
-
-            return text.ToArray();
         }
 
-        protected override string[] GenerateClassFooter() { return new string[] { c_tab + "};" }; }
+        if (textProperties.Count != 0)
+        {
+            text.AddRange(textProperties);
+        }
 
-        /// <summary>
-        /// Встроенный класс для быстрого извлечения ПОД
-        /// </summary>
-        public CSClassPredefined EmbeddedClassPredefined { get; set; }
-        /// <summary>
-        /// Является ли представление класса частичным.
-        /// </summary>
-        public bool Partial { get; set; }
-        /// <summary>
-        /// Свойства класса
-        /// </summary>
-        public IDictionary<string, CSProperty> Properties { get { return _properties; } }
-        /// <summary>
-        /// Конструкторы класса
-        /// </summary>
-        public IDictionary<string, CSConstructor> Constructors { get { return _constructors; } }
-    };
+        for (var i = 0; i < text.Count; i++)
+        {
+            if (!string.IsNullOrWhiteSpace(text[i]))
+            {
+                text[i] = c_tab + text[i];
+            }
+        }
+
+        return text.ToArray();
+    }
+
+    protected override string[] GenerateClassFooter() { return [c_tab + "};"]; }
+
+    /// <summary>
+    /// Embedded class for fast extraction of a predefined data object
+    /// </summary>
+    public CSClassPredefined EmbeddedClassPredefined { get; set; }
+    /// <summary>
+    /// Is it a partial class representation
+    /// </summary>
+    public bool Partial { get; set; }
+    /// <summary>
+    /// Class properties
+    /// </summary>
+    public IDictionary<string, CSProperty> Properties { get { return _properties; } }
+    /// <summary>
+    /// Class constructors
+    /// </summary>
+    public IDictionary<string, CSConstructor> Constructors { get { return _constructors; } }
 }

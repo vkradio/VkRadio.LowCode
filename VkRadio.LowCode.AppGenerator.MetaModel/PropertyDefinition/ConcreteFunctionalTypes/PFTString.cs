@@ -1,71 +1,67 @@
 ﻿using System.Xml.Linq;
+using VkRadio.LowCode.AppGenerator.MetaModel.PredefinedDO;
 
-using MetaModel.PredefinedDO;
+namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
 
-namespace MetaModel.PropertyDefinition.ConcreteFunctionalTypes
+/// <summary>
+/// String functional property type (abstract class)
+/// </summary>
+public abstract class PFTString : PropertyFunctionalType
 {
-    /// <summary>
-    /// Строковый функциональный тип свойства (абстрактный класс)
-    /// </summary>
-    public abstract class PFTString: PropertyFunctionalType
+    protected int _defaultMaxLength;
+    protected int _defaultMinLength;
+    protected int _maxLength;
+    protected int _minLength;
+
+    public PFTString()
     {
-        protected int _defaultMaxLength;
-        protected int _defaultMinLength;
-        protected int _maxLength;
-        protected int _minLength;
+        _defaultValue = null;
+        _nullable = true;
+        _quantitative = false;
+        _unique = false;
+    }
 
-        /// <summary>
-        /// Конструктор строкового функционального типа свойства
-        /// </summary>
-        public PFTString()
+    protected override void InitExtendedParams(XElement xelPropertyDefinition)
+    {
+        var xel = xelPropertyDefinition.Element("MaxLength");
+
+        if (xel is not null)
         {
-            _defaultValue   = null;
-            _nullable       = true;
-            _quantitative   = false;
-            _unique         = false;
+            _maxLength = int.Parse(xel.Value);
         }
 
-        protected override void InitExtendedParams(XElement in_xelPropertyDefinition)
+        xel = xelPropertyDefinition.Element("MinLength");
+
+        if (xel is not null)
         {
-            XElement xel = in_xelPropertyDefinition.Element("MaxLength");
-            if (xel != null)
-                _maxLength = int.Parse(xel.Value);
-            xel = in_xelPropertyDefinition.Element("MinLength");
-            if (xel != null)
-                _minLength = int.Parse(xel.Value);
+            _minLength = int.Parse(xel.Value);
         }
+    }
 
-        /// <summary>
-        /// Максимальная длина строки по умолчанию
-        /// </summary>
-        public int DefaultMaxLength { get { return _defaultMaxLength; } }
-        /// <summary>
-        /// Минимальная длина строки по умолчанию
-        /// </summary>
-        public int DefaultMinLength { get { return _defaultMinLength; } }
-        /// <summary>
-        /// Максимальная длина строки
-        /// </summary>
-        public int MaxLength { get { return _maxLength; } }
-        /// <summary>
-        /// Минимальная длина строки
-        /// </summary>
-        public int MinLength { get { return _minLength; } }
+    /// <summary>
+    /// Default max lenght of a string
+    /// </summary>
+    public int DefaultMaxLength { get { return _defaultMaxLength; } }
+    /// <summary>
+    /// Default min length of a string
+    /// </summary>
+    public int DefaultMinLength { get { return _defaultMinLength; } }
+    /// <summary>
+    /// Max length of a string
+    /// </summary>
+    public int MaxLength { get { return _maxLength; } }
+    /// <summary>
+    /// Min length of a string
+    /// </summary>
+    public int MinLength { get { return _minLength; } }
 
-        /// <summary>
-        /// Извлечение значения свойства из строки XML
-        /// </summary>
-        /// <param name="in_xmlString">Строка XML, содержащая извлекаемое значение</param>
-        /// <returns>Типизированное значение свойства</returns>
-        public override object ParseValueFromXmlString(string in_xmlString) { return in_xmlString; }
+    public override object ParseValueFromXmlString(string xmlString) => xmlString;
 
-        /// <summary>
-        /// Создание типизированной заготовки для хранения значения.
-        /// </summary>
-        /// <returns>Заготовка для значения свойства</returns>
-        public override IPropertyValue CreatePropertyValue()
+    public override IPropertyValue CreatePropertyValue()
+    {
+        return new PropertyValue<string>
         {
-            return new PropertyValue<string>() { Definition = (PropertyDefinition)_propertyDefinition };
-        }
-    };
+            Definition = (PropertyDefinition)_propertyDefinition
+        };
+    }
 }

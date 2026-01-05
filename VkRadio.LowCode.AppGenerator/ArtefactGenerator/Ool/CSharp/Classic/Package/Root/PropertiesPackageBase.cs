@@ -1,17 +1,16 @@
-﻿using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Classic.Component.Properties;
+﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Component.Properties;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Classic.Package.Root
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Root;
+
+public class PropertiesPackageBase : PropertiesPackageAbstract
 {
-    public class PropertiesPackageBase: PropertiesPackageAbstract
+    public PropertiesPackageBase(CSharpProjectBase project)
+        : base(project)
     {
-        public PropertiesPackageBase(CSharpProjectBase in_project)
-            : base(in_project)
-        {
-            base.AssemblyInfo = new AssemblyInfoBase(this);
-            _components.Add(AssemblyInfo.Name, AssemblyInfo);
-        }
+        base.AssemblyInfo = new AssemblyInfoBase(this);
+        _components.Add(AssemblyInfo.Name, AssemblyInfo);
+    }
 
-        public new CSharpProjectBase ParentPackage { get { return (CSharpProjectBase)_parentPackage; } }
-        public new AssemblyInfoBase AssemblyInfo { get { return (AssemblyInfoBase)base.AssemblyInfo; } }
-    };
+    public new CSharpProjectBase ParentPackage { get { return (CSharpProjectBase)_parentPackage; } }
+    public new AssemblyInfoBase AssemblyInfo { get { return (AssemblyInfoBase)base.AssemblyInfo; } }
 }

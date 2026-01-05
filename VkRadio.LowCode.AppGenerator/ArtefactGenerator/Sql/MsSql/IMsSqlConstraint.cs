@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
+﻿namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql.MsSql;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Sql.MsSql
+public interface IMsSqlConstraint
 {
-    public interface IMsSqlConstraint
-    {
-        IList<string> GenerateConstraints();
-    };
+    IList<string> GenerateConstraints();
 }

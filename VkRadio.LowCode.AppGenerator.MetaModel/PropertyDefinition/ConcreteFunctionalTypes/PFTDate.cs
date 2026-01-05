@@ -1,30 +1,29 @@
-﻿using MetaModel.Names;
+﻿using VkRadio.LowCode.AppGenerator.MetaModel.Names;
 
-namespace MetaModel.PropertyDefinition.ConcreteFunctionalTypes
+namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
+
+/// <summary>
+/// Functional property type - date
+/// </summary>
+public class PFTDate : PFTDateTime
 {
     /// <summary>
-    /// Функциональный тип свойства - дата
+    /// Constructor
     /// </summary>
-    public class PFTDate: PFTDateTime
+    public PFTDate()
     {
-        /// <summary>
-        /// Конструктор фунционального типа свойства - даты
-        /// </summary>
-        public PFTDate()
-        {
-            _defaultValue   = null;
-            _nullable       = true;
-            _quantitative   = false;
-            _stringCode     = C_STRING_CODE;
-            _unique         = false;
+        _defaultValue = null;
+        _nullable = true;
+        _quantitative = false;
+        _stringCode = C_STRING_CODE;
+        _unique = false;
 
-            _defaultNames.Add(HumanLanguageEnum.En, C_STRING_CODE);
-            _defaultNames.Add(HumanLanguageEnum.Ru, "дата");
-        }
+        _defaultNames.Add(HumanLanguageEnum.En, C_STRING_CODE);
+        _defaultNames.Add(HumanLanguageEnum.Ru, "дата");
+    }
 
-        /// <summary>
-        /// Строковый код фунционального типа свойства (используется в файле метамодели)
-        /// </summary>
-        public const string C_STRING_CODE = "date";
-    };
+    /// <summary>
+    /// String code of a functional property type (used in MetaModel files)
+    /// </summary>
+    public const string C_STRING_CODE = "date";
 }

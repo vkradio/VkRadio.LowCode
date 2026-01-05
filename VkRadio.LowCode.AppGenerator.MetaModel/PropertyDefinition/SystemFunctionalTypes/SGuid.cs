@@ -1,62 +1,71 @@
-﻿using System;
+﻿namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.SystemFunctionalTypes;
 
-namespace MetaModel.PropertyDefinition.SystemFunctionalTypes
+/// <summary>
+/// System (.NET) type for storing a unique (GUID) code.
+/// Differst from a standard Guid in that it allows to select whether to store
+/// a fixed GUID value, or to generate a new random value at runtime
+/// </summary>
+public class SGuid
 {
+    Guid? _fixedValue;
+    bool _generateValueAtRunTime;
+
     /// <summary>
-    /// Системный тип для хранения уникального кода (GUID).
-    /// Отличается от стандартного Guid тем, что позволяет указывать,
-    /// хранит ли тип фиксированное значение Guid или его следует
-    /// генерировать в момент обращения (в момент исполнения
-    /// бизнес-модели).
+    /// Constructor variant for a fixed GUID value
     /// </summary>
-    public class SGuid
+    /// <param name="fixedValue">Фиксированное значение даты и времени</param>
+    public SGuid(Guid fixedValue)
     {
-        Guid? _fixedValue;
-        bool _generateValueAtRunTime;
+        _fixedValue = fixedValue;
+    }
 
-        /// <summary>
-        /// Вариант конструктора для фиксированного значения даты и времени
-        /// </summary>
-        /// <param name="in_fixedValue">Фиксированное значение даты и времени</param>
-        public SGuid(Guid in_fixedValue)
-        {
-            _fixedValue = in_fixedValue;
-        }
-        /// <summary>
-        /// Вариант конструктора для указания, что GUID генерируется в момент исполнения модели
-        /// </summary>
-        public SGuid()
-        {
-            _fixedValue = null;
-            _generateValueAtRunTime = true;
-        }
+    /// <summary>
+    /// Constructor variant for a case with generating a random value at runtime
+    /// </summary>
+    public SGuid()
+    {
+        _fixedValue = null;
+        _generateValueAtRunTime = true;
+    }
 
-        /// <summary>
-        /// Фиксированное значение GUID.
-        /// Примечание: В случае, если фиксированное значение не задано (т.е.
-        /// хранится указание на генерацию во временя исполнения), при попытке
-        /// извлечь фиксированное значение будет выдано исключение.
-        /// </summary>
-        public Guid FixedValue
+    /// <summary>
+    /// Fixed GUID value.
+    /// Note: In case a fixed value is not set (requiring a random GUID generation), an attempt
+    /// of getting a fixed value will throw an exception
+    /// </summary>
+    public Guid FixedValue
+    {
+        get
         {
-            get { return _fixedValue.Value; }
-            set
+            if (GenerateValueAtRunTime)
             {
-                _fixedValue = value;
-                _generateValueAtRunTime = false;
+                throw new InvalidOperationException("Unable to get a fixed GUID value for a random generation variant.");
             }
+
+            return _fixedValue!.Value;
         }
-        /// <summary>
-        /// Признак необходимости генерации значения во временя исполнения модели
-        /// </summary>
-        public bool GenerateValueAtRunTime
+        set
         {
-            get { return _generateValueAtRunTime; }
-            set
-            {
-                _generateValueAtRunTime = value;
-                _fixedValue = _generateValueAtRunTime ? null : (Guid?)Guid.NewGuid();
-            }
+            _fixedValue = value;
+            _generateValueAtRunTime = false;
         }
-    };
+    }
+
+    /// <summary>
+    /// Do we need to generate a random value every time
+    /// </summary>
+    public bool GenerateValueAtRunTime
+    {
+        get
+        {
+            return _generateValueAtRunTime;
+        }
+        set
+        {
+            _generateValueAtRunTime = value;
+            _fixedValue = _generateValueAtRunTime
+                ? null
+                : Guid.NewGuid();
+        }
+    }
 }

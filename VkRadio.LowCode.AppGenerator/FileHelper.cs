@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace VkRadio.LowCode.AppGenerator;
+﻿namespace VkRadio.LowCode.AppGenerator;
 
 public static class FileHelper
 {
@@ -126,7 +120,9 @@ public static class FileHelper
         for (var i = 0; i < fileOrDirNames1.Count; i++)
         {
             if (fileOrDirNames1[i] != fileOrDirNames2[i])
+            {
                 return false;
+            }
         }
 
         // If got here, then differences are not found

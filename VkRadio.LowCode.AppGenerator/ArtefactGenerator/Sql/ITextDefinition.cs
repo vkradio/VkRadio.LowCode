@@ -1,7 +1,6 @@
-﻿namespace ArtefactGenerationProject.ArtefactGenerator.Sql
+﻿namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql;
+
+public interface ITextDefinition
 {
-    public interface ITextDefinition
-    {
-        string[] GenerateText();
-    };
+    string[] GenerateText();
 }

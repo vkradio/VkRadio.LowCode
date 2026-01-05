@@ -1,34 +1,32 @@
-﻿namespace ArtefactGenerationProject.ArtefactGenerator.Sql
+﻿namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql;
+
+/// <summary>
+/// Table field interface
+/// </summary>
+public interface ITableField : ITextDefinition
 {
     /// <summary>
-    /// Интерфейс поля таблицы
+    /// Field name
     /// </summary>
-    public interface ITableField : ITextDefinition
-    {
-        /// <summary>
-        /// Наименование поля
-        /// </summary>
-        string Name { get; }
-        /// <summary>
-        /// Допустимы ли значения NULL в поле
-        /// </summary>
-        bool Nullable { get; }
-        /// <summary>
-        /// Тип SQL (строкое представление, характерное для конкретного диалекта SQL)
-        /// </summary>
-        string SqlType { get; }
-        /// <summary>
-        /// Таблица, к которой относится поле
-        /// </summary>
-        Table Table { get; }
-        /// <summary>
-        /// Соответствие между полем таблицы и свойством ТОД (может отсутствовать,
-        /// например, для суррогатных ключей)
-        /// </summary>
-        PropertyCorrespondence DOTPropertyCorrespondence { get; }
-        /// <summary>
-        /// Являются ли значения поля уникальными в пределах таблицы
-        /// </summary>
-        bool Unique { get; }
-    };
+    string Name { get; }
+    /// <summary>
+    /// Are NULL values allowed
+    /// </summary>
+    bool Nullable { get; }
+    /// <summary>
+    /// SQL type (string literal acceptable for a particular SQL dialect)
+    /// </summary>
+    string SqlType { get; }
+    /// <summary>
+    /// Table that owns this field
+    /// </summary>
+    Table Table { get; }
+    /// <summary>
+    /// Correspondence to a data object type property (may be missing in case of surrogate keys, for example)
+    /// </summary>
+    PropertyCorrespondence DOTPropertyCorrespondence { get; }
+    /// <summary>
+    /// Uniqueness of field values throughout the table
+    /// </summary>
+    bool Unique { get; }
 }

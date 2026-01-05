@@ -1,11 +1,10 @@
-﻿namespace ArtefactGenerationProject.ArtefactGenerator.Ool.Abstract
+﻿namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract;
+
+public abstract class ElementVisibilityAbstract
 {
-    public abstract class ElementVisibilityAbstract
-    {
-        protected ElementVisibilityEnum _value;
+    protected ElementVisibilityEnum _value;
 
-        public ElementVisibilityEnum Value { get { return _value; } set { _value = value; } }
+    public ElementVisibilityEnum Value { get { return _value; } set { _value = value; } }
 
-        public new abstract string ToString();
-    };
+    public new abstract string ToString();
 }

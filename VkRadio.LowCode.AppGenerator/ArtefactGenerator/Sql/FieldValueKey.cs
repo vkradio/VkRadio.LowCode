@@ -1,11 +1,10 @@
-﻿namespace ArtefactGenerationProject.ArtefactGenerator.Sql
+﻿namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql;
+
+public abstract class FieldValueKey : FieldValue
 {
-    public abstract class FieldValueKey : FieldValue
+    public FieldValueKey(PredefinedInsert predefinedInsert, ITableField field)
     {
-        public FieldValueKey(PredefinedInsert in_predefinedInsert, ITableField in_field)
-        {
-            PredefinedInsert = in_predefinedInsert;
-            Field = in_field;
-        }
+        PredefinedInsert = predefinedInsert;
+        Field = field;
     }
 }

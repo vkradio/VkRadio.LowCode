@@ -1,20 +1,25 @@
-﻿using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Common.Class;
+﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Modular.Component
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Modular.Component;
+
+public class CSComponentWMainClass : CSComponent
 {
-    public class CSComponentWMainClass: CSComponent
-    {
-        CSClass _mainClass;
+    CSClass _mainClass;
 
-        public CSClass MainClass
+    public CSClass MainClass
+    {
+        get
         {
-            get { return _mainClass; }
-            set
+            return _mainClass;
+        }
+        set
+        {
+            _mainClass = value;
+
+            if (!Classes.ContainsKey(_mainClass.Name))
             {
-                _mainClass = value;
-                if (!Classes.ContainsKey(_mainClass.Name))
-                    Classes.Add(_mainClass.Name, _mainClass);
+                Classes.Add(_mainClass.Name, _mainClass);
             }
         }
-    };
+    }
 }

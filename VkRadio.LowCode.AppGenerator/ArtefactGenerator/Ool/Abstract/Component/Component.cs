@@ -1,4 +1,4 @@
-﻿using MetaModel.DOTDefinition;
+﻿using VkRadio.LowCode.AppGenerator.MetaModel.DOTDefinition;
 using ClassNS = VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Class;
 using PackNS = VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Package;
 

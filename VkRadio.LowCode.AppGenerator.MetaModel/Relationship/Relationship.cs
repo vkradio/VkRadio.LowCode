@@ -1,71 +1,66 @@
-﻿using System;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
+using VkRadio.LowCode.AppGenerator.MetaModel.Names;
 
-using MetaModel.Names;
+namespace VkRadio.LowCode.AppGenerator.MetaModel.Relationship;
 
-namespace MetaModel.Relationship
+/// <summary>
+/// Abstract relationship between data object types
+/// </summary>
+public abstract class Relationship : IUnique
 {
+    protected Guid _id;
+    protected MetaModel _metaModel;
+
     /// <summary>
-    /// Абстрактная связь между типами объектов данных (ТОД)
+    /// Constructor
     /// </summary>
-    public abstract class Relationship: IUnique
+    /// <param name="id">Id of a relationship</param>
+    /// <param name="metaModel"></param>
+    protected Relationship(Guid id, MetaModel metaModel)
     {
-        protected Guid _id;
-        protected MetaModel _metaModel;
+        _id = id;
+        _metaModel = metaModel;
+    }
 
-        /// <summary>
-        /// Конструктор абстрактной связи между ТОД
-        /// </summary>
-        /// <param name="in_id">Id связи</param>
-        /// <param name="in_metaModel">Метамодель</param>
-        protected Relationship(Guid in_id, MetaModel in_metaModel) { _id = in_id; _metaModel = in_metaModel; }
+    /// <summary>
+    /// Loading of additional concrete relationshiop properties from an XML node
+    /// </summary>
+    /// <param name="containingXel">XML node containing a description of relationship</param>
+    protected abstract void LoadFromXElement(XElement containingXel);
 
-        /// <summary>
-        /// Догрузка конкретных свойств связи из узла XML
-        /// </summary>
-        /// <param name="in_xel">Узел XML, содержащий описание связи</param>
-        protected abstract void LoadFromXElement(XElement in_xel);
+    /// <summary>
+    /// Unique indentifier of a relationship between objects
+    /// </summary>
+    public Guid Id { get { return _id; } set { _id = value; } }
 
-        /// <summary>
-        /// Уникальный идентификатор связи между объектами
-        /// </summary>
-        public Guid Id { get { return _id; } set { _id = value; } }
-        /// <summary>
-        /// Метамодель
-        /// </summary>
-        public MetaModel MetaModel { get { return _metaModel; } }
+    /// <summary>
+    /// MetaModel
+    /// </summary>
+    public MetaModel MetaModel { get { return _metaModel; } }
 
-        /// <summary>
-        /// Загрузка связи между ТОД из узла XML
-        /// </summary>
-        /// <param name="in_metaModel">Метамодель</param>
-        /// <param name="in_xel">Узел XML, содержащий описание связи</param>
-        /// <returns>Связь между ТОД</returns>
-        public static Relationship LoadFromXElement(MetaModel in_metaModel, XElement in_xel)
+    /// <summary>
+    /// Load relationship between data object types from an XML node
+    /// </summary>
+    /// <param name="metaModel">MetaModel</param>
+    /// <param name="containingXel">XML node containing a description of relationship</param>
+    /// <returns>Relationship between data object types</returns>
+    public static Relationship LoadFromXElement(MetaModel metaModel, XElement containingXel)
+    {
+        // 1. Load base IUnique properties
+        var id = new Guid(containingXel.Element("Id")!.Value);
+        var relTypeCode = containingXel.Element("Type")!.Value;
+
+        // 2. Load a description of a concrete relationship type
+        Relationship rel = relTypeCode switch
         {
-            // 1. Загрузка базовых свойств IUnique.
-            Guid id = new Guid(in_xel.Element("Id").Value);
-            string relTypeCode = in_xel.Element("Type").Value;
-            
-            // 2. Загрузка описания конкретного типа связи.
-            Relationship rel;
-            switch (relTypeCode)
-            {
-                case RelationshipConnector.C_TYPE_CODE:
-                    rel = new RelationshipConnector(id, in_metaModel);
-                    break;
-                case RelationshipReference.C_TYPE_CODE:
-                    rel = new RelationshipReference(id, in_metaModel);
-                    break;
-                case RelationshipTable.C_TYPE_CODE:
-                    rel = new RelationshipTable(id, in_metaModel);
-                    break;
-                default:
-                    throw new ApplicationException(string.Format("Element Relationship Id {0} has unsupported Type - {1}.", id, relTypeCode ?? "<NULL>"));
-            }
-            rel.LoadFromXElement(in_xel);
+            RelationshipConnector.C_TYPE_CODE => new RelationshipConnector(id, metaModel),
+            RelationshipReference.C_TYPE_CODE => new RelationshipReference(id, metaModel),
+            RelationshipTable.C_TYPE_CODE => new RelationshipTable(id, metaModel),
+            _ => throw new ApplicationException(string.Format("Element Relationship Id {0} has unsupported Type - {1}.", id, relTypeCode ?? "<NULL>")),
+        };
 
-            return rel;
-        }
-    };
+        rel.LoadFromXElement(containingXel);
+
+        return rel;
+    }
 }

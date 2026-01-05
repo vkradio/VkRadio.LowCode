@@ -1,8 +1,7 @@
-﻿namespace MetaModel.PropertyDefinition
+﻿namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
+
+public interface IPFTDependentLink
 {
-    public interface IPFTDependentLink
-    {
-        OnDeleteActionEnum OnDeleteAction { get; set; }
-        void SetDefaultOnDeleteAction();
-    };
+    OnDeleteActionEnum OnDeleteAction { get; set; }
+    void SetDefaultOnDeleteAction();
 }

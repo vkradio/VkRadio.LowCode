@@ -1,29 +1,30 @@
-﻿using System.Collections.Generic;
+﻿namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql.MsSql;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Sql.MsSql
+public class MsSqlTable : Table
 {
-    public class MsSqlTable : Table
+    public MsSqlTable(string name, SchemaDeploymentScript schemaDeploymentScript)
+        : base(name, schemaDeploymentScript)
     {
-        public MsSqlTable(string in_name, SchemaDeploymentScript in_schemaDeploymentScript) : base(in_name, in_schemaDeploymentScript)
+        _quoteSymbol = "\"";
+    }
+
+    public IList<string> GenerateConstraints()
+    {
+        var result = new List<string>();
+
+        //if (_primaryKey != null)
+        //    result.AddRange(((MsSqlPKSingle)_primaryKey).GenerateConstraints());
+        foreach (var field in AllFields)
         {
-            _quoteSymbol = "\"";
+            var constraintField = (IMsSqlConstraint)field;
+            result.AddRange(constraintField.GenerateConstraints());
         }
 
-        public IList<string> GenerateConstraints()
+        if (result.Count != 0)
         {
-            List<string> result = new List<string>();
-
-            //if (_primaryKey != null)
-            //    result.AddRange(((MsSqlPKSingle)_primaryKey).GenerateConstraints());
-            foreach (ITableFieldJson field in AllFields)
-            {
-                IMsSqlConstraint constraintField = (IMsSqlConstraint)field;
-                result.AddRange(constraintField.GenerateConstraints());
-            }
-
-            if (result.Count != 0)
-                result.Add("go");
-            return result;
+            result.Add("go");
         }
+
+        return result;
     }
 }

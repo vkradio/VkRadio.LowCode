@@ -1,24 +1,26 @@
-﻿using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Classic.Package.Model;
+﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Model;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Classic.Component
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Component;
+
+public class StorageSingleFile : CSComponent
 {
-    public class StorageSingleFile : CSComponent
+    public StorageSingleFile(ModelPackage package)
     {
-        public StorageSingleFile(ModelPackage package)
+        Package = package;
+        Name = "Storages.cs";
+        Namespace = $"{package.ParentPackage.RootNamespace}.Model.Storage";
+
+        SystemUsings.Add("System");
+        SystemUsings.Add("System.Collections.Generic");
+        SystemUsings.Add("System.Data.Common");
+        UserUsings.Add("orm.Db");
+        UserUsings.Add($"{package.ParentPackage.RootNamespace}.Model.DOT");
+
+        var dbModel = package.ParentPackage.ParentPackage.DBbSchemaModel;
+
+        foreach (var dotDef in package.ParentPackage.ParentPackage.DomainModel.AllDOTDefinitions.Values)
         {
-            Package = package;
-            Name = "Storages.cs";
-            Namespace = $"{package.ParentPackage.RootNamespace}.Model.Storage";
-
-            SystemUsings.Add("System");
-            SystemUsings.Add("System.Collections.Generic");
-            SystemUsings.Add("System.Data.Common");
-            UserUsings.Add("orm.Db");
-            UserUsings.Add($"{package.ParentPackage.RootNamespace}.Model.DOT");
-
-            var dbModel = package.ParentPackage.ParentPackage.DBbSchemaModel;
-            foreach (var dotDef in package.ParentPackage.ParentPackage.DomainModel.AllDOTDefinitions.Values)
-                Storage.CreateStorageClass(this, dotDef, dbModel);
+            Storage.CreateStorageClass(this, dotDef, dbModel);
         }
-    };
+    }
 }

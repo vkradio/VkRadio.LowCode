@@ -1,13 +1,10 @@
-﻿using System;
+﻿namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql.MsSql;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Sql.MsSql
+public class MsSqlFieldValueKey : FieldValueKey
 {
-    public class MsSqlFieldValueKey : FieldValueKey
+    public MsSqlFieldValueKey(PredefinedInsert predefinedInsert, ITableField field, Guid value)
+        : base(predefinedInsert, field)
     {
-        public MsSqlFieldValueKey(PredefinedInsert in_predefinedInsert, ITableField in_field, Guid in_value)
-            : base(in_predefinedInsert, in_field)
-        {
-            Value = DBSchemaHelper.GuidToMsSqlValueString(in_value);
-        }
+        Value = DBSchemaHelper.GuidToMsSqlValueString(value);
     }
 }

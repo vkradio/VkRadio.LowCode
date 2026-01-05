@@ -1,53 +1,59 @@
-﻿using MetaModel.Relationship;
+﻿using VkRadio.LowCode.AppGenerator.MetaModel.Relationship;
 
-namespace MetaModel.PropertyDefinition.ConcreteFunctionalTypes
+namespace VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
+
+/// <summary>
+/// Property functional type - connection between two single objects
+/// </summary>
+public class PFTConnector : PFTLink, IPFTDependentLink
 {
+    Relationship.RelationshipConnector _relationshipConnector;
+
     /// <summary>
-    /// Функциональный тип свойства - связь между единичными объектами
+    /// Constructor
     /// </summary>
-    public class PFTConnector : PFTLink, IPFTDependentLink
+    public PFTConnector()
     {
-        Relationship.RelationshipConnector _relationshipConnector;
+        _stringCode = C_STRING_CODE;
+    }
 
-        /// <summary>
-        /// Конструктор функционального типа свойства - связи между единичными объектами
-        /// </summary>
-        public PFTConnector()
+    /// <summary>
+    /// Connection
+    /// </summary>
+    public Relationship.RelationshipConnector RelationshipConnector
+    {
+        get
         {
-            _stringCode = C_STRING_CODE;
+            return _relationshipConnector;
         }
-
-        /// <summary>
-        /// Связь
-        /// </summary>
-        public Relationship.RelationshipConnector RelationshipConnector
+        set
         {
-            get { return _relationshipConnector; }
-            set
-            {
-                _relationshipConnector = value;
+            _relationshipConnector = value;
 
-                // Устанавливаем имена свойства по умолчанию, извлекая их из противоположного
-                // конца связи, т.е. из определения ТОД, на который указывает данная связь.
-                //_defaultNames.Clear();
-                //if (_relationshipConnector != null)
-                //{
-                //    RelationshipConnectorEnd end = _relationshipConnector.End1.PropertyDefinition.Id == _propertyDefinition.Id ?
-                //        _relationshipConnector.End2 :
-                //        _relationshipConnector.End1;
-                    
-                //    foreach (var name in end.PropertyDefinition.OwnerDefinition.Names)
-                //        _defaultNames.Add(name.Key, name.Value);
-                //}
-            }
+            // Setting default names of a property, extracting them from an opposing end of connection (data object type
+            // definition of an object on that end of a connection)
+            //_defaultNames.Clear();
+            //
+            //if (_relationshipConnector != null)
+            //{
+            //    RelationshipConnectorEnd end = _relationshipConnector.End1.PropertyDefinition.Id == _propertyDefinition.Id ?
+            //        _relationshipConnector.End2 :
+            //        _relationshipConnector.End1;
+                
+            //    foreach (var name in end.PropertyDefinition.OwnerDefinition.Names)
+            //        _defaultNames.Add(name.Key, name.Value);
+            //}
         }
+    }
 
-        /// <summary>
-        /// Строковый код фунционального типа свойства (используется в файле метамодели)
-        /// </summary>
-        public const string C_STRING_CODE = "object connector";
+    /// <summary>
+    /// String code of a functional property type (used in MetaModel files)
+    /// </summary>
+    public const string C_STRING_CODE = "object connector";
 
-        public OnDeleteActionEnum OnDeleteAction { get; set; }
-        public void SetDefaultOnDeleteAction() { OnDeleteAction = OnDeleteActionEnum.Ingnore; }
-    };
+    public OnDeleteActionEnum OnDeleteAction { get; set; }
+    public void SetDefaultOnDeleteAction()
+    {
+        OnDeleteAction = OnDeleteActionEnum.Ingnore;
+    }
 }

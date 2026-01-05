@@ -1,24 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using VkRadio.LowCode.AppGenerator.MetaModel.DOTDefinition;
 
-using MetaModel.DOTDefinition;
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Sql
+/// <summary>
+/// Correspondence between a table and a data object type definition
+/// </summary>
+public class TableAndDOTCorrespondence : TableAndSourceCorrespondence
 {
-    /// <summary>
-    /// Соответствие между таблицей и определением типа объекта данных
-    /// </summary>
-    public class TableAndDOTCorrespondence : TableAndSourceCorrespondence
-    {
-        DOTDefinition _dotDefinition;
-        List<PropertyCorrespondence> _propertyCorrespondences = new();
+    DOTDefinition _dotDefinition;
+    List<PropertyCorrespondence> _propertyCorrespondences = new();
 
-        /// <summary>
-        /// Определение ТОД
-        /// </summary>
-        public DOTDefinition DOTDefinition { get { return _dotDefinition; } set { _dotDefinition = value; } }
-        /// <summary>
-        /// Соответствия полей таблицы свойствам ТОД
-        /// </summary>
-        public IList<PropertyCorrespondence> PropertyCorrespondences => _propertyCorrespondences;
-    }
+    /// <summary>
+    /// Data object type definition
+    /// </summary>
+    public DOTDefinition DOTDefinition { get { return _dotDefinition; } set { _dotDefinition = value; } }
+    /// <summary>
+    /// Correspondence of table fields to DOT properties
+    /// </summary>
+    public IList<PropertyCorrespondence> PropertyCorrespondences => _propertyCorrespondences;
 }

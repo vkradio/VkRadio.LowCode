@@ -1,88 +1,68 @@
-﻿using MetaModel.Names;
-using MetaModel.PropertyDefinition;
-using MetaModel.PropertyDefinition.SystemFunctionalTypes;
+﻿using VkRadio.LowCode.AppGenerator.MetaModel.Names;
+using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
+using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.SystemFunctionalTypes;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Sql
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql;
+
+/// <summary>
+/// Foreign Key field of a table
+/// </summary>
+public abstract class ForeignKeyField : ITableField
 {
-    /// <summary>
-    /// Поле внешнего ключа в таблице
-    /// </summary>
-    public abstract class ForeignKeyField : ITableField
+    protected abstract string CreateDefaultValue(SRefObject in_srefObject);
+
+    public string QuoteSymbol { get; protected set; }
+    
+    public string Name { get; protected set; }
+    
+    public bool Nullable { get; protected set; }
+    
+    public string SqlType { get; protected set; }
+    
+    public Table Table { get; protected set; }
+    
+    public PropertyCorrespondence DOTPropertyCorrespondence { get; protected set; }
+    
+    public string DefaultValue { get; protected set; }
+    
+    public bool Unique { get; protected set; }
+
+    public ForeignKeyField(TableAndDOTCorrespondence tableAndDOTCorrespondence, PropertyDefinition propertyDefinition)
     {
-        protected abstract string CreateDefaultValue(SRefObject in_srefObject);
+        Table = tableAndDOTCorrespondence.Table;
+        Name = NameHelper.NameToUnderscoreSeparatedName(propertyDefinition.Names[HumanLanguageEnum.En]) + "_id";
+        Nullable = propertyDefinition.FunctionalType.Nullable;
+        Unique = propertyDefinition.FunctionalType.Unique;
+        DOTPropertyCorrespondence = new PropertyCorrespondence { PropertyDefinition = propertyDefinition, TableAndDOTCorrespondence = tableAndDOTCorrespondence, TableField = this };
+    }
 
-        public string QuoteSymbol { get; protected set; }
-        /// <summary>
-        /// Наименование поля
-        /// </summary>
-        public string Name { get; protected set; }
-        /// <summary>
-        /// Допустимы ли значения NULL
-        /// </summary>
-        public bool Nullable { get; protected set; }
-        /// <summary>
-        /// Тип SQL (строка)
-        /// </summary>
-        public string SqlType { get; protected set; }
-        /// <summary>
-        /// Таблица, в состав которой входит ВК
-        /// </summary>
-        public Table Table { get; protected set; }
-        /// <summary>
-        /// Соответствие между ВК и определением свойства ТОД
-        /// </summary>
-        public PropertyCorrespondence DOTPropertyCorrespondence { get; protected set; }
-        /// <summary>
-        /// Значение по умолчанию
-        /// </summary>
-        public string DefaultValue { get; protected set; }
-        /// <summary>
-        /// Являются ли значения ВК уникальными в пределах таблицы
-        /// </summary>
-        public bool Unique { get; protected set; }
-
-        /// <summary>
-        /// Конструктор поля внешнего ключа, берущий за основу определение свойства ТОД
-        /// </summary>
-        /// <param name="in_table">Таблица, к которой принадлежит свойство</param>
-        /// <param name="in_tableAndDOTCorrespondence">Соответствие между таблицей и ТОД</param>
-        /// <param name="in_propertyDefinition">Свойство ТОД</param>
-        public ForeignKeyField(TableAndDOTCorrespondence in_tableAndDOTCorrespondence, PropertyDefinition in_propertyDefinition)
+    public void Init()
+    {
+        if (DOTPropertyCorrespondence.PropertyDefinition.DefaultValue != null)
         {
-            Table = in_tableAndDOTCorrespondence.Table;
-            Name = NameHelper.NameToUnderscoreSeparatedName(in_propertyDefinition.Names[HumanLanguageEnum.En]) + "_id";
-            Nullable = in_propertyDefinition.FunctionalType.Nullable;
-            Unique = in_propertyDefinition.FunctionalType.Unique;
-            DOTPropertyCorrespondence = new PropertyCorrespondence { PropertyDefinition = in_propertyDefinition, TableAndDOTCorrespondence = in_tableAndDOTCorrespondence, TableField = this };
+            var value = (SRefObject)DOTPropertyCorrespondence.PropertyDefinition.DefaultValue;
+            DefaultValue = CreateDefaultValue(value);
         }
-        public void Init()
+    }
+
+    public virtual string[] GenerateText()
+    {
+        var result = $"{QuoteSymbol}{Name}{QuoteSymbol} {SqlType} {(Nullable ? "null" : "not null")}";
+
+        if (Table.SchemaDeploymentScript.DBSchemaMetaModel.GenerateConstraintsInline)
         {
-            if (DOTPropertyCorrespondence.PropertyDefinition.DefaultValue != null)
+            if (Unique)
             {
-                SRefObject value = (SRefObject)DOTPropertyCorrespondence.PropertyDefinition.DefaultValue;
-                DefaultValue = CreateDefaultValue(value);
+                result += " " + DBSchemaHelper.C_KEYWORD_UNIQUE;
+            }
+
+            if (DefaultValue is not null)
+            {
+                result += $" {DBSchemaHelper.C_KEYWORD_DEFAULT} {DefaultValue}";
             }
         }
 
-        /// <summary>
-        /// Генерирование текстового представления объявления поля ВК на SQL
-        /// </summary>
-        /// <returns>Объявление поля ВК на SQL</returns>
-        public virtual string[] GenerateText()
-        {
-            string result = $"{QuoteSymbol}{Name}{QuoteSymbol} {SqlType} {(Nullable ? "null" : "not null")}";
-            if (Table.SchemaDeploymentScript.DBSchemaMetaModel.GenerateConstraintsInline)
-            {
-                if (Unique)
-                    result += " " + DBSchemaHelper.C_KEYWORD_UNIQUE;
-                if (DefaultValue != null)
-                    result += $" {DBSchemaHelper.C_KEYWORD_DEFAULT} {DefaultValue}";
-            }
-            // TODO: Необходимо также проставлять ссылку references, но, поскольку трудно сразу предсказать
-            // зависимости между таблицами, целесообразно отложить создание constraint'ов на будущее
-            // и сделать это в виде создания отдельных ключей, который будут прописаны после создания
-            // всех таблиц.
-            return new string[1] { result };
-        }
-    };
+        // TODO: Also need to do something with constraints, or are they already implemented?
+        return [result];
+    }
 }

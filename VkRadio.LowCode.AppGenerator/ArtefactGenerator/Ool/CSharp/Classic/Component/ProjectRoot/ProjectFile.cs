@@ -1,15 +1,14 @@
-﻿using ArtefactGenerationProject.ArtefactGenerator.Ool.Abstract.Component;
-using ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Classic.Package.Root;
+﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Component;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Root;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Classic.Component.ProjectRoot
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Component.ProjectRoot;
+
+public abstract class ProjectFile : ComponentWPredefinedCode
 {
-    public abstract class ProjectFile: ComponentWPredefinedCode
+    public ProjectFile(CSharpProjectAbstract project)
     {
-        public ProjectFile(CSharpProjectAbstract in_project)
-        {
-            Package = in_project;
-            _emitUtf8Bom = true;
-            Name = in_project.RootNamespace + ".csproj";
-        }
-    };
+        Package = project;
+        _emitUtf8Bom = true;
+        Name = project.RootNamespace + ".csproj";
+    }
 }

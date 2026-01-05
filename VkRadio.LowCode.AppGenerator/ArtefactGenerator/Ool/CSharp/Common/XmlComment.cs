@@ -1,33 +1,35 @@
 ﻿using System.Xml.Linq;
 
-using ArtefactGenerationProject.ArtefactGenerator.Ool.Abstract;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract;
 
-namespace ArtefactGenerationProject.ArtefactGenerator.Ool.CSharp.Common
+namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common;
+
+/// <summary>
+/// Comment in XML format for C#
+/// </summary>
+public class XmlComment : AbstractDocComment
 {
     /// <summary>
-    /// Комментарий в формате XML для C#
+    /// Constructor with text content initialization
     /// </summary>
-    public class XmlComment: AbstractDocComment
+    /// <param name="text">Comment text</param>
+    public XmlComment(string text)
+        : base(text)
     {
-        /// <summary>
-        /// Конструктор с инициализацией текстовым содержимым
-        /// </summary>
-        /// <param name="text">Текст комментария</param>
-        public XmlComment(string text) : base(text) {}
+    }
 
-        // TODO: Расширить XmlDoc до возможности комментировать параметры и возвращаемое значение.
-        public override string[] GenerateText()
-        {
-            var xel = new XElement("root", _text);
-            var encodedText = xel.ToString();
-            encodedText = encodedText.Substring(6, encodedText.Length - 13);
+    // TODO: Extend XmlDoc for an ability to comment params and return values
+    public override string[] GenerateText()
+    {
+        var xel = new XElement("root", _text);
+        var encodedText = xel.ToString();
+        encodedText = encodedText.Substring(6, encodedText.Length - 13);
 
-            return new string[]
-            {
-                "/// <summary>",
-                "/// " + encodedText,
-                "/// </summary>"
-            };
-        }
-    };
+        return
+        [
+            "/// <summary>",
+            "/// " + encodedText,
+            "/// </summary>"
+        ];
+    }
 }
