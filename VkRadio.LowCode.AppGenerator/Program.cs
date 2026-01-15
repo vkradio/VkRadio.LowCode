@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using VkRadio.LowCode.AppGenerator.MetaModel;
 
 namespace VkRadio.LowCode.AppGenerator;
 
@@ -20,25 +21,25 @@ class Program
 
             if (args == null || args.Length == 0)
             {
-                throw new agp.GeneratorException("Generation project file not set.");
+                throw new GeneratorException("Generation project file not set.");
             }
 
             var generationFile = args[0];
 
-            var project = agp.ArtefactGenerationProject.Load(generationFile);
+            var project = ArtefactGenerationProject.Load(generationFile);
 
             var success = false;
 
             try
             {
-                foreach (var target in project.ArtefactGenerationTargets)
+                foreach (var target in project.Targets)
                 {
                     target.GenerateArtefacts();
                 }
 
                 success = true;
             }
-            catch (agp.GeneratorException ex)
+            catch (GeneratorException ex)
             {
                 Console.WriteLine($"Target generator exception: {ex.Message}");
             }
@@ -51,7 +52,8 @@ class Program
 
             error = !success;
         }
-        catch (Exception ex) when (ex is UniquinessException || ex is agp.GeneratorException)
+        catch (Exception ex)
+        when (ex is UniquinessException || ex is GeneratorException)
         {
             error = true;
             WriteExceptionToConsole(ex);

@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\VkRadio.LowCode.AppGenerator.MetaModel\VkRadio.LowCode.AppGenerator.MetaModel.csproj" />
   </ItemGroup>
 
