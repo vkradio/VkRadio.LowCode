@@ -51,22 +51,30 @@ public class ArtefactGenerationProject : IUnique
     /// <summary>
     /// Project root path
     /// </summary>
-    //public string ProjectRootPath { get; private set; }
+    public string ProjectRootPath { get; private set; }
     /// <summary>
     /// Root folder of an SVN repository
     /// </summary>
-    //public string? SvnWcRootPath { get; private set; }
+    public string? SvnWcRootPath { get; private set; }
     /// <summary>
     /// Timezone of an executable code
     /// </summary>
     //public TimeZoneInfo TimeZone { get; private set; }
 
-    public ArtefactGenerationProject(Guid id, string name, IEnumerable<ArtefactGenerationTarget> targets)
+    public ArtefactGenerationProject(
+        Guid id,
+        string name,
+        string projectRootPath,
+        string? svnWcRootPath,
+        IEnumerable<ArtefactGenerationTarget> targets
+    )
     {
         Id = id;
         Name = Guard.Against.NullOrEmpty(name, nameof(name));
-        Targets = [.. targets ?? []];
+        ProjectRootPath = projectRootPath;
+        SvnWcRootPath = svnWcRootPath;
 
+        Targets = [.. targets ?? []];
         Targets.ForEach(x => x.WireToProject(this));
     }
 

@@ -91,12 +91,17 @@ public class ArtefactGenerationProjectRepository
             throw new ApplicationException("MetaModelFilePath value required");
         }
 
-        var metaModelFilePath = xel.Value.Trim();
+        var projectRootPath = Path.GetDirectoryName(filePath)!;
+        var metaModelFilePath = Path.Combine(projectRootPath, xel.Value.Trim());
 
         if (!File.Exists(metaModelFilePath))
         {
             throw new ApplicationException($"File in MetaModelFilePath not exists: {metaModelFilePath}");
         }
+
+        var xelSvnWcRootRelativeDir = xelRoot.Element("SvnWcRootRelativeDir");
+        var svnWcRootRelativeDir = xelSvnWcRootRelativeDir?.Value?.Trim();
+        var svnWcRootDir = !string.IsNullOrWhiteSpace(svnWcRootRelativeDir) ? Path.Combine(projectRootPath, svnWcRootRelativeDir) : null;
 
         var xelTargets = xelRoot.Element("ArtefactGenerationTargets");
         var xelsTargets = xelTargets?.Elements("Target");
@@ -105,7 +110,7 @@ public class ArtefactGenerationProjectRepository
             .ToList();
         var targets = await Task.WhenAll(targetLoadingTasks);
 
-        var project = new ArtefactGenerationProject(id, name, targets);
+        var project = new ArtefactGenerationProject(id, name, metaModelFilePath, svnWcRootDir, targets);
         await project.InitializeAfterLoad();
 
         return project;

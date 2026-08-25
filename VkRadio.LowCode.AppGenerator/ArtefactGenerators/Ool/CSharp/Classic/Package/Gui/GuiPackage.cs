@@ -10,7 +10,7 @@ using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Pro
 using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Property.Setter;
 using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Component;
 using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Root;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerators.Sql;
 using VkRadio.LowCode.AppGenerator.MetaModel.DOTDefinition;
 using PackNS = VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Package;
 

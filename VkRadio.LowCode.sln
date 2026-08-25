@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36811.4 d17.14
+VisualStudioVersion = 17.14.36811.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VkRadio.LowCode.Orm", "VkRadio.LowCode.Orm\VkRadio.LowCode.Orm.csproj", "{E119063B-1D04-40A7-AC7A-4883B1598CDF}"
 EndProject
@@ -19,6 +19,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGenerator", "VkRadio.LowCode.AppGenerator\VkRadio.LowCode.AppGenerator.csproj", "{B09352B7-AE02-4BC0-A463-60ECB0E955C4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGenerator.MetaModel", "VkRadio.LowCode.AppGenerator.MetaModel\VkRadio.LowCode.AppGenerator.MetaModel.csproj", "{79789461-00C8-48CB-94D4-06196E339F4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.ArtefactGenerators.Core", "VkRadio.LowCode.ArtefactGenerators.Core\VkRadio.LowCode.ArtefactGenerators.Core.csproj", "{DE53A0C2-7824-4060-B389-1139EB614DE7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.ArtefactGenerators.SqlCore", "VkRadio.LowCode.ArtefactGenerators.SqlCore\VkRadio.LowCode.ArtefactGenerators.SqlCore.csproj", "{606190B3-7040-4C47-BD72-E782E4BE595D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +54,14 @@ Global
 		{79789461-00C8-48CB-94D4-06196E339F4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{79789461-00C8-48CB-94D4-06196E339F4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{79789461-00C8-48CB-94D4-06196E339F4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE53A0C2-7824-4060-B389-1139EB614DE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE53A0C2-7824-4060-B389-1139EB614DE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE53A0C2-7824-4060-B389-1139EB614DE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE53A0C2-7824-4060-B389-1139EB614DE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{606190B3-7040-4C47-BD72-E782E4BE595D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{606190B3-7040-4C47-BD72-E782E4BE595D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{606190B3-7040-4C47-BD72-E782E4BE595D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{606190B3-7040-4C47-BD72-E782E4BE595D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,5 @@
 ﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Component.ProjectRoot;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerators.Ool.CSharp.Classic.Package.Root;
 using PackNS = VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Package;
 
 namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Root;

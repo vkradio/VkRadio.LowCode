@@ -4,7 +4,7 @@ using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common;
 using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class;
 using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Method;
 using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Component;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerators.Sql;
 using VkRadio.LowCode.AppGenerator.MetaModel.DOTDefinition;
 using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
 using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;

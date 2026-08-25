@@ -3,9 +3,9 @@
 /// <summary>
 /// Empty generator (for example, for composite targets)
 /// </summary>
-public class DummyGenerator : ArtefactGenerator.ArtefactGeneratorBase
-{
-    public DummyGenerator() : base(null) { }
+//public class DummyGenerator : ArtefactGenerator.ArtefactGeneratorBase
+//{
+//    public DummyGenerator() : base(null) { }
 
-    public override string? Generate() => null;
-}
+//    public override string? Generate() => null;
+//}
