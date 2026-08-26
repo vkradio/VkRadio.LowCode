@@ -1,7 +1,10 @@
 ﻿using System.Text;
-using VkRadio.LowCode.AppGenerator.MetaModel;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.MsSql;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore;
+using VkRadio.LowCode.AppGen.Domain;
 
-namespace VkRadio.LowCode.AppGenerator;
+namespace VkRadio.LowCode.AppGen.AppConsole;
 
 class Program
 {
@@ -26,7 +29,36 @@ class Program
 
             var generationFile = args[0];
 
-            var project = ArtefactGenerationProject.Load(generationFile);
+            static DBSchemaDomainModel DbSchemaDomainModelConstructor(DomainModel domainModel, ArtefactGeneratorSql artefactGeneratorSql)
+            {
+                DBSchemaDomainModel schemaDomainModel = artefactGeneratorSql.Type switch
+                {
+                    ArtefactTypeEnum.MsSql => new MsSqlDBSchemaMetaModel(domainModel, artefactGeneratorSql),
+                    _ => throw new ApplicationException($"Unsupported SQL dialect code: {artefactGeneratorSql.Type}.")
+                };
+
+                return schemaDomainModel;
+            }
+
+            static ArtefactGenerator ArtefactGeneratorConstructor(ArtefactTypeEnum type, DomainModel domainModel, Target target)
+            {
+                ArtefactGenerator generator = type switch
+                {
+                    //ArtefactTypeEnum.MySql or ArtefactTypeEnum.MsSql or ArtefactTypeEnum.SQLite => (ArtefactGenerator)new ArtefactGeneratorSql() { _code = type, _metaModel = domainModel, _target = target },
+                    ArtefactTypeEnum.MsSql => new ArtefactGeneratorSql(DbSchemaDomainModelConstructor, type, domainModel, target),
+                    //ArtefactTypeEnum.PhpZf => (ArtefactGenerator)new ArtefactGeneratorPhpZf() { _code = type, _metaModel = domainModel, _target = target },
+                    //ArtefactTypeEnum.CSharp => (ArtefactGenerator)new ArtefactGeneratorCSharp() { _code = type, _metaModel = domainModel, _target = target },
+                    //ArtefactTypeEnum.CSharpOldVersionSave => (ArtefactGenerator)new ArtefactGeneratorCSharpOldVersionSave() { _code = type, _metaModel = domainModel, _target = target },
+                    //ArtefactTypeEnum.CSharpProjectVersion => (ArtefactGenerator)new ArtefactGeneratorCSharpProjectVersion() { _code = type, _metaModel = domainModel, _target = target },
+                    //ArtefactTypeEnum.InnoSetup => (ArtefactGenerator)new ArtefactGeneratorInnoSetup() { _code = type, _metaModel = domainModel, _target = target },
+                    //ArtefactTypeEnum.MSBuild => (ArtefactGenerator)new ArtefactGeneratorMSBuild() { _code = type, _metaModel = domainModel, _target = target },
+                    _ => throw new ApplicationException($"Unsupported ArtefactTypeEnum value: {type}."),
+                };
+
+                return generator;
+            }
+
+            var project = ArtefactGenerationProject.Load(generationFile, ArtefactGeneratorConstructor);
 
             var success = false;
 
@@ -34,7 +66,12 @@ class Program
             {
                 foreach (var target in project.Targets)
                 {
-                    target.GenerateArtefacts();
+                    var message = target.GenerateArtefacts();
+
+                    if (message is not null)
+                    {
+                        Console.WriteLine(message);
+                    }
                 }
 
                 success = true;
@@ -52,8 +89,7 @@ class Program
 
             error = !success;
         }
-        catch (Exception ex)
-        when (ex is UniquinessException || ex is GeneratorException)
+        catch (Exception ex) when (ex is UniquinessException || ex is GeneratorException)
         {
             error = true;
             WriteExceptionToConsole(ex);

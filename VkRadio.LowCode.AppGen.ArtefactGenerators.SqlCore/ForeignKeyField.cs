@@ -54,7 +54,7 @@ public abstract class ForeignKeyField : ITableField
     {
         var result = $"{QuoteSymbol}{Name}{QuoteSymbol} {SqlType} {(Nullable ? "null" : "not null")}";
 
-        if (Table.SchemaDeploymentScript.DBSchemaMetaModel.GenerateConstraintsInline)
+        if (Table.SchemaDeploymentScript.DBSchemaDomainModel.GenerateConstraintsInline)
         {
             if (Unique)
             {

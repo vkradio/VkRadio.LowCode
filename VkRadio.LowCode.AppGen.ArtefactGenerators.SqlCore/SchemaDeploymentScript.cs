@@ -5,7 +5,7 @@
 /// </summary>
 public abstract class SchemaDeploymentScript
 {
-    protected DBSchemaDomainModel _dbSchemaMetaModel;
+    protected DBSchemaDomainModel _dbSchemaDomainModel;
     protected Dictionary<string, Table> _tables = [];
     protected Table[] _tablesSorted;
     protected List<ForeignKeyConstraint> _fkConstraints = [];
@@ -20,12 +20,12 @@ public abstract class SchemaDeploymentScript
             .ToArray();
     }
 
-    public SchemaDeploymentScript(DBSchemaDomainModel dbSchemaMetaModel) => _dbSchemaMetaModel = dbSchemaMetaModel;
+    public SchemaDeploymentScript(DBSchemaDomainModel dbSchemaMetaModel) => _dbSchemaDomainModel = dbSchemaMetaModel;
 
     /// <summary>
     /// Database scheme metamodel
     /// </summary>
-    public DBSchemaDomainModel DBSchemaMetaModel => _dbSchemaMetaModel;
+    public DBSchemaDomainModel DBSchemaDomainModel => _dbSchemaDomainModel;
 
     /// <summary>
     /// Logical description of tables to be created

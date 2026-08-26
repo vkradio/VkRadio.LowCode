@@ -1,11 +1,5 @@
-﻿using System.Xml.Linq;
-using VkRadio.LowCode.AppGenerator.MetaModel.Names;
-using AG = VkRadio.LowCode.AppGenerator.ArtefactGenerator;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Modular;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql.MsSql;
-//using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql.MySql;
-//using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Sql.SQLite;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
+using VkRadio.LowCode.AppGen.Domain.Names;
 
 namespace VkRadio.LowCode.AppGenerator.Targets;
 

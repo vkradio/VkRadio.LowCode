@@ -1,16 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VkRadio.LowCode.AppGen.ArtefactGenerators.Core\VkRadio.LowCode.AppGen.ArtefactGenerators.Core.csproj" />
-    <ProjectReference Include="..\VkRadio.LowCode.AppGen.ArtefactGenerators.MsSql\VkRadio.LowCode.AppGen.ArtefactGenerators.MsSql.csproj" />
-    <ProjectReference Include="..\VkRadio.LowCode.AppGen.ArtefactGenerators.OolCore\VkRadio.LowCode.AppGen.ArtefactGenerators.OolCore.csproj" />
     <ProjectReference Include="..\VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore\VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore.csproj" />
     <ProjectReference Include="..\VkRadio.LowCode.AppGen.Domain\VkRadio.LowCode.AppGen.Domain.csproj" />
   </ItemGroup>
