@@ -16,13 +16,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VkRadio.LowCode.Gui.WinForm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.TestBed", "VkRadio.LowCode.TestBed\VkRadio.LowCode.TestBed.csproj", "{2D9A21CD-BEF0-441E-BC03-BC50B650D484}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGenerator", "VkRadio.LowCode.AppGenerator\VkRadio.LowCode.AppGenerator.csproj", "{B09352B7-AE02-4BC0-A463-60ECB0E955C4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGen.AppConsole", "VkRadio.LowCode.AppGen.AppConsole\VkRadio.LowCode.AppGen.AppConsole.csproj", "{B09352B7-AE02-4BC0-A463-60ECB0E955C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGenerator.MetaModel", "VkRadio.LowCode.AppGenerator.MetaModel\VkRadio.LowCode.AppGenerator.MetaModel.csproj", "{79789461-00C8-48CB-94D4-06196E339F4F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGen.Domain", "VkRadio.LowCode.AppGen.Domain\VkRadio.LowCode.AppGen.Domain.csproj", "{79789461-00C8-48CB-94D4-06196E339F4F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.ArtefactGenerators.Core", "VkRadio.LowCode.ArtefactGenerators.Core\VkRadio.LowCode.ArtefactGenerators.Core.csproj", "{DE53A0C2-7824-4060-B389-1139EB614DE7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGen.ArtefactGenerators.Core", "VkRadio.LowCode.AppGen.ArtefactGenerators.Core\VkRadio.LowCode.AppGen.ArtefactGenerators.Core.csproj", "{DE53A0C2-7824-4060-B389-1139EB614DE7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.ArtefactGenerators.SqlCore", "VkRadio.LowCode.ArtefactGenerators.SqlCore\VkRadio.LowCode.ArtefactGenerators.SqlCore.csproj", "{606190B3-7040-4C47-BD72-E782E4BE595D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore", "VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore\VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore.csproj", "{606190B3-7040-4C47-BD72-E782E4BE595D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
