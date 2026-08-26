@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
-using VkRadio.LowCode.AppGen.ArtefactGenerators.MsSql;
-using VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.MsSql;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.Core;
 using VkRadio.LowCode.AppGen.Domain;
 
 namespace VkRadio.LowCode.AppGen.AppConsole;
