@@ -6,4 +6,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\VkRadio.LowCode.AppGen.ArtefactGenerators.Core\VkRadio.LowCode.AppGen.ArtefactGenerators.Core.csproj" />
+    <ProjectReference Include="..\VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore\VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore.csproj" />
+    <ProjectReference Include="..\VkRadio.LowCode.AppGen.Domain\VkRadio.LowCode.AppGen.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
