@@ -1,6 +1,6 @@
 ﻿using System.Xml.Linq;
 
-namespace VkRadio.LowCode.ArtefactGenerators.SqlCore;
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore;
 
 public struct DbParams
 {

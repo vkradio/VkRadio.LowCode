@@ -33,13 +33,13 @@ public class EntityDefinition : IUniqueNamed
     /// <summary>
     /// Predefined objects of Entity type
     /// </summary>
-    public IList<PredefinedEntityInstance> PredefinedDOs
+    public IList<PredefinedEntityInstance> PredefinedEntityInstances
     {
         get
         {
             if (_predefinedEntities is null)
             {
-                _predefinedEntities = new List<PredefinedEntityInstance>();
+                _predefinedEntities = [];
 
                 foreach (var pdo in _domainModel.AllPredefinedEntities.Values)
                 {

@@ -1,4 +1,4 @@
-﻿namespace VkRadio.LowCode.ArtefactGenerators.SqlCore;
+﻿namespace VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore;
 
 /// <summary>
 /// Primary Key, consisting of one field
@@ -12,17 +12,21 @@ public abstract class PKSingle : PrimaryKey, ITableField
     /// <summary>
     /// Table field name
     /// </summary>
-    public string Name { get { return _name; } }
+    public string Name => _name;
+
     /// <summary>
     /// Are NULL values allowed (obviously never allowed for PKs)
     /// </summary>
     public bool Nullable => false;
+
     /// <summary>
     /// SQL type (string literal)
     /// </summary>
-    public string SqlType { get { return _sqlType; } }
-    public PropertyCorrespondence DOTPropertyCorrespondence { get { return null; } }
-    public bool Unique { get { return true; } }
+    public string SqlType => _sqlType;
+
+    public PropertyCorrespondence? EntityPropertyCorrespondence => null;
+
+    public bool Unique => true;
 
     public PKSingle()
     {

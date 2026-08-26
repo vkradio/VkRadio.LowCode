@@ -1,12 +1,12 @@
-﻿namespace VkRadio.LowCode.ArtefactGenerators.SqlCore;
+﻿namespace VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore;
 
 public abstract class Table : ITextDefinition
 {
     protected string _name;
     protected SchemaDeploymentScript _schemaDeploymentScript;
     //protected List<DynamicTypeForeignKey> _dynamicTypeForeignKeys = new List<DynamicTypeForeignKey>();
-    protected List<ForeignKeyField> _foreignKeyFields = new();
-    protected List<ValueField> _valueFields = new();
+    protected List<ForeignKeyField> _foreignKeyFields = [];
+    protected List<ValueField> _valueFields = [];
     protected PrimaryKey _primaryKey;
     protected string _quoteSymbol;
 
@@ -18,8 +18,8 @@ public abstract class Table : ITextDefinition
     /// <summary>
     /// Public constructor to set a table name
     /// </summary>
-    /// <param name="name">Имя таблицы</param>
-    /// <param name="schemaDeploymentScript">Логическое представление скрипта развертывания БД</param>
+    /// <param name="name">Table name</param>
+    /// <param name="schemaDeploymentScript">Logical representation of an SQL database deployment script</param>
     public Table(string name, SchemaDeploymentScript schemaDeploymentScript)
     {
         _name = name;
@@ -30,12 +30,16 @@ public abstract class Table : ITextDefinition
     /// Generate a table declaration &quot;tail&quot; - that located between a closing bracket and a semicolon (;)
     /// </summary>
     /// <returns></returns>
-    protected virtual string GenerateTableDefTail() { return string.Empty; }
+    protected virtual string GenerateTableDefTail() => string.Empty;
 
-    public string Name { get { return _name; } }
-    public SchemaDeploymentScript SchemaDeploymentScript { get { return _schemaDeploymentScript; } }
-    //public IList<DynamicTypeForeignKey> DynamicTypeForeignKeys { get { return _dynamicTypeForeignKeys; } }
-    public IList<ForeignKeyField> ForeignKeyFields { get { return _foreignKeyFields; } }
+    public string Name => _name;
+
+    public SchemaDeploymentScript SchemaDeploymentScript => _schemaDeploymentScript;
+
+    //public IList<DynamicTypeForeignKey> DynamicTypeForeignKeys => _dynamicTypeForeignKeys;
+
+    public IList<ForeignKeyField> ForeignKeyFields => _foreignKeyFields;
+
     public IList<ITableField> AllFields
     {
         get
@@ -80,9 +84,12 @@ public abstract class Table : ITextDefinition
             return fields;
         }
     }
-    public IList<ValueField> ValueFields { get { return _valueFields; } }
-    public PrimaryKey PrimaryKey { get { return _primaryKey; } set { _primaryKey = value; } }
-    public string QuoteSymbol { get { return _quoteSymbol; } }
+
+    public IList<ValueField> ValueFields => _valueFields;
+
+    public PrimaryKey PrimaryKey { get => _primaryKey; set => _primaryKey = value; }
+
+    public string QuoteSymbol => _quoteSymbol;
 
     public string[] GenerateText()
     {
@@ -116,6 +123,6 @@ public abstract class Table : ITextDefinition
 
         result.Add(")" + GenerateTableDefTail() + ";");
 
-        return result.ToArray();
+        return [.. result];
     }
 }

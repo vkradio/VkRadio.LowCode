@@ -1,4 +1,4 @@
-﻿namespace VkRadio.LowCode.ArtefactGenerators.SqlCore;
+﻿namespace VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore;
 
 /// <summary>
 /// Helpers for work with database schema
@@ -9,18 +9,22 @@ public static class DBSchemaHelper
     /// Name quote symbol
     /// </summary>
     public const string C_QUOTE_SYMBOL = "`";
+
     /// <summary>
     /// Keyword &quot;default&quot;
     /// </summary>
     public const string C_KEYWORD_DEFAULT = "default";
+
     /// <summary>
     /// Keyword &quot;unique&quot;
     /// </summary>
     public const string C_KEYWORD_UNIQUE = "unique";
+
     /// <summary>
     /// Number of tabulation spaces
     /// </summary>
     public const int C_TAB_LEN = 4;
+
     /// <summary>
     /// Tabulation string
     /// </summary>

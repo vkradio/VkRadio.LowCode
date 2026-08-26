@@ -1,4 +1,4 @@
-﻿namespace VkRadio.LowCode.ArtefactGenerators.SqlCore;
+﻿namespace VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore;
 
 public interface ITextDefinition
 {

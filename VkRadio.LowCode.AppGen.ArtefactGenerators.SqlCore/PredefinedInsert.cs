@@ -1,17 +1,19 @@
-﻿namespace VkRadio.LowCode.ArtefactGenerators.SqlCore;
+﻿namespace VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore;
 
 public class PredefinedInsert : ITextDefinition
 {
     protected const string c_insertPattern = "insert into {0}{1}{2} ({3}) values ({4});";
 
     protected SchemaDeploymentScript _schemaDeploymentScript;
-    protected List<FieldValue> _fieldValues = new();
+    protected List<FieldValue> _fieldValues = [];
     protected Table _table;
     protected string _quoteSymbol = string.Empty;
 
-    public SchemaDeploymentScript SchemaDeploymentScript { get { return _schemaDeploymentScript; } set { _schemaDeploymentScript = value; } }
-    public IList<FieldValue> FieldValues { get { return _fieldValues; } }
-    public Table Table { get { return _table; } set { _table = value; } }
+    public SchemaDeploymentScript SchemaDeploymentScript { get => _schemaDeploymentScript; set => _schemaDeploymentScript = value; }
+
+    public IList<FieldValue> FieldValues => _fieldValues;
+
+    public Table Table { get => _table; set => _table = value; }
 
     public string[] GenerateText()
     {

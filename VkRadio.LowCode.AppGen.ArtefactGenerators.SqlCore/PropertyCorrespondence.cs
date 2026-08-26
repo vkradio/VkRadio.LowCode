@@ -1,26 +1,28 @@
-﻿using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
+﻿using VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
 
-namespace VkRadio.LowCode.ArtefactGenerators.SqlCore;
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore;
 
 /// <summary>
-/// Mutual correspondence of table field and data object type property
+/// Mutual correspondence of table field and entity type property
 /// </summary>
 public class PropertyCorrespondence
 {
     ITableField _tableField;
-    TableAndDOTCorrespondence _tableAndDOTCorrespondence;
+    TableAndEntityCorrespondence _tableAndEntityCorrespondence;
     PropertyDefinition _propertyDefinition;
 
     /// <summary>
     /// Table field
     /// </summary>
-    public ITableField TableField { get { return _tableField; } set { _tableField = value; } }
+    public ITableField TableField { get => _tableField; set => _tableField = value; }
+
     /// <summary>
-    /// Mutual correspondence of data object type definition and a table
+    /// Mutual correspondence of Entity definition and a table
     /// </summary>
-    public TableAndDOTCorrespondence TableAndDOTCorrespondence { get { return _tableAndDOTCorrespondence; } set { _tableAndDOTCorrespondence = value; } }
+    public TableAndEntityCorrespondence TableAndEntityCorrespondence { get => _tableAndEntityCorrespondence; set => _tableAndEntityCorrespondence = value; }
+
     /// <summary>
-    /// Property definition in DOT
+    /// Property definition in Entity
     /// </summary>
-    public PropertyDefinition PropertyDefinition { get { return _propertyDefinition; } set { _propertyDefinition = value; } }
+    public PropertyDefinition PropertyDefinition { get => _propertyDefinition; set => _propertyDefinition = value; }
 }

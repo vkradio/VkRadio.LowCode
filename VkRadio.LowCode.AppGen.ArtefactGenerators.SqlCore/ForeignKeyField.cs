@@ -1,16 +1,15 @@
 ﻿using VkRadio.LowCode.AppGen.Domain.Names;
-using VkRadio.LowCode.AppGenerator.MetaModel.Names;
-using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
-using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.SystemFunctionalTypes;
+using VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
+using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.SystemFunctionalTypes;
 
-namespace VkRadio.LowCode.ArtefactGenerators.SqlCore;
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore;
 
 /// <summary>
 /// Foreign Key field of a table
 /// </summary>
 public abstract class ForeignKeyField : ITableField
 {
-    protected abstract string CreateDefaultValue(SRefObject in_srefObject);
+    protected abstract string CreateDefaultValue(SRefObject srefObject);
 
     public string QuoteSymbol { get; protected set; }
     
@@ -22,26 +21,31 @@ public abstract class ForeignKeyField : ITableField
     
     public Table Table { get; protected set; }
     
-    public PropertyCorrespondence DOTPropertyCorrespondence { get; protected set; }
+    public PropertyCorrespondence EntityPropertyCorrespondence { get; protected set; }
     
     public string DefaultValue { get; protected set; }
     
     public bool Unique { get; protected set; }
 
-    public ForeignKeyField(TableAndDOTCorrespondence tableAndDOTCorrespondence, PropertyDefinition propertyDefinition)
+    public ForeignKeyField(TableAndEntityCorrespondence tableAndEntityCorrespondence, PropertyDefinition propertyDefinition)
     {
-        Table = tableAndDOTCorrespondence.Table;
-        Name = NameHelper.NameToUnderscoreSeparatedName(propertyDefinition.Names[HumanLanguageEnum.En]) + "_id";
+        Table = tableAndEntityCorrespondence.Table;
+        Name = NameHelper.NameToUnderscoreSeparatedName(propertyDefinition.Names[NaturalLanguageEnum.En]) + "_id";
         Nullable = propertyDefinition.FunctionalType.Nullable;
         Unique = propertyDefinition.FunctionalType.Unique;
-        DOTPropertyCorrespondence = new PropertyCorrespondence { PropertyDefinition = propertyDefinition, TableAndDOTCorrespondence = tableAndDOTCorrespondence, TableField = this };
+        EntityPropertyCorrespondence = new PropertyCorrespondence
+        {
+            PropertyDefinition = propertyDefinition,
+            TableAndEntityCorrespondence = tableAndEntityCorrespondence,
+            TableField = this
+        };
     }
 
     public void Init()
     {
-        if (DOTPropertyCorrespondence.PropertyDefinition.DefaultValue != null)
+        if (EntityPropertyCorrespondence.PropertyDefinition.DefaultValue is not null)
         {
-            var value = (SRefObject)DOTPropertyCorrespondence.PropertyDefinition.DefaultValue;
+            var value = (SRefObject)EntityPropertyCorrespondence.PropertyDefinition.DefaultValue;
             DefaultValue = CreateDefaultValue(value);
         }
     }

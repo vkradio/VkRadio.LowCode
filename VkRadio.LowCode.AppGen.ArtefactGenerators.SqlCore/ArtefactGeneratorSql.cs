@@ -1,6 +1,6 @@
-﻿using VkRadio.LowCode.ArtefactGenerators.Core;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
 
-namespace VkRadio.LowCode.ArtefactGenerators.SqlCore;
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore;
 
 public abstract class ArtefactGeneratorSql : IArtefactGenerator
 {

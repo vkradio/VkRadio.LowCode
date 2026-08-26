@@ -1,39 +1,51 @@
-﻿using VkRadio.LowCode.AppGen.Domain.Names;
-using VkRadio.LowCode.AppGenerator.MetaModel.DOTDefinition;
-using VkRadio.LowCode.AppGenerator.MetaModel.Names;
-using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
-using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
-using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.SystemFunctionalTypes;
+﻿using VkRadio.LowCode.AppGen.Domain;
+using VkRadio.LowCode.AppGen.Domain.Names;
+using VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
+using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
+using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.SystemFunctionalTypes;
 
-namespace VkRadio.LowCode.ArtefactGenerators.SqlCore;
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore;
 
-public abstract class DBSchemaMetaModel
+public abstract class DBSchemaDomainModel
 {
-    protected DomainModel _metaModel;
+    protected DomainModel _domainModel;
     protected ArtefactGeneratorSql _artefactGeneratorSql;
     protected SchemaDeploymentScript _schemaDeploymentScript;
     protected Dictionary<Guid, TableAndSourceCorrespondence> _tableAndSourceCorrespondence = new();
     protected bool _supportsForeignKeyConstraints;
 
-    protected abstract Table CreateTable(DOTDefinition dotDefinition);
-    protected virtual string GenerateTableName(DOTDefinition dotDefinition) => NameHelper.NameToUnderscoreSeparatedName(dotDefinition.Names[HumanLanguageEnum.En]);
-    protected abstract ValueField CreateTableFieldValue(TableAndDOTCorrespondence in_correspondense, PropertyDefinition in_propertyDefinition);
-    protected abstract ForeignKeyField CreateForeignKeyField(TableAndDOTCorrespondence in_correspondense, PropertyDefinition in_propertyDefinition);
+    protected abstract Table CreateTable(EntityDefinition entityDefinition);
+
+    protected virtual string GenerateTableName(EntityDefinition entityDefinition) => NameHelper.NameToUnderscoreSeparatedName(entityDefinition.Names[NaturalLanguageEnum.En]);
+
+    protected abstract ValueField CreateTableFieldValue(TableAndEntityCorrespondence correspondense, PropertyDefinition propertyDefinition);
+
+    protected abstract ForeignKeyField CreateForeignKeyField(TableAndEntityCorrespondence correspondense, PropertyDefinition propertyDefinition);
+
     protected abstract PredefinedInsert CreatePredefinedInsert();
-    protected abstract FieldValueKey CreateFieldValueKey(PredefinedInsert in_predefinedInsert, ITableField in_field, Guid in_value);
-    protected abstract string GetValueStringForRefId(SRefObject in_value);
-    protected abstract string GetValueStringForUniqueCode(Guid in_value);
+
+    protected abstract FieldValueKey CreateFieldValueKey(PredefinedInsert predefinedInsert, ITableField field, Guid value);
+
+    protected abstract string GetValueStringForRefId(SRefObject value);
+
+    protected abstract string GetValueStringForUniqueCode(Guid value);
+
     /// <summary>
     /// Get a string representation of a call to unique code (GUID) generation function
     /// </summary>
     /// <returns></returns>
     protected abstract string GetDefaultStringRepForUniqueCodeGenerator();
+
     protected abstract SchemaDeploymentScript CreateSchemaDeploymentScript();
 
-    public DomainModel MetaModel => _metaModel;
+    public DomainModel DomainModel => _domainModel;
+
     public ArtefactGeneratorSql ArtefactGeneratorSql => _artefactGeneratorSql;
+
     public SchemaDeploymentScript SchemaDeploymentScript => _schemaDeploymentScript;
+
     public IDictionary<Guid, TableAndSourceCorrespondence> TableAndSourceCorrespondence => _tableAndSourceCorrespondence;
+
     public bool GenerateConstraintsInline { get; protected set; }
 
     public static string GetReferencedTableName(PropertyCorrespondence propertyCorrespondence, IDictionary<Guid, TableAndSourceCorrespondence> tableAndSourceCorrespondence)
@@ -42,7 +54,7 @@ public abstract class DBSchemaMetaModel
 
         if (propertyCorrespondence.PropertyDefinition.FunctionalType is PFTReferenceValue pftRefVal)
         {
-            refTableName = ((TableAndDOTCorrespondence)tableAndSourceCorrespondence[pftRefVal.RelationshipReference.ReferenceDefinition.Id]).Table.Name;
+            refTableName = ((TableAndEntityCorrespondence)tableAndSourceCorrespondence[pftRefVal.RelationshipReference.ReferenceDefinition.Id]).Table.Name;
         }
         else
         {
@@ -50,7 +62,7 @@ public abstract class DBSchemaMetaModel
 
             if (pftTableOwner is not null)
             {
-                refTableName = ((TableAndDOTCorrespondence)tableAndSourceCorrespondence[pftTableOwner.RelationshipTable.PropertyDefinitionInOwner.OwnerDefinition.Id]).Table.Name;
+                refTableName = ((TableAndEntityCorrespondence)tableAndSourceCorrespondence[pftTableOwner.RelationshipTable.PropertyDefinitionInOwner.OwnerDefinition.Id]).Table.Name;
             }
             else
             {
@@ -62,7 +74,7 @@ public abstract class DBSchemaMetaModel
                         ? pftConnector.RelationshipConnector.End2.PropertyDefinition
                         : pftConnector.RelationshipConnector.End1.PropertyDefinition;
 
-                    refTableName = ((TableAndDOTCorrespondence)tableAndSourceCorrespondence[otherEnd.OwnerDefinition.Id]).Table.Name;
+                    refTableName = ((TableAndEntityCorrespondence)tableAndSourceCorrespondence[otherEnd.OwnerDefinition.Id]).Table.Name;
                 }
                 else
                 {
@@ -79,17 +91,18 @@ public abstract class DBSchemaMetaModel
         _schemaDeploymentScript = CreateSchemaDeploymentScript();
 
         #region 1. Generate table declarations based on data object type definitions
-        foreach (var dotDef in _metaModel.AllDOTDefinitions.Values)
+        foreach (var dotDef in _domainModel.AllEntityDefinitions.Values)
         {
             var tableDef = CreateTable(dotDef);
 
-            var correspondence = new TableAndDOTCorrespondence
+            var correspondence = new TableAndEntityCorrespondence
             {
-                DBSchemaMetaModel = this,
-                DOTDefinition = dotDef,
+                DBSchemaDomainModel = this,
+                EntityDefinition = dotDef,
                 Table = tableDef
             };
-            _tableAndSourceCorrespondence.Add(correspondence.DOTDefinition.Id, correspondence);
+
+            _tableAndSourceCorrespondence.Add(correspondence.EntityDefinition.Id, correspondence);
 
             _schemaDeploymentScript.Tables.Add(tableDef.Name, tableDef);
 
@@ -117,33 +130,29 @@ public abstract class DBSchemaMetaModel
 
                 if (field is not null)
                 {
-                    correspondence.PropertyCorrespondences.Add(field.DOTPropertyCorrespondence);
+                    correspondence.PropertyCorrespondences.Add(field.EntityPropertyCorrespondence);
                 }
             }
         }
         #endregion
 
-        // TODO: Not implemented tables for RegisterDefinition.
-        //#region 2. Generate tables for RegisterDefinition
-        //#endregion
-
-        #region 3. Generate descriptions for predefined inserts of data rows
-        foreach (var dotDef in _metaModel.AllDOTDefinitions.Values)
+        #region 2. Generate descriptions for predefined inserts of data rows
+        foreach (var entDef in _domainModel.AllEntityDefinitions.Values)
         {
-            foreach (var pdo in dotDef.PredefinedDOs)
+            foreach (var pde in entDef.PredefinedEntityInstances)
             {
-                var corr = (TableAndDOTCorrespondence)_tableAndSourceCorrespondence[dotDef.Id];
+                var corr = (TableAndEntityCorrespondence)_tableAndSourceCorrespondence[entDef.Id];
 
                 var pi = CreatePredefinedInsert();
                 pi.SchemaDeploymentScript = _schemaDeploymentScript;
                 pi.Table = corr.Table;
                 _schemaDeploymentScript.PredefinedInserts.Add(pi);
 
-                pi.FieldValues.Add(CreateFieldValueKey(pi, (PKSingle)corr.Table.PrimaryKey, pdo.Id));
+                pi.FieldValues.Add(CreateFieldValueKey(pi, (PKSingle)corr.Table.PrimaryKey, pde.Id));
 
                 foreach (var pCorr in corr.PropertyCorrespondences)
                 {
-                    var valueObject = pdo.PropertyValues[pCorr.PropertyDefinition.Id].ValueObject;
+                    var valueObject = pde.PropertyValues[pCorr.PropertyDefinition.Id].ValueObject;
                     string valueObjectAsString;
 
                     if (valueObject is null)
@@ -192,7 +201,7 @@ public abstract class DBSchemaMetaModel
                     {
                         // TODO: Make sure for all data types, if they will be correctly translated to SQL values.
                         // TODO: Need to think about a potential problem with escapes in case it will be a string literal.
-                        valueObjectAsString = valueObject.ToString();
+                        valueObjectAsString = valueObject?.ToString() ?? string.Empty;
                     }
 
                     var fv = new FieldValue
@@ -201,6 +210,7 @@ public abstract class DBSchemaMetaModel
                         Field = pCorr.TableField,
                         Value = valueObjectAsString
                     };
+
                     pi.FieldValues.Add(fv);
                 }
             }
@@ -209,12 +219,12 @@ public abstract class DBSchemaMetaModel
         _schemaDeploymentScript.PredefinedInserts.Sort(PredefinedInsert.PredefinedInsertComparer);
         #endregion
 
-        #region 4. Generate FK links
+        #region 3. Generate FK links
         if (_supportsForeignKeyConstraints)
         {
             foreach (var srcCorr in _tableAndSourceCorrespondence.Values)
             {
-                var corr = srcCorr as TableAndDOTCorrespondence;
+                var corr = srcCorr as TableAndEntityCorrespondence;
 
                 if (corr is null)
                 {
@@ -238,6 +248,7 @@ public abstract class DBSchemaMetaModel
                             propCorr.TableField.Name,
                             dependentLink.OnDeleteAction
                         );
+
                         _schemaDeploymentScript.FKConstraints.Add(fkConstraint);
                     }
                 }
@@ -251,8 +262,11 @@ public abstract class DBSchemaMetaModel
             if (result == 0)
             {
                 result = string.Compare(fk1.RefFieldName, fk2.RefFieldName);
+
                 //if (result == 0)
+                //{
                 //    result = string.Compare(fk1.RefTableName, fk2.RefTableName);
+                //}
             }
 
             return result;
@@ -260,16 +274,16 @@ public abstract class DBSchemaMetaModel
         #endregion
     }
 
-    public DBSchemaMetaModel(DomainModel metaModel, ArtefactGeneratorSql artefactGeneratorSql)
+    public DBSchemaDomainModel(DomainModel domainModel, ArtefactGeneratorSql artefactGeneratorSql)
     {
-        _metaModel = metaModel;
+        _domainModel = domainModel;
         _artefactGeneratorSql = artefactGeneratorSql;
     }
 
     /// <summary>
-    /// Get a string literal for a DOT or predefined object property
+    /// Get a string literal for a Entity or predefined object property
     /// </summary>
-    /// <param name="in_value">String value of a DOT of predefined object</param>
+    /// <param name="value">String value of a DOT of predefined object</param>
     /// <returns>String literal adapted for a particular SQL dialect</returns>
-    public virtual string GetValueStringForString(string in_value) { return "'" + in_value.Replace("'", "''").Replace("\n", "' + char(10) + '") + "'"; } // CR = char(13), LF = char(10)
+    public virtual string GetValueStringForString(string value) { return "'" + value.Replace("'", "''").Replace("\n", "' + char(10) + '") + "'"; } // CR = char(13), LF = char(10)
 }

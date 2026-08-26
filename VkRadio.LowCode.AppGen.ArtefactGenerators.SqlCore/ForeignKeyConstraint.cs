@@ -1,6 +1,6 @@
-﻿using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
+﻿using VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
 
-namespace VkRadio.LowCode.ArtefactGenerators.SqlCore;
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore;
 
 /// <summary>
 /// Link tables using Foreign Keys
@@ -21,14 +21,17 @@ public class ForeignKeyConstraint : ITextDefinition
     /// Table name on that constraint is applied
     /// </summary>
     public string TableName { get; private set; }
+
     /// <summary>
     /// Table name on that FK is referencing
     /// </summary>
     public string RefTableName { get; private set; }
+
     /// <summary>
     /// FK field name
     /// </summary>
     public string RefFieldName { get; private set; }
+
     /// <summary>
     /// What to do when referenced by FK row is being deleted
     /// </summary>
@@ -45,7 +48,7 @@ public class ForeignKeyConstraint : ITextDefinition
 
         if (OnDeleteAction == OnDeleteActionEnum.CannotDelete)
         {
-            result[result.Count - 1] += ";";
+            result[^1] += ";";
         }
         else
         {
@@ -62,6 +65,6 @@ public class ForeignKeyConstraint : ITextDefinition
 
         result.Add("go");
 
-        return result.ToArray();
+        return [.. result];
     }
 }

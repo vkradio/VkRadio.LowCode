@@ -1,4 +1,4 @@
-﻿namespace VkRadio.LowCode.ArtefactGenerators.SqlCore;
+﻿namespace VkRadio.LowCode.AppGen.ArtefactGenerators.SqlCore;
 
 /// <summary>
 /// Abstract correspondence between a table and its prototype in a main MetaModel
@@ -6,14 +6,15 @@
 public abstract class TableAndSourceCorrespondence
 {
     protected Table _table;
-    protected DBSchemaMetaModel _dbSchemaMetaModel;
+    protected DBSchemaDomainModel _dbSchemaDomainModel;
 
     /// <summary>
     /// Table that has a correspondence
     /// </summary>
-    public Table Table { get { return _table; } set { _table = value; } }
+    public Table Table { get => _table; set => _table = value; }
+
     /// <summary>
-    /// MetaModel
+    /// DomainModel
     /// </summary>
-    public DBSchemaMetaModel DBSchemaMetaModel { get { return _dbSchemaMetaModel; } set { _dbSchemaMetaModel = value; } }
+    public DBSchemaDomainModel DBSchemaDomainModel { get => _dbSchemaDomainModel; set => _dbSchemaDomainModel = value; }
 }
