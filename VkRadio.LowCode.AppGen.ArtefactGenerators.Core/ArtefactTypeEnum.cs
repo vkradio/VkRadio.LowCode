@@ -1,4 +1,4 @@
-﻿namespace VkRadio.LowCode.ArtefactGenerators.Core;
+﻿namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
 
 /// <summary>
 /// Types of artefacts to be generated

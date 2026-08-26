@@ -1,8 +1,8 @@
 ﻿using Ardalis.GuardClauses;
-using VkRadio.LowCode.AppGenerator.MetaModel;
-using VkRadio.LowCode.AppGenerator.MetaModel.Names;
+using VkRadio.LowCode.AppGen.Domain;
+using VkRadio.LowCode.AppGen.Domain.Names;
 
-namespace VkRadio.LowCode.ArtefactGenerators.Core;
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
 
 /// <summary>
 /// Artefact generation project description
@@ -33,26 +33,32 @@ public class Project : IUnique
     /// Unique identifier of a project
     /// </summary>
     public Guid Id { get; private set; }
+
     /// <summary>
     /// Project name
     /// </summary>
     public string Name { get; private set; }
+
     /// <summary>
-    /// MetaModel
+    /// DomainModel
     /// </summary>
     public DomainModel MetaModel { get; private set; } = default!;
+
     /// <summary>
     /// Targets of artefact generation
     /// </summary>
     public List<Target> Targets { get; private set; }
+
     /// <summary>
     /// Project root path
     /// </summary>
     public string ProjectRootPath { get; private set; }
+
     /// <summary>
     /// Root folder of an SVN repository
     /// </summary>
     public string? SvnWcRootPath { get; private set; }
+
     /// <summary>
     /// Timezone of an executable code
     /// </summary>
