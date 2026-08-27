@@ -16,21 +16,25 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VkRadio.LowCode.Gui.WinForm
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.TestBed", "VkRadio.LowCode.TestBed\VkRadio.LowCode.TestBed.csproj", "{2D9A21CD-BEF0-441E-BC03-BC50B650D484}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGen.AppConsole", "VkRadio.LowCode.AppGen.AppConsole\VkRadio.LowCode.AppGen.AppConsole.csproj", "{B09352B7-AE02-4BC0-A463-60ECB0E955C4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppConsole", "AppGen\AppConsole\AppConsole.csproj", "{B09352B7-AE02-4BC0-A463-60ECB0E955C4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGen.Domain", "VkRadio.LowCode.AppGen.Domain\VkRadio.LowCode.AppGen.Domain.csproj", "{79789461-00C8-48CB-94D4-06196E339F4F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "AppGen\Domain\Domain.csproj", "{79789461-00C8-48CB-94D4-06196E339F4F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGen.ArtefactGenerators.Core", "VkRadio.LowCode.AppGen.ArtefactGenerators.Core\VkRadio.LowCode.AppGen.ArtefactGenerators.Core.csproj", "{DE53A0C2-7824-4060-B389-1139EB614DE7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "AppGen\ArtefactGenerators\Core\Core.csproj", "{DE53A0C2-7824-4060-B389-1139EB614DE7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.Core", "VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.Core\VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.Core.csproj", "{606190B3-7040-4C47-BD72-E782E4BE595D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sql.Core", "AppGen\ArtefactGenerators\Sql.Core\Sql.Core.csproj", "{606190B3-7040-4C47-BD72-E782E4BE595D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core", "VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core\VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.csproj", "{EB10526B-4E00-46BF-8D4C-5FD6924453F0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ool.Core", "AppGen\ArtefactGenerators\Ool.Core\Ool.Core.csproj", "{EB10526B-4E00-46BF-8D4C-5FD6924453F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.MsSql", "VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.MsSql\VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.MsSql.csproj", "{3454B83B-57AE-4D96-AE0F-6216834F772A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sql.MsSql", "AppGen\ArtefactGenerators\Sql.MsSql\Sql.MsSql.csproj", "{3454B83B-57AE-4D96-AE0F-6216834F772A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core", "VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core\VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.csproj", "{791B9D39-20A9-4EBD-BFEA-5F22D3A637FC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ool.CSharp.Core", "AppGen\ArtefactGenerators\Ool.CSharp.Core\Ool.CSharp.Core.csproj", "{791B9D39-20A9-4EBD-BFEA-5F22D3A637FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp", "VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp\VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.csproj", "{4F6E44A3-4D99-44FC-B8B5-888BBD03DA39}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ool.CSharp.WinFormsApp", "AppGen\ArtefactGenerators\Ool.CSharp.WinFormsApp\Ool.CSharp.WinFormsApp.csproj", "{4F6E44A3-4D99-44FC-B8B5-888BBD03DA39}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AppGen", "AppGen", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ArtefactGenerators", "ArtefactGenerators", "{D2BC3302-B796-4AEC-94A6-3993F0F27CF4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,6 +93,17 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B09352B7-AE02-4BC0-A463-60ECB0E955C4} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{79789461-00C8-48CB-94D4-06196E339F4F} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{DE53A0C2-7824-4060-B389-1139EB614DE7} = {D2BC3302-B796-4AEC-94A6-3993F0F27CF4}
+		{606190B3-7040-4C47-BD72-E782E4BE595D} = {D2BC3302-B796-4AEC-94A6-3993F0F27CF4}
+		{EB10526B-4E00-46BF-8D4C-5FD6924453F0} = {D2BC3302-B796-4AEC-94A6-3993F0F27CF4}
+		{3454B83B-57AE-4D96-AE0F-6216834F772A} = {D2BC3302-B796-4AEC-94A6-3993F0F27CF4}
+		{791B9D39-20A9-4EBD-BFEA-5F22D3A637FC} = {D2BC3302-B796-4AEC-94A6-3993F0F27CF4}
+		{4F6E44A3-4D99-44FC-B8B5-888BBD03DA39} = {D2BC3302-B796-4AEC-94A6-3993F0F27CF4}
+		{D2BC3302-B796-4AEC-94A6-3993F0F27CF4} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8A773238-298F-4603-B07E-8875D71E40F8}

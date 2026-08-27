@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ArtefactGenerators\Core\Core.csproj" />
+    <ProjectReference Include="..\ArtefactGenerators\Sql.MsSql\Sql.MsSql.csproj" />
+    <ProjectReference Include="..\ArtefactGenerators\Ool.Core\Ool.Core.csproj" />
+    <ProjectReference Include="..\ArtefactGenerators\Sql.Core\Sql.Core.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+  </ItemGroup>
+
+</Project>
