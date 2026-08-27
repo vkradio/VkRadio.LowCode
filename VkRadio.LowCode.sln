@@ -30,6 +30,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGen.Arte
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core", "VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core\VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.csproj", "{791B9D39-20A9-4EBD-BFEA-5F22D3A637FC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp", "VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp\VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.csproj", "{4F6E44A3-4D99-44FC-B8B5-888BBD03DA39}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +82,10 @@ Global
 		{791B9D39-20A9-4EBD-BFEA-5F22D3A637FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{791B9D39-20A9-4EBD-BFEA-5F22D3A637FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{791B9D39-20A9-4EBD-BFEA-5F22D3A637FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F6E44A3-4D99-44FC-B8B5-888BBD03DA39}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F6E44A3-4D99-44FC-B8B5-888BBD03DA39}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F6E44A3-4D99-44FC-B8B5-888BBD03DA39}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F6E44A3-4D99-44FC-B8B5-888BBD03DA39}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
