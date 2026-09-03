@@ -1,4 +1,4 @@
-﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Model;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Model;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
 
@@ -18,7 +18,7 @@ public class StorageSingleFile : CSComponent
 
         var dbModel = package.ParentPackage.ParentPackage.DBbSchemaModel;
 
-        foreach (var dotDef in package.ParentPackage.ParentPackage.DomainModel.AllDOTDefinitions.Values)
+        foreach (var dotDef in package.ParentPackage.ParentPackage.DomainModel.AllEntityDefinitions.Values)
         {
             Storage.CreateStorageClass(this, dotDef, dbModel);
         }

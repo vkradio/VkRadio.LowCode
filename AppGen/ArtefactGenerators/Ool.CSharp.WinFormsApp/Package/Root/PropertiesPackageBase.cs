@@ -1,7 +1,6 @@
-﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Component.Properties;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component.Properties;
 
-namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Root;
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
 
 public class PropertiesPackageBase : PropertiesPackageAbstract
 {
@@ -12,6 +11,7 @@ public class PropertiesPackageBase : PropertiesPackageAbstract
         _components.Add(AssemblyInfo.Name, AssemblyInfo);
     }
 
-    public new CSharpProjectBase ParentPackage { get { return (CSharpProjectBase)_parentPackage; } }
-    public new AssemblyInfoBase AssemblyInfo { get { return (AssemblyInfoBase)base.AssemblyInfo; } }
+    public new CSharpProjectBase ParentPackage => (CSharpProjectBase)_parentPackage;
+
+    public new AssemblyInfoBase AssemblyInfo => (AssemblyInfoBase)base.AssemblyInfo;
 }

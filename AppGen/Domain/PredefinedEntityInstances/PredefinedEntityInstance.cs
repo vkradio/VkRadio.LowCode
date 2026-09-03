@@ -27,7 +27,7 @@ public class PredefinedEntityInstance : IUniqueNamed
     /// <summary>
     /// Data objec type definition
     /// </summary>
-    public EntityDefinition DOTDefinition => _entityDefinition;
+    public EntityDefinition EntityDefinition => _entityDefinition;
 
     /// <summary>
     /// Values of properties

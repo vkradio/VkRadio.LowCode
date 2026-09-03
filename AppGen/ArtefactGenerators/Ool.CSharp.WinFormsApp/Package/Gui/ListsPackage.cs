@@ -1,4 +1,5 @@
-﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract;
+﻿using Ool.CSharp.WinFormsApp.Package.Gui;
+using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract;
 using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Component;
 using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common;
 using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class;

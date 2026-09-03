@@ -1,30 +1,30 @@
-﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Field;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Method;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Property;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Property.Getter;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Property.Setter;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerators.Sql;
-using VkRadio.LowCode.AppGenerator.MetaModel.DOTDefinition;
-using PackNS = VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Package;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Field;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property.Getter;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property.Setter;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
+using VkRadio.LowCode.AppGen.Domain;
+using VkRadio.LowCode.AppGen.Domain.Names;
+using PackNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Package;
 
 // Implementing Singleton in a multithreaded environment:
 // http://msdn.microsoft.com/en-us/library/ff650316.aspx
 
-namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Model;
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Model;
 
 public class StoragePackage: PackNS.Package
 {
-    public static CSComponentWMainClass CreateStorageRegistryComponent(MetaModel.MetaModel domainModel, PackNS.Package package, string @namespace)
+    public static CSComponentWMainClass CreateStorageRegistryComponent(DomainModel domainModel, PackNS.Package package, string namespaceName)
     {
         var storageRegistryComponent = new CSComponentWMainClass
         {
             Package = package,
             Name = "StorageRegistry.cs",
-            Namespace = @namespace
+            Namespace = namespaceName
         };
         package.Components.Add(storageRegistryComponent.Namespace, storageRegistryComponent);
 
@@ -47,15 +47,17 @@ public class StoragePackage: PackNS.Package
         {
             foreach (var cls in component.Classes.Values)
             {
-                var dotClassName = cls.Name.Substring(0, cls.Name.Length - 7);
+                var entityClassName = cls.Name[..^7];
 
-                var thisDotDef = domainModel.AllDOTDefinitions.Values
-                    .Where(dotDef => CSharpHelper.GenerateDOTClassName(dotDef) == dotClassName).Single();
+                var thisEntDef = domainModel
+                    .AllEntityDefinitions
+                    .Values
+                    .Where(entDef => CSharpHelper.GenerateEntityClassName(entDef) == entityClassName).Single();
 
                 classDescriptors.Add(new CSharpHelper.ClassNameDOTDefPair
                 {
-                    ClassName = dotClassName,
-                    DOTDefinition = thisDotDef
+                    ClassName = entityClassName,
+                    EntityDefinition = thisEntDef
                 });
             }
         }
@@ -82,10 +84,10 @@ public class StoragePackage: PackNS.Package
 
         foreach (var cls in classDescriptors)
         {
-            var fieldName = $"_{NameHelper.NamesToCamelCase(cls.DOTDefinition.Names)}Storage";
-            var dotLocalName = NameHelper.GetLocalNameUpperCase(cls.DOTDefinition.Names);
-            var storageClassName = $"{NameHelper.NamesToPascalCase(cls.DOTDefinition.Names)}Storage";
-            var storageComment = $"Хранилище {dotLocalName}";
+            var fieldName = $"_{NameHelper.NamesToCamelCase(cls.EntityDefinition.Names)}Storage";
+            var dotLocalName = NameHelper.GetLocalNameUpperCase(cls.EntityDefinition.Names);
+            var storageClassName = $"{NameHelper.NamesToPascalCase(cls.EntityDefinition.Names)}Storage";
+            var storageComment = $"{dotLocalName} Storage";
 
             // 1. Storage field
             var field = new CSClassField
@@ -148,11 +150,11 @@ public class StoragePackage: PackNS.Package
         var storageNamespace = string.Format("{0}.Model.Storage", ParentPackage.ParentPackage.RootNamespace);
 
         // For each definition of data object type create a component with a corresponding class
-        var dotDefs = mm.AllDOTDefinitions.Values;
+        var entDefs = mm.AllDOTDefinitions.Values;
 
-        foreach (var dotDef in dotDefs)
+        foreach (var entDef in entDefs)
         {
-            var storageComponent = new Storage(this, dotDef, ParentPackage.ParentPackage.RootNamespace, dbMM);
+            var storageComponent = new Storage(this, entDef, ParentPackage.ParentPackage.RootNamespace, dbMM);
             _components.Add(storageComponent.Name, storageComponent);
         }
 
@@ -181,13 +183,13 @@ public class StoragePackage: PackNS.Package
             {
                 var className = component.MainClass.Name.Substring(0, component.MainClass.Name.Length - 7);
 
-                DOTDefinition? thisDotDef = null;
+                EntityDefinition? thisEntityDef = null;
 
                 foreach (var dotDef in mm.AllDOTDefinitions.Values)
                 {
                     if (CSharpHelper.GenerateDOTClassName(dotDef) == className)
                     {
-                        thisDotDef = dotDef;
+                        thisEntityDef = dotDef;
                         break;
                     }
                 }
@@ -195,7 +197,7 @@ public class StoragePackage: PackNS.Package
                 classes.Add(new CSharpHelper.ClassNameDOTDefPair()
                 {
                     ClassName = className,
-                    DOTDefinition = thisDotDef
+                    EntityDefinition = thisEntityDef
                 });
             }
         }
@@ -224,10 +226,10 @@ public class StoragePackage: PackNS.Package
         foreach (var cls in classes)
         {
             string
-                fieldName = string.Format("_{0}Storage", NameHelper.NamesToCamelCase(cls.DOTDefinition.Names)),
-                dotLocalName = NameHelper.GetLocalNameUpperCase(cls.DOTDefinition.Names),
-                storageClassName = string.Format("{0}Storage", NameHelper.NamesToPascalCase(cls.DOTDefinition.Names)),
-                storageComment = string.Format("Хранилище {0}", dotLocalName);
+                fieldName = string.Format("_{0}Storage", NameHelper.NamesToCamelCase(cls.EntityDefinition.Names)),
+                entityLocalizedName = NameHelper.GetLocalNameUpperCase(cls.EntityDefinition.Names),
+                storageClassName = string.Format("{0}Storage", NameHelper.NamesToPascalCase(cls.EntityDefinition.Names)),
+                storageComment = string.Format("Хранилище {0}", entityLocalizedName);
 
             // 1. Storage field
             var field = new CSClassField
@@ -281,5 +283,5 @@ public class StoragePackage: PackNS.Package
         #endregion
     }
 
-    new public ModelPackage ParentPackage { get { return (ModelPackage)_parentPackage; } }
+    new public ModelPackage ParentPackage => (ModelPackage)_parentPackage;
 }

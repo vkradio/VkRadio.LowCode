@@ -6,6 +6,7 @@ using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Met
 using VkRadio.LowCode.AppGenerator.ArtefactGenerators.Sql;
 using PackNS = VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Package;
 using VkRadio.LowCode.AppGenerator.MetaModel.DOTDefinition;
+using Ool.CSharp.WinFormsApp.Package.Gui;
 
 namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Gui;
 

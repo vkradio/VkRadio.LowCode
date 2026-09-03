@@ -1,29 +1,28 @@
 ﻿using System.Globalization;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Constant;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Field;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property.Getter;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Component;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Constant;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Field;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Method;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Property;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Property.Getter;
-using VkRadio.LowCode.AppGenerator.MetaModel.DOTDefinition;
-using VkRadio.LowCode.AppGenerator.MetaModel.PredefinedDO;
-using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
-using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
-using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.SystemFunctionalTypes;
-using PackNS = VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Package;
+using VkRadio.LowCode.AppGen.Domain;
+using VkRadio.LowCode.AppGen.Domain.Names;
+using VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
+using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
+using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.SystemFunctionalTypes;
+using PackNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Package;
 
-namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Model;
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Model;
 
-public class DOTPackage : PackNS.Package
+public class EntityPackage : PackNS.Package
 {
     #region InitNew method
-    private static void GenerateInitVariablesForMethod(DOTDefinition dotDef, CSMethod method)
+    private static void GenerateInitVariablesForMethod(EntityDefinition entityDef, CSMethod method)
     {
-        foreach (var propDef in dotDef.PropertyDefinitions.Values)
+        foreach (var propDef in entityDef.PropertyDefinitions.Values)
         {
             var initVarString = GenerateInitVariableForProp(propDef);
 
@@ -34,7 +33,7 @@ public class DOTPackage : PackNS.Package
         }
     }
 
-    private static string GenerateInitVariableForProp(PropertyDefinition propDef)
+    private static string? GenerateInitVariableForProp(PropertyDefinition propDef)
     {
         var varName = "_" + NameHelper.NamesToCamelCase(propDef.Names);
         var initVar = false;
@@ -361,9 +360,9 @@ public class DOTPackage : PackNS.Package
         }
         else
         {
-            var pdo = propDef.OwnerDefinition.MetaModel.AllPredefinedDOs[defaultValue.Key];
+            var pdo = propDef.OwnerDefinition.MetaModel.AllPredefinedEntities[defaultValue.Key];
             var constName = NameHelper.NameToConstantId(pdo.Names);
-            var className = CSharpHelper.GenerateDOTClassName(pdo.DOTDefinition);
+            var className = CSharpHelper.GenerateEntityClassName(pdo.EntityDefinition);
             result = string.Format("{0}.Predefined.{1}", className, constName);
         }
 
@@ -372,12 +371,12 @@ public class DOTPackage : PackNS.Package
     #endregion
 
     #region Clone method
-    private static void GenerateCloneVariablesForMethod(DOTDefinition dotDef, CSMethod method)
+    private static void GenerateCloneVariablesForMethod(EntityDefinition entityDef, CSMethod method)
     {
         method.BodyStrings.Add(string.Format("{0} clone = new {1}();", method.Class.Name, method.Class.Name));
         method.BodyStrings.Add("CloneBase(this, clone);");
 
-        foreach (var propDef in dotDef.PropertyDefinitions.Values)
+        foreach (var propDef in entityDef.PropertyDefinitions.Values)
         {
             var cloneVarString = GenerateCloneVariableForProp(propDef);
 
@@ -431,7 +430,7 @@ public class DOTPackage : PackNS.Package
     #endregion
 
     #region Validate method
-    private static void GenerateValidateForMethod(DOTDefinition dotDef, CSMethod method)
+    private static void GenerateValidateForMethod(EntityDefinition entityDef, CSMethod method)
     {
         method.BodyStrings.Add("string baseResult = base.Validate();");
         method.BodyStrings.Add("if (baseResult != null)");
@@ -444,7 +443,7 @@ public class DOTPackage : PackNS.Package
 
         var propValidateStrings = new List<string>();
 
-        foreach (var propDef in dotDef.PropertyDefinitions.Values)
+        foreach (var propDef in entityDef.PropertyDefinitions.Values)
         {
             propValidateStrings.AddRange(GenerateValidatesStringsForPropDef(propDef));
         }
@@ -558,14 +557,14 @@ public class DOTPackage : PackNS.Package
         }
         #endregion
 
-        return text.ToArray();
+        return [.. text];
     }
 
     private static string[] GenerateValidateVarValueForBool(PropertyDefinition propDef, PFTBoolean pftBool)
     {
         var text = new List<string>();
 
-        return text.ToArray();
+        return [.. text];
     }
 
     private static string[] GenerateValidateVarValueForString(PropertyDefinition propDef, PFTString pftString, string varName, string propLocalName)
@@ -596,7 +595,7 @@ public class DOTPackage : PackNS.Package
 
         if (minLength > 0)
         {
-            minEquation = string.Format("{0}{1}.Length < {2} || ", (pftString.Nullable && minLength > 0 ? "(" : string.Empty), varName, minLength);
+            minEquation = string.Format("{0}{1}.Length < {2} || ", pftString.Nullable && minLength > 0 ? "(" : string.Empty, varName, minLength);
         }
 
         var equation = string.Format("if ({0}{1}{2}.Length > {3})", nullableEquation, minEquation, varName, pftString.MaxLength);
@@ -609,7 +608,7 @@ public class DOTPackage : PackNS.Package
         text.Add(equation);
         text.Add(string.Format("    return string.Format(c_invalidPropertyLength, \"{0}\", {1}, {2});", propLocalName, minLength, pftString.MaxLength));
 
-        return text.ToArray();
+        return [.. text];
     }
 
     private static string[] GenerateValidateVarValueForDateTime(PropertyDefinition propDef, PFTDateTime pftDateTime, string varName, string propLocalName)
@@ -627,7 +626,7 @@ public class DOTPackage : PackNS.Package
 
         text.Add(string.Format("    return string.Format(c_invalidPropertyDateTime, \"{0}\");", propLocalName));
 
-        return text.ToArray();
+        return [.. text];
     }
 
     private static string[] GenerateValidateVarValueForRefValue(PropertyDefinition propDef, PFTLink pftRef, string varName, string varNameWOId, string propLocalName)
@@ -645,16 +644,16 @@ public class DOTPackage : PackNS.Package
             text.Add(string.Format("    return string.Format(c_propertyValueNotSet, \"{0}\");", propLocalName));
         }
 
-        return text.ToArray();
+        return [.. text];
     }
     #endregion
 
     #region ResetCachedRefProperties method
-    private static void GenerateResetCachedRefPropertiesMethod(CSClass @class, DOTDefinition dotDef)
+    private static void GenerateResetCachedRefPropertiesMethod(CSClass cSharpClass, EntityDefinition entityDef)
     {
         var refProps = new List<PropertyDefinition>();
 
-        foreach (var propDef in dotDef.PropertyDefinitions.Values)
+        foreach (var propDef in entityDef.PropertyDefinitions.Values)
         {
             if (propDef.FunctionalType is PFTConnector ||
                 propDef.FunctionalType is PFTReferenceValue ||
@@ -669,13 +668,13 @@ public class DOTPackage : PackNS.Package
             var method = new CSMethod
             {
                 AdditionalKeywords = "override",
-                Class = @class,
+                Class = cSharpClass,
                 DocComment = new XmlComment("Reset cached referenced objects"),
                 Name = "ResetCachedRefProperties",
                 ReturnType = "void",
                 Visibility = ElementVisibilityClassic.Public
             };
-            @class.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+            cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
             foreach (var propDef in refProps)
             {
@@ -689,13 +688,13 @@ public class DOTPackage : PackNS.Package
     /// Create and add to a class a logic description of method InitNew, that creates and initializes
     /// a new data object type with default values
     /// </summary>
-    /// <param name="class"></param>
-    /// <param name="dotDef"></param>
-    private static void CreateMethodInitNew(CSClass @class, DOTDefinition dotDef)
+    /// <param name="cSharpClass"></param>
+    /// <param name="entityDef"></param>
+    private static void CreateMethodInitNew(CSClass cSharpClass, EntityDefinition entityDef)
     {
         var method = new CSMethod
         {
-            Class = @class,
+            Class = cSharpClass,
             DocComment = new XmlComment("Create a new object and initialize it with default values"),
             IsStatic = false,
             HintSingleLineBody = false,
@@ -704,20 +703,20 @@ public class DOTPackage : PackNS.Package
             Visibility = ElementVisibilityClassic.Public,
             AdditionalKeywords = "override"
         };
-        @class.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
-        GenerateInitVariablesForMethod(dotDef, method);
+        cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        GenerateInitVariablesForMethod(entityDef, method);
     }
 
     /// <summary>
     /// Create and add to a class a logic description of method Clone
     /// </summary>
-    /// <param name="class"></param>
-    /// <param name="dotDef"></param>
-    private static void CreateMethodClone(CSClass @class, DOTDefinition dotDef)
+    /// <param name="cSharpClass"></param>
+    /// <param name="entityDef"></param>
+    private static void CreateMethodClone(CSClass cSharpClass, EntityDefinition entityDef)
     {
         var method = new CSMethod
         {
-            Class = @class,
+            Class = cSharpClass,
             DocComment = new XmlComment("Create an isolated instance copy (clone) of an object"),
             IsStatic = false,
             HintSingleLineBody = false,
@@ -726,8 +725,8 @@ public class DOTPackage : PackNS.Package
             Visibility = ElementVisibilityClassic.Public,
             AdditionalKeywords = "override"
         };
-        @class.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
-        GenerateCloneVariablesForMethod(dotDef, method);
+        cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        GenerateCloneVariablesForMethod(entityDef, method);
     }
 
     /// <summary>
@@ -735,13 +734,13 @@ public class DOTPackage : PackNS.Package
     /// of data object. For that it extracts a name field of heuristically searches for other similar field. If nothing
     /// name-like found, a value of Id is used.
     /// </summary>
-    /// <param name="class"></param>
-    /// <param name="dotDef"></param>
-    private static void CreateMethodToString(CSClass @class, DOTDefinition dotDef)
+    /// <param name="cSharpClass"></param>
+    /// <param name="entityDef"></param>
+    private static void CreateMethodToString(CSClass cSharpClass, EntityDefinition entityDef)
     {
         var method = new CSMethod
         {
-            Class = @class,
+            Class = cSharpClass,
             DocComment = new XmlComment("Default string representation of an object"),
             IsStatic = false,
             HintSingleLineBody = true,
@@ -750,7 +749,7 @@ public class DOTPackage : PackNS.Package
             Visibility = ElementVisibilityClassic.Public,
             AdditionalKeywords = "override"
         };
-        @class.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
         var varName = string.Empty;
 
@@ -760,7 +759,7 @@ public class DOTPackage : PackNS.Package
         var isString = true;
         var nullableValueType = false;
 
-        foreach (var propDef in dotDef.PropertyDefinitions.Values)
+        foreach (var propDef in entityDef.PropertyDefinitions.Values)
         {
             if (propDef.FunctionalType is PFTName)
             {
@@ -773,7 +772,7 @@ public class DOTPackage : PackNS.Package
         // 2. Then search for a unique-value property
         if (!found)
         {
-            foreach (var propDef in dotDef.PropertyDefinitions.Values)
+            foreach (var propDef in entityDef.PropertyDefinitions.Values)
             {
                 if (propDef.FunctionalType.Unique)
                 {
@@ -794,7 +793,7 @@ public class DOTPackage : PackNS.Package
         // 3. Then search for any first found string value
         if (!found)
         {
-            foreach (var propDef in dotDef.PropertyDefinitions.Values)
+            foreach (var propDef in entityDef.PropertyDefinitions.Values)
             {
                 if (propDef.FunctionalType is PFTString)
                 {
@@ -816,10 +815,10 @@ public class DOTPackage : PackNS.Package
 
         var getting = isString
             ? $"{varName} ?? string.Empty"
-            : (nullableValueType
+            : nullableValueType
                 ? $"{varName}.HasValue ? {varName}.Value.ToString() : string.Empty"
                 : $"{varName}.ToString()"
-            );
+            ;
 
         var gettingWOverrider = $"_overrider != null && _overrider.OverrideToString ? (_overrider.ToStringOverride()) : ({getting})";
 
@@ -830,13 +829,13 @@ public class DOTPackage : PackNS.Package
     /// Create and add to a class a logic description of method Validate that is being called before
     /// saving changed object state to a database
     /// </summary>
-    /// <param name="class"></param>
-    /// <param name="dotDef"></param>
-    static void CreateMethodValidate(CSClass @class, DOTDefinition dotDef)
+    /// <param name="cSharpClass"></param>
+    /// <param name="entityDef"></param>
+    static void CreateMethodValidate(CSClass cSharpClass, EntityDefinition entityDef)
     {
         var method = new CSMethod
         {
-            Class = @class,
+            Class = cSharpClass,
             DocComment = new XmlComment("Validate a state of object before saving to a database"),
             IsStatic = false,
             HintSingleLineBody = false,
@@ -845,18 +844,18 @@ public class DOTPackage : PackNS.Package
             Visibility = ElementVisibilityClassic.Public,
             AdditionalKeywords = "override"
         };
-        @class.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
-        GenerateValidateForMethod(dotDef, method);
+        cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        GenerateValidateForMethod(entityDef, method);
     }
 
-    public static CSClass CreateDOTClass(CSComponent component, DOTDefinition dotDef)
+    public static CSClass CreateEntityClass(CSComponent component, EntityDefinition entityDef)
     {
-        var name = CSharpHelper.GenerateDOTClassName(dotDef);
+        var name = CSharpHelper.GenerateEntityClassName(entityDef);
 
         var result = new CSClass()
         {
             Component = component,
-            DocComment = new XmlComment(NameHelper.GetLocalNameUpperCase(dotDef.Names)),
+            DocComment = new XmlComment(NameHelper.GetLocalNameUpperCase(entityDef.Names)),
             Name = name,
             InheritsFrom = "DbMappedDOT",
             Partial = true
@@ -865,7 +864,7 @@ public class DOTPackage : PackNS.Package
 
         // Create class fields for different types of table fields:
 
-        foreach (var propDef in dotDef.PropertyDefinitions.Values)
+        foreach (var propDef in entityDef.PropertyDefinitions.Values)
         {
             CSClassField field, fieldId;
             CSProperty prop, propId;
@@ -915,15 +914,15 @@ public class DOTPackage : PackNS.Package
         }
 
         #region Insert methods
-        CreateMethodInitNew(result, dotDef);
-        CreateMethodClone(result, dotDef);
-        CreateMethodToString(result, dotDef);
-        CreateMethodValidate(result, dotDef);
-        GenerateResetCachedRefPropertiesMethod(result, dotDef);
+        CreateMethodInitNew(result, entityDef);
+        CreateMethodClone(result, entityDef);
+        CreateMethodToString(result, entityDef);
+        CreateMethodValidate(result, entityDef);
+        GenerateResetCachedRefPropertiesMethod(result, entityDef);
         #endregion
 
         #region Insert constants and helpers for predefined objects retrievers
-        if (dotDef.PredefinedDOs.Count != 0)
+        if (entityDef.PredefinedEntityInstances.Count != 0)
         {
             var predefsClass = new CSClassPredefined
             {
@@ -933,7 +932,7 @@ public class DOTPackage : PackNS.Package
             };
             result.EmbeddedClassPredefined = predefsClass;
 
-            foreach (var pdo in dotDef.PredefinedDOs)
+            foreach (var pdo in entityDef.PredefinedEntityInstances)
             {
                 var idConst = new CSClassConstant("Guid", ElementVisibilityClassic.Public, false)
                 {
@@ -954,7 +953,7 @@ public class DOTPackage : PackNS.Package
                 };
                 var predefGetter = new CSPropertyGetterPredefinedObject(predefProp)
                 {
-                    CorrespondingPDO = pdo,
+                    CorrespondingPEI = pdo,
                     IdConstName = NameHelper.NameToConstantId(pdo.Names)
                 };
                 predefProp.Getter = predefGetter;
@@ -966,24 +965,24 @@ public class DOTPackage : PackNS.Package
         return result;
     }
 
-    public DOTPackage(ModelPackage parentPackage)
+    public EntityPackage(ModelPackage parentPackage)
         : base(parentPackage, "DOT")
     {
         var model = ParentPackage.ParentPackage.ParentPackage.DomainModel;
         var dbModel = ParentPackage.ParentPackage.ParentPackage.DBbSchemaModel;
 
         // For each data object type definition create a component with a corresponding class
-        var dotDefs = model.AllDOTDefinitions.Values;
+        var entityDefs = model.AllEntityDefinitions.Values;
 
-        foreach (var dotDef in dotDefs)
+        foreach (var entityDef in entityDefs)
         {
-            var name = CSharpHelper.GenerateDOTClassName(dotDef);
+            var name = CSharpHelper.GenerateEntityClassName(entityDef);
 
             var modelComponent = new CSComponentWMainClass
             {
                 Package = this,
                 Name = name + ".cs",
-                DOTDefinition = dotDef,
+                EntityDefinition = entityDef,
                 Namespace = $"{ParentPackage.ParentPackage.RootNamespace}.Model.DOT"
             };
             _components.Add(modelComponent.Name, modelComponent);
@@ -995,10 +994,10 @@ public class DOTPackage : PackNS.Package
             //modelComponent.UserUsings.Add("orm.Util");
             modelComponent.UserUsings.Add($"{ParentPackage.ParentPackage.RootNamespace}.Model.Storage");
 
-            var modelClass = CreateDOTClass(modelComponent, dotDef);
+            var modelClass = CreateEntityClass(modelComponent, entityDef);
             modelComponent.MainClass = modelClass;
         }
     }
 
-    public new ModelPackage ParentPackage { get { return (ModelPackage)_parentPackage; } }
+    public new ModelPackage ParentPackage => (ModelPackage)_parentPackage;
 }

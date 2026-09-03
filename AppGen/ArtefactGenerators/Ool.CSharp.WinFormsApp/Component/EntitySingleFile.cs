@@ -1,4 +1,6 @@
-﻿namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Model;
+
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
 
 public class EntitySingleFile : CSComponent
 {
@@ -15,9 +17,9 @@ public class EntitySingleFile : CSComponent
         UserUsings.Add("orm.Db");
         UserUsings.Add($"{package.ParentPackage.RootNamespace}.Model.Storage");
 
-        foreach (var dotDef in package.ParentPackage.ParentPackage.DomainModel.AllDOTDefinitions.Values)
+        foreach (var dotDef in package.ParentPackage.ParentPackage.DomainModel.AllEntityDefinitions.Values)
         {
-            DOTPackage.CreateDOTClass(this, dotDef);
+            EntityPackage.CreateEntityClass(this, dotDef);
         }
     }
 }

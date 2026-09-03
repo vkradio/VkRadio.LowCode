@@ -49,7 +49,7 @@ public static class CSharpHelper
         return result;
     }
 
-    public static string GenerateDOTClassName(EntityDefinition entityDef) => NameHelper.NamesToPascalCase(entityDef.Names);
+    public static string GenerateEntityClassName(EntityDefinition entityDef) => NameHelper.NamesToPascalCase(entityDef.Names);
 
     /// <summary>
     /// Returns a class name for objects that corresponds to a reference property

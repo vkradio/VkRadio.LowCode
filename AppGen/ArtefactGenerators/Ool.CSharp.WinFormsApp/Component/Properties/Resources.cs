@@ -1,7 +1,7 @@
-﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Component;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Component;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
 
-namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Component.Properties;
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component.Properties;
 
 public class Resources : ComponentWPredefinedCode
 {

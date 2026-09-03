@@ -43,7 +43,7 @@ public class EntityDefinition : IUniqueNamed
 
                 foreach (var pdo in _domainModel.AllPredefinedEntities.Values)
                 {
-                    if (pdo.DOTDefinition.Id == _id)
+                    if (pdo.EntityDefinition.Id == _id)
                     {
                         _predefinedEntities.Add(pdo);
                     }

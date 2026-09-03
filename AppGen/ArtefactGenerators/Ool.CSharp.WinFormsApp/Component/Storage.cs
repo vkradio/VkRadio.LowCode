@@ -454,7 +454,7 @@ public class Storage : CSComponentWMainClass
 
     public static CSClass CreateStorageClass(CSComponent component, EntityDefinition entityDefinition, DBSchemaDomainModel dbModel)
     {
-        var entityClassName = CSharpHelper.GenerateDOTClassName(entityDefinition);
+        var entityClassName = CSharpHelper.GenerateEntityClassName(entityDefinition);
         var storageClassName = entityClassName + "Storage";
         var correspondence = (TableAndEntityCorrespondence)dbModel.TableAndSourceCorrespondence[entityDefinition.Id];
 
@@ -489,7 +489,7 @@ public class Storage : CSComponentWMainClass
 
     public Storage(StoragePackage parentPackage, EntityDefinition entityDefinition, string rootNamespace, DBSchemaDomainModel dbModel)
     {
-        var entityClassName = CSharpHelper.GenerateDOTClassName(entityDefinition);
+        var entityClassName = CSharpHelper.GenerateEntityClassName(entityDefinition);
         var storageClassName = entityClassName + "Storage";
 
         Package = parentPackage;

@@ -1,12 +1,12 @@
-﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Root;
-using PackNS = VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Package;
+﻿using PackNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Package;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
 
-namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Model;
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Model;
 
 public class ModelPackage : PackNS.Package
 {
-    DOTPackage _dotPackage;
+    EntityPackage _dotPackage;
     StoragePackage _storagePackage;
 
     public ModelPackage(CSharpProjectBase parentPackage)
@@ -30,7 +30,10 @@ public class ModelPackage : PackNS.Package
     public new CSharpProjectBase ParentPackage { get { return (CSharpProjectBase)_parentPackage; } }
 
     //public DOTPackage DOTPackage { get { return _dotPackage; } }
+
     public EntitySingleFile DOTSingleFile { get; private set; }
+
     //public StoragePackage StoragePackage { get { return _storagePackage; } }
+
     public StorageSingleFile StorageSingleFile { get; private set; }
 }

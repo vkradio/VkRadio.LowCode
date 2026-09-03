@@ -11,7 +11,7 @@ public class CSPropertyGetterPredefinedObject : CSPropertyGetter
 
     public override string[] GenerateText()
     {
-        var dotClassName = CSharpHelper.GenerateDOTClassName(CorrespondingPEI.DOTDefinition);
+        var dotClassName = CSharpHelper.GenerateEntityClassName(CorrespondingPEI.EntityDefinition);
         return [$"get => ({dotClassName})StorageRegistry.Instance.{dotClassName}Storage.Restore({IdConstName});"];
     }
 

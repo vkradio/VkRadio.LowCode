@@ -1,8 +1,8 @@
 ﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component.ProjectRoot;
-using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
-using PackNS = VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Package;
+using VkRadio.LowCode.AppGen.Domain.Names;
+using PackNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Package;
 
-namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Root;
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
 
 public abstract class CSharpProjectAbstract : PackNS.Package
 {
@@ -14,7 +14,10 @@ public abstract class CSharpProjectAbstract : PackNS.Package
     }
 
     public Guid ProjectGuid { get; private set; }
+
     public ProjectFile ProjectFile { get; protected set; }
+
     public PropertiesPackageAbstract PropertiesPackage { get; protected set; }
+
     public string RootNamespace { get; private set; }
 }

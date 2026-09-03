@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VkRadio.LowCode.Orm\VkRadio.LowCode.Orm.csproj" />
+    <ProjectReference Include="..\VkRadio.LowCode.Orm\Orm.csproj" />
   </ItemGroup>
 
   <ItemGroup>

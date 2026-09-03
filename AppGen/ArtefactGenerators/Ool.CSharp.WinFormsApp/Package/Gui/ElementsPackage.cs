@@ -1,17 +1,15 @@
-﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Component;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Method;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Component;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerators.Sql;
-using VkRadio.LowCode.AppGenerator.MetaModel.DOTDefinition;
-using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition;
-using VkRadio.LowCode.AppGenerator.MetaModel.PropertyDefinition.ConcreteFunctionalTypes;
-using PackNS = VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Package;
+﻿using PackNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Package;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Component;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class;
+using VkRadio.LowCode.AppGen.Domain;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
+using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
+using VkRadio.LowCode.AppGen.Domain.Names;
 
-namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Gui;
+namespace Ool.CSharp.WinFormsApp.Package.Gui;
 
 public class ElementsPackage : PackNS.Package
 {
@@ -33,8 +31,8 @@ public class ElementsPackage : PackNS.Package
     private static string PropertyNameToCountMethod(string propertyName) => "Get" + propertyName.Substring(0, propertyName.Length - 9) + "Count()";
 
     private static List<CSharpHelper.PropertyWidgetDescriptor> GenerateConstructor(
-        CSClass @class,
-        DOTDefinition dotDef,
+        CSClass cSharpClass,
+        EntityDefinition entityDef,
         List<CSharpHelper.PropertyWidgetDescriptor> clearProps,
         List<CSharpHelper.PropertyWidgetDescriptor> selectProps,
         List<CSharpHelper.PropertyWidgetDescriptor> cardProps,
@@ -43,28 +41,28 @@ public class ElementsPackage : PackNS.Package
     {
         var wDescs = new List<CSharpHelper.PropertyWidgetDescriptor>();
 
-        var ctor = new CSConstructor(@class)
+        var ctor = new CSConstructor(cSharpClass)
         {
             DocComment = new XmlComment("Constructor of a view/edit card of a data object"),
             Visibility = ElementVisibilityClassic.Public
         };
-        @class.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
+        cSharpClass.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
 
         ctor.BodyStrings.Add("InitializeComponent();");
         ctor.BodyStrings.Add(string.Empty);
         
-        foreach (var propDef in dotDef.PropertyDefinitions.Values)
+        foreach (var propDef in entityDef.PropertyDefinitions.Values)
         {
             var wDesc = CSharpHelper.GenerateWidgetDescForProperty(propDef);
             wDescs.Add(wDesc);
 
             if (!(propDef.FunctionalType is PFTLink))
             {
-                if (wDesc.WidgetName.Substring(0, 3) == "SF_")
+                if (wDesc.WidgetName[..3] == "SF_")
                 {
                     ctor.BodyStrings.Add(string.Format("{0}.ValueChanged += (s, e) => AnyValueChanged(s, e);", wDesc.WidgetName));
                 }
-                else if (wDesc.WidgetName.Substring(0, 4) == "CHK_")
+                else if (wDesc.WidgetName[..4] == "CHK_")
                 {
                     ctor.BodyStrings.Add(string.Format("{0}.CheckStateChanged += (s, e) => AnyValueChanged(s, e);", wDesc.WidgetName));
                 }
@@ -102,12 +100,12 @@ public class ElementsPackage : PackNS.Package
         return wDescs;
     }
 
-    private static void GenerateMethodSyncFromDOT(CSClass @class, DOTDefinition dotDef, List<CSharpHelper.PropertyWidgetDescriptor> widgetDescs)
+    private static void GenerateMethodSyncFromDOT(CSClass cSharpClass, EntityDefinition entityDef, List<CSharpHelper.PropertyWidgetDescriptor> widgetDescs)
     {
         var method = new CSMethod
         {
             AdditionalKeywords = "override",
-            Class = @class,
+            Class = cSharpClass,
             DocComment = new XmlComment("Synchronize widget content from object data"),
             Name = "SyncFromDOT",
             ReturnType = "void",
@@ -120,24 +118,24 @@ public class ElementsPackage : PackNS.Package
             Type = "DbMappedDOT"
         };
         method.Params.Add(param.Name, param);
-        @class.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
-        var className = NameHelper.NamesToPascalCase(dotDef.Names);
+        var className = NameHelper.NamesToPascalCase(entityDef.Names);
 
         method.BodyStrings.Add(string.Format("{0} o = ({1})in_o;", className, className));
         method.BodyStrings.Add(string.Empty);
 
         foreach (var wDesc in widgetDescs)
         {
-            if (wDesc.WidgetName.Substring(0, 3) == "SF_")
+            if (wDesc.WidgetName[..3] == "SF_")
             {
                 method.BodyStrings.Add(string.Format("{0}.SetValue(o.{1});", wDesc.WidgetName, wDesc.PropertyName));
             }
-            else if (wDesc.WidgetName.Substring(0, 4) == "CHK_")
+            else if (wDesc.WidgetName[..4] == "CHK_")
             {
                 method.BodyStrings.Add(string.Format("{0}.Checked = o.{1};", wDesc.WidgetName, wDesc.PropertyName));
             }
-            else if (wDesc.WidgetName.Substring(0, 4) == "SEL_")
+            else if (wDesc.WidgetName[..4] == "SEL_")
             {
                 var value = wDesc.PropertyName;
 
@@ -156,12 +154,12 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    private static void GenerateMethodSyncToDOT(CSClass @class, DOTDefinition dotDef, List<CSharpHelper.PropertyWidgetDescriptor> widgetDescs)
+    private static void GenerateMethodSyncToDOT(CSClass cSharpClass, EntityDefinition entityDef, List<CSharpHelper.PropertyWidgetDescriptor> widgetDescs)
     {
         var method = new CSMethod
         {
             AdditionalKeywords = "override",
-            Class = @class,
+            Class = cSharpClass,
             DocComment = new XmlComment("Synchronize widget content from object data"),
             Name = "SyncToDOT",
             ReturnType = "string",
@@ -174,9 +172,9 @@ public class ElementsPackage : PackNS.Package
             Type = "DbMappedDOT"
         };
         method.Params.Add(param.Name, param);
-        @class.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
-        var className = NameHelper.NamesToPascalCase(dotDef.Names);
+        var className = NameHelper.NamesToPascalCase(entityDef.Names);
 
         method.BodyStrings.Add(string.Format("{0} o = ({1})in_o;", className, className));
         method.BodyStrings.Add(string.Empty);
@@ -185,7 +183,7 @@ public class ElementsPackage : PackNS.Package
 
         foreach (var wDesc in widgetDescs)
         {
-            if (wDesc.WidgetName.Substring(0, 3) == "SF_")
+            if (wDesc.WidgetName[..3] == "SF_")
             {
                 bool isNullable, isId;
                 string typeName;
@@ -230,12 +228,12 @@ public class ElementsPackage : PackNS.Package
                 method.BodyStrings.Add(string.Format("o.{0} = {1}.{2};", wDesc.PropertyName, wDesc.WidgetName, gettingMethod));
                 propSetted = true;
             }
-            else if (wDesc.WidgetName.Substring(0, 4) == "CHK_")
+            else if (wDesc.WidgetName[..4] == "CHK_")
             {
                 method.BodyStrings.Add(string.Format("o.{0} = {1}.Checked;", wDesc.PropertyName, wDesc.WidgetName));
                 propSetted = true;
             }
-            else if (wDesc.WidgetName.Substring(0, 4) == "SEL_")
+            else if (wDesc.WidgetName[..4] == "SEL_")
             {
                 // Do nothing
             }
@@ -253,9 +251,9 @@ public class ElementsPackage : PackNS.Package
         method.BodyStrings.Add("return null;");
     }
 
-    private static void GenerateMethodsForClearProps(CSClass @class, List<CSharpHelper.PropertyWidgetDescriptor> clearProps)
+    private static void GenerateMethodsForClearProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> clearProps)
     {
-        var dotClassName = clearProps.Count != 0
+        var entityClassName = clearProps.Count != 0
             ? NameHelper.NamesToPascalCase(clearProps[0].PropertyDefinition.OwnerDefinition.Names)
             : string.Empty;
 
@@ -263,23 +261,23 @@ public class ElementsPackage : PackNS.Package
         {
             var method = new CSMethod
             {
-                Class = @class,
+                Class = cSharpClass,
                 DocComment = new XmlComment(string.Format("Clear properties of {0}", NameHelper.GetStringSuitableToXmlText(wDesc.WidgetCaption))),
                 Name = string.Format(string.Format("ClearValue{0}", wDesc.PropertyName)),
                 ReturnType = "void",
                 Visibility = ElementVisibilityClassic.Private
             };
-            @class.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+            cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
-            method.BodyStrings.Add(string.Format("{0} o = ({0})_o;", dotClassName));
+            method.BodyStrings.Add(string.Format("{0} o = ({0})_o;", entityClassName));
             method.BodyStrings.Add(string.Format("o.{0} = null;", wDesc.PropertyName));
             method.BodyStrings.Add(string.Format("{0}.SetValue(o.{1});", wDesc.WidgetName, wDesc.PropertyName));
         }
     }
 
-    private static void GenerateMethodsForSelectProps(CSClass @class, List<CSharpHelper.PropertyWidgetDescriptor> selectProps)
+    private static void GenerateMethodsForSelectProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> selectProps)
     {
-        var dotClassName = selectProps.Count != 0
+        var entityClassName = selectProps.Count != 0
             ? NameHelper.NamesToPascalCase(selectProps[0].PropertyDefinition.OwnerDefinition.Names)
             : string.Empty;
 
@@ -287,19 +285,19 @@ public class ElementsPackage : PackNS.Package
         {
             var method = new CSMethod
             {
-                Class = @class,
+                Class = cSharpClass,
                 DocComment = new XmlComment(string.Format("Select value of {0}", NameHelper.GetStringSuitableToXmlText(wDesc.WidgetCaption))),
                 Name = string.Format(string.Format("SelectValue{0}", wDesc.PropertyName)),
                 ReturnType = "void",
                 Visibility = ElementVisibilityClassic.Private
             };
-            @class.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+            cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
             method.BodyStrings.Add(string.Format("using (Form frm = UiRegistry.Instance.Uil{0}.CreateList(true, null))", wDesc.PropertyClass));
             method.BodyStrings.Add("{");
             method.BodyStrings.Add("    if (frm.ShowDialog(this) == DialogResult.OK)");
             method.BodyStrings.Add("    {");
-            method.BodyStrings.Add(string.Format("        {0} o = ({0})_o;", dotClassName));
+            method.BodyStrings.Add(string.Format("        {0} o = ({0})_o;", entityClassName));
             method.BodyStrings.Add(string.Empty);
             method.BodyStrings.Add(string.Format("        o.{0} = ({1})((FRM_DOList)frm).SelectedValue;", wDesc.PropertyName, wDesc.PropertyClass));
             method.BodyStrings.Add(string.Format("        {0}.SetValue(o.{1});", wDesc.WidgetName, wDesc.PropertyName));
@@ -317,9 +315,9 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    private static void GenerateMethodsForQuickSelectProps(CSClass @class, List<CSharpHelper.PropertyWidgetDescriptor> selectProps)
+    private static void GenerateMethodsForQuickSelectProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> selectProps)
     {
-        var dotClassName = selectProps.Count != 0
+        var entityClassName = selectProps.Count != 0
             ? NameHelper.NamesToPascalCase(selectProps[0].PropertyDefinition.OwnerDefinition.Names)
             : string.Empty;
 
@@ -327,13 +325,13 @@ public class ElementsPackage : PackNS.Package
         {
             var method = new CSMethod
             {
-                Class = @class,
+                Class = cSharpClass,
                 DocComment = new XmlComment(string.Format("Quick select values of property {0}", NameHelper.GetStringSuitableToXmlText(wDesc.WidgetCaption))),
                 Name = string.Format(string.Format("QuickSelectValue{0}", wDesc.PropertyName)),
                 ReturnType = "void",
                 Visibility = ElementVisibilityClassic.Private
             };
-            @class.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+            cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
             method.BodyStrings.Add(string.Format("List<QuickSelectStorage.SelectableRow> qSelectList = UiRegistry.Instance.QuickSelectStorage.GetRowsForDOT(\"{0}\");", wDesc.PropertyClass));
             method.BodyStrings.Add("ContextMenuStrip cmnu = new ContextMenuStrip();");
@@ -356,9 +354,9 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    private static void GenerateMethodsForQuickSelectPropsMIClick(CSClass @class, List<CSharpHelper.PropertyWidgetDescriptor> selectProps)
+    private static void GenerateMethodsForQuickSelectPropsMIClick(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> selectProps)
     {
-        var dotClassName = selectProps.Count != 0
+        var entityClassName = selectProps.Count != 0
             ? NameHelper.NamesToPascalCase(selectProps[0].PropertyDefinition.OwnerDefinition.Names)
             : string.Empty;
 
@@ -366,7 +364,7 @@ public class ElementsPackage : PackNS.Package
         {
             var method = new CSMethod
             {
-                Class = @class,
+                Class = cSharpClass,
                 DocComment = new XmlComment(string.Format("Quick select values of property {0} - click a menu item", NameHelper.GetStringSuitableToXmlText(wDesc.WidgetCaption))),
                 Name = string.Format(string.Format("MI_QuickSelectValue{0}_Click", wDesc.PropertyName)),
                 ReturnType = "void",
@@ -385,7 +383,7 @@ public class ElementsPackage : PackNS.Package
                 Name = "e"
             };
             method.Params.Add(param.Name, param);
-            @class.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+            cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
             method.BodyStrings.Add(string.Format("List<QuickSelectStorage.SelectableRow> qSelectList = UiRegistry.Instance.QuickSelectStorage.GetRowsForDOT(\"{0}\");", wDesc.PropertyClass));
             method.BodyStrings.Add(string.Empty);
@@ -401,7 +399,7 @@ public class ElementsPackage : PackNS.Package
             method.BodyStrings.Add("    return;");
             method.BodyStrings.Add("}");
             method.BodyStrings.Add(string.Empty);
-            method.BodyStrings.Add(string.Format("{0} o = ({0})_o;", dotClassName));
+            method.BodyStrings.Add(string.Format("{0} o = ({0})_o;", entityClassName));
             method.BodyStrings.Add(string.Format("o.{0} = selectedValue;", wDesc.PropertyName));
             method.BodyStrings.Add(string.Format("SEL_{0}.SetValue(o.{0});", wDesc.PropertyName));
             method.BodyStrings.Add(string.Empty);
@@ -557,7 +555,7 @@ public class ElementsPackage : PackNS.Package
                 predefinedCode.Add(string.Format("            this.{0}.DecimalPositions = {1};", wDesc.WidgetName, pftMoney.DecimalPositions));
             }
 
-            predefinedCode.Add(string.Format("            this.{0}.Size = new System.Drawing.Size({1}, {2});", wDesc.WidgetName, isMultiline ? c_textWindgetWidth : (isBoolProp ? (c_widgetWidth - c_checkBoxOffset) : c_widgetWidth), widgetHeight));
+            predefinedCode.Add(string.Format("            this.{0}.Size = new System.Drawing.Size({1}, {2});", wDesc.WidgetName, isMultiline ? c_textWindgetWidth : isBoolProp ? c_widgetWidth - c_checkBoxOffset : c_widgetWidth, widgetHeight));
             predefinedCode.Add(string.Format("            this.{0}.TabIndex = {1};", wDesc.WidgetName, tabIndex));
             
             if (wDesc.WidgetName.IndexOf("SEL_") == 0)
