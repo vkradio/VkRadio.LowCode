@@ -948,7 +948,7 @@ public class EntityPackage : PackNS.Package
                     Class = predefsClass,
                     DocComment = new XmlComment(NameHelper.GetLocalNameUpperCase(pdo.Names)),
                     Name = NameHelper.AddBeginningNIfNeeded(NameHelper.NamesToPascalCase(pdo.Names)),
-                    Type = CSharpHelper.GenerateDOTClassName(pdo.DOTDefinition),
+                    Type = CSharpHelper.GenerateEntityClassName(pdo.EntityDefinition),
                     IsStatic = true
                 };
                 var predefGetter = new CSPropertyGetterPredefinedObject(predefProp)

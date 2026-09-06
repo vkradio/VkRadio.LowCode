@@ -1,7 +1,7 @@
-﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Component;
-using PackNS = VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Package;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Component;
+using PackNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Package;
 
-namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Component;
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
 
 public class ListDesignerComponent : ComponentWPredefinedCode
 {

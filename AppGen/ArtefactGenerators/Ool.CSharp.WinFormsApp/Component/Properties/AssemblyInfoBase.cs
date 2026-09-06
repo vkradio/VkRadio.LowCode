@@ -7,7 +7,7 @@ public class AssemblyInfoBase : AssemblyInfoAbstract
     public AssemblyInfoBase(PropertiesPackageBase package)
         : base(package)
     {
-        var cSharpAppTarget = package.ParentPackage.ParentPackage.ArtefactGenerationTarget.Parent;
+        var cSharpAppTarget = package.ParentPackage.ParentPackage.ArtefactGenerationTarget.ParentTarget;
 
         _predefinedCode.Add($"using System.Reflection;");
         _predefinedCode.Add($"using System.Runtime.CompilerServices;");

@@ -4,6 +4,7 @@ using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Constant;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Model;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.Core;
 using VkRadio.LowCode.AppGen.Domain;
 using VkRadio.LowCode.AppGen.Domain.Names;
@@ -193,7 +194,7 @@ public class Storage : CSComponentWMainClass
     private static void GenerateFillDOFromReader(CSClass storageClass, string dotClassName, TableAndEntityCorrespondence tableAndDotCorrespondence)
     {
         #region Method heading
-        var method = new CSMethod()
+        var method = new CSMethod
         {
             AdditionalKeywords = "override",
             Class = storageClass,
@@ -205,14 +206,14 @@ public class Storage : CSComponentWMainClass
             Visibility = ElementVisibilityClassic.Public
         };
 
-        var param = new CSParameter()
+        var param = new CSParameter
         {
             Name = "in_reader",
             Type = "DbDataReader"
         };
         method.Params.Add(param.Name, param);
 
-        param = new CSParameter()
+        param = new CSParameter
         {
             Name = "in_o",
             Type = dotClassName
@@ -228,19 +229,11 @@ public class Storage : CSComponentWMainClass
 
         for (var i = 1; i < tableAndDotCorrespondence.Table.AllFields.Count; i++)
         {
-            #region Search for table field
             var field = tableAndDotCorrespondence.Table.AllFields[i];
-            PropertyCorrespondence? corr = null;
 
-            foreach (var c in tableAndDotCorrespondence.PropertyCorrespondences)
-            {
-                if (c.TableField.Name == field.Name)
-                {
-                    corr = c;
-                    break;
-                }
-            }
-            #endregion
+            var corr = tableAndDotCorrespondence
+                .PropertyCorrespondences
+                .First(x => x.TableField.Name == field.Name);
 
             var isId = false;
             var isNullable = corr.PropertyDefinition.FunctionalType.Nullable;
@@ -307,7 +300,7 @@ public class Storage : CSComponentWMainClass
     private static void GenerateFillParameters(CSClass storageClass, string entityClassName, TableAndEntityCorrespondence tableAndEntityCorrespondence)
     {
         #region Method heading
-        var method = new CSMethod()
+        var method = new CSMethod
         {
             AdditionalKeywords = "override",
             Class = storageClass,
@@ -319,14 +312,14 @@ public class Storage : CSComponentWMainClass
             Visibility = ElementVisibilityClassic.Protected
         };
 
-        var param = new CSParameter()
+        var param = new CSParameter
         {
             Name = "in_params",
             Type = "DbParameterCollection"
         };
         method.Params.Add(param.Name, param);
 
-        param = new CSParameter()
+        param = new CSParameter
         {
             Name = "in_o",
             Type = entityClassName
@@ -338,23 +331,15 @@ public class Storage : CSComponentWMainClass
 
         method.BodyStrings.Add("orm.Db.DbProviderFactory factory = orm.Db.DbProviderFactory.Instance;");
 
-        var dotDef = tableAndEntityCorrespondence.EntityDefinition;
+        var entityDef = tableAndEntityCorrespondence.EntityDefinition;
 
         for (var i = 1; i < tableAndEntityCorrespondence.Table.AllFields.Count; i++)
         {
-            #region Search for a table field
             var field = tableAndEntityCorrespondence.Table.AllFields[i];
-            PropertyCorrespondence? corr = null;
 
-            foreach (var c in tableAndEntityCorrespondence.PropertyCorrespondences)
-            {
-                if (c.TableField.Name == field.Name)
-                {
-                    corr = c;
-                    break;
-                }
-            }
-            #endregion
+            var corr = tableAndEntityCorrespondence
+                .PropertyCorrespondences
+                .First(x => x.TableField.Name == field.Name);
 
             bool isNullable, isId;
             string typeName;
@@ -378,21 +363,22 @@ public class Storage : CSComponentWMainClass
         }
     }
 
-    private static void GenerateRestoreByNameMethod(CSClass in_storageClass, string in_dotClassName, TableAndEntityCorrespondence in_tableAndDotCorrespondence)
+    private static void GenerateRestoreByNameMethod(CSClass storageClass, string entityClassName, TableAndEntityCorrespondence tableAndEntityCorrespondence)
     {
         // 1. Detect do the data object type has a field that corresponds to its name
-        PropertyCorrespondence? candidate = null;
-
-        foreach (var c in in_tableAndDotCorrespondence.PropertyCorrespondences)
-        {
-            if (c.PropertyDefinition.FunctionalType is PFTName)
+        var candidate = tableAndEntityCorrespondence
+            .PropertyCorrespondences
+            .Where(x => x.PropertyDefinition.FunctionalType is PFTName)
+            .Select(x => new
             {
-                if (candidate is null || !candidate.PropertyDefinition.FunctionalType.Unique && c.PropertyDefinition.FunctionalType.Unique)
-                {
-                    candidate = c;
-                }
-            }
-        }
+                PropertyCorrespondence = x,
+                Order = x.PropertyDefinition.FunctionalType.Unique
+                    ? 0
+                    : 1
+            })
+            .OrderBy(x => x.Order)
+            .Select(x => x.PropertyCorrespondence)
+            .FirstOrDefault();
 
         if (candidate is null) // If no name-field, then the method for extracting an object by name has no sense
         {
@@ -415,8 +401,8 @@ public class Storage : CSComponentWMainClass
         {
             Visibility = ElementVisibilityClassic.Public,
             AdditionalKeywords = "virtual",
-            ReturnType = isSingle ? in_dotClassName : $"List<{in_dotClassName}>",
-            Class = in_storageClass,
+            ReturnType = isSingle ? entityClassName : $"List<{entityClassName}>",
+            Class = storageClass,
             Name = $"ReadBy{NameHelper.NamesToPascalCase(candidate.PropertyDefinition.Names)}",
             DocComment = new XmlComment($"Reading {(isSingle ? "object" : "collection of objects")} by a value of a property {nameHuman.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;").Replace("\'", "&apos;")}"),
             HintSingleLineBody = false,
@@ -438,13 +424,13 @@ public class Storage : CSComponentWMainClass
         };
         method.Params.Add(param.Name, param);
 
-        in_storageClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        storageClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
         #endregion
 
         method.BodyStrings.Add($"if (in_{propName} == null)");
         method.BodyStrings.Add($"    throw new ArgumentException(\"{propName}\");");
         method.BodyStrings.Add($"DbParameter[] dbParams = new DbParameter[] {{ orm.Db.DbProviderFactory.Instance.CreateParameter(\"@in_{propName}\", in_{propName}, typeof(string), false) }};");
-        method.BodyStrings.Add($"List<{in_dotClassName}> result = ReadAsCollection(");
+        method.BodyStrings.Add($"List<{entityClassName}> result = ReadAsCollection(");
         method.BodyStrings.Add($"    in_where: {constName} + \" = @in_{propName}\",");
         method.BodyStrings.Add($"    in_params: dbParams,");
         method.BodyStrings.Add($"    in_transaction: in_transaction");

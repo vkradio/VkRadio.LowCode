@@ -1,13 +1,12 @@
 ﻿using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.MsSql;
 using VkRadio.LowCode.AppGen.Domain;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp;
 
 public class TargetCSharpAppLegacy : Target
 {
-    public Guid Id { get; private set; }
-
     public string DotNetFramework { get; private set; }
 
     public string OrmLibProjectDir { get; private set; }
@@ -32,13 +31,10 @@ public class TargetCSharpAppLegacy : Target
     {
     }
 
-    //public SqlBaseTarget? TargetSql
-    //{
-    //    get => Subtargets
-    //        .Where(t => t is SqlBaseTarget)
-    //        .Select(t => (SqlBaseTarget)t)
-    //        .SingleOrDefault();
-    //}
+    public MsSqlTarget? TargetSql => DependsOn
+        .Where(t => t is MsSqlTarget)
+        .Cast<MsSqlTarget>()
+        .FirstOrDefault();
 
     //protected override void AfterDeserializeConcreteRoot()
     //{

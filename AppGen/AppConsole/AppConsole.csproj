@@ -8,7 +8,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Repositories\**" />
+    <EmbeddedResource Remove="Repositories\**" />
+    <None Remove="Repositories\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\ArtefactGenerators\Core\Core.csproj" />
+    <ProjectReference Include="..\ArtefactGenerators\Ool.CSharp.Core\Ool.CSharp.Core.csproj" />
+    <ProjectReference Include="..\ArtefactGenerators\Ool.CSharp.WinFormsApp\Ool.CSharp.WinFormsApp.csproj" />
     <ProjectReference Include="..\ArtefactGenerators\Sql.MsSql\Sql.MsSql.csproj" />
     <ProjectReference Include="..\ArtefactGenerators\Ool.Core\Ool.Core.csproj" />
     <ProjectReference Include="..\ArtefactGenerators\Sql.Core\Sql.Core.csproj" />

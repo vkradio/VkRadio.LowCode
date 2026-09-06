@@ -1,12 +1,12 @@
-﻿using PackNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Package;
-using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
+using PackNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Package;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Model;
 
 public class ModelPackage : PackNS.Package
 {
-    EntityPackage _dotPackage;
+    EntityPackage _entityPackage;
     StoragePackage _storagePackage;
 
     public ModelPackage(CSharpProjectBase parentPackage)
@@ -18,8 +18,8 @@ public class ModelPackage : PackNS.Package
         //_dotPackage = new DOTPackage(this);
         //_subpackages.Add(_dotPackage.Name, _dotPackage);
 
-        DOTSingleFile = new EntitySingleFile(this);
-        _components.Add(DOTSingleFile.Name, DOTSingleFile);
+        EntitySingleFile = new EntitySingleFile(this);
+        _components.Add(EntitySingleFile.Name, EntitySingleFile);
 
         StorageSingleFile = new StorageSingleFile(this);
         _components.Add(StorageSingleFile.Name, StorageSingleFile);
@@ -27,13 +27,13 @@ public class ModelPackage : PackNS.Package
         StoragePackage.CreateStorageRegistryComponent(parentPackage.ParentPackage.DomainModel, this, StorageSingleFile.Namespace);
     }
 
-    public new CSharpProjectBase ParentPackage { get { return (CSharpProjectBase)_parentPackage; } }
+    public new CSharpProjectBase ParentPackage => (CSharpProjectBase)_parentPackage;
 
-    //public DOTPackage DOTPackage { get { return _dotPackage; } }
+    //public EntityPackage EntityPackage => _entityPackage;
 
-    public EntitySingleFile DOTSingleFile { get; private set; }
+    public EntitySingleFile EntitySingleFile { get; private set; }
 
-    //public StoragePackage StoragePackage { get { return _storagePackage; } }
+    //public StoragePackage StoragePackage => _storagePackage;
 
     public StorageSingleFile StorageSingleFile { get; private set; }
 }

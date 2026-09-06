@@ -11,12 +11,12 @@ public static class CSharpHelper
 {
     public const string C_TAB = "    ";
 
-    public struct ClassNameDOTDefPair
+    public struct ClassNameEntityDefPair
     {
         public string ClassName;
         public EntityDefinition EntityDefinition;
 
-        public static int Compare(ClassNameDOTDefPair first, ClassNameDOTDefPair second) => string.Compare(first.ClassName, second.ClassName);
+        public static int Compare(ClassNameEntityDefPair first, ClassNameEntityDefPair second) => string.Compare(first.ClassName, second.ClassName);
     }
 
     public struct PropertyWidgetDescriptor

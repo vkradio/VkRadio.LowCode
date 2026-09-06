@@ -1,15 +1,15 @@
-﻿using PackNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Package;
-using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Component;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class;
-using VkRadio.LowCode.AppGen.Domain;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method;
-using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
-using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
+using VkRadio.LowCode.AppGen.Domain;
 using VkRadio.LowCode.AppGen.Domain.Names;
+using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
+using PackNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Package;
 
-namespace Ool.CSharp.WinFormsApp.Package.Gui;
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Gui;
 
 public class ElementsPackage : PackNS.Package
 {
@@ -100,7 +100,7 @@ public class ElementsPackage : PackNS.Package
         return wDescs;
     }
 
-    private static void GenerateMethodSyncFromDOT(CSClass cSharpClass, EntityDefinition entityDef, List<CSharpHelper.PropertyWidgetDescriptor> widgetDescs)
+    private static void GenerateMethodSyncFromEntity(CSClass cSharpClass, EntityDefinition entityDef, List<CSharpHelper.PropertyWidgetDescriptor> widgetDescs)
     {
         var method = new CSMethod
         {
@@ -154,7 +154,7 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    private static void GenerateMethodSyncToDOT(CSClass cSharpClass, EntityDefinition entityDef, List<CSharpHelper.PropertyWidgetDescriptor> widgetDescs)
+    private static void GenerateMethodSyncToEntity(CSClass cSharpClass, EntityDefinition entityDef, List<CSharpHelper.PropertyWidgetDescriptor> widgetDescs)
     {
         var method = new CSMethod
         {
@@ -408,9 +408,9 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    private static void GenerateMethodsForListProps(CSClass @class, List<CSharpHelper.PropertyWidgetDescriptor> listProps)
+    private static void GenerateMethodsForListProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> listProps)
     {
-        var dotClassName = listProps.Count != 0
+        var entityClassName = listProps.Count != 0
             ? NameHelper.NamesToPascalCase(listProps[0].PropertyDefinition.OwnerDefinition.Names)
             : string.Empty;
 
@@ -418,13 +418,13 @@ public class ElementsPackage : PackNS.Package
         {
             var method = new CSMethod
             {
-                Class = @class,
+                Class = cSharpClass,
                 DocComment = new XmlComment(string.Format("View a table part of a property {0}", NameHelper.GetStringSuitableToXmlText(wDesc.WidgetCaption))),
                 Name = string.Format(string.Format("ListValue{0}", wDesc.PropertyName)),
                 ReturnType = "void",
                 Visibility = ElementVisibilityClassic.Private
             };
-            @class.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+            cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
             string? fieldName = null; // NameHelper.NameToUnderscoreSeparatedName(wDesc.PropertyDefinition.Names) + "_id";
             var backRefTable = wDesc.PropertyDefinition.FunctionalType as PFTBackReferencedTable;
@@ -451,14 +451,14 @@ public class ElementsPackage : PackNS.Package
             method.BodyStrings.Add(string.Empty);
             method.BodyStrings.Add(string.Format("using (Form frm = UiRegistry.Instance.Uil{0}.CreateList(false, fs))", wDesc.PropertyClass));
             method.BodyStrings.Add("    frm.ShowDialog(this);");
-            method.BodyStrings.Add(string.Format("{0} o = ({0})_o;", dotClassName));
+            method.BodyStrings.Add(string.Format("{0} o = ({0})_o;", entityClassName));
             method.BodyStrings.Add(string.Format("{0}.SetValue(o.{1});", wDesc.WidgetName, PropertyNameToCountMethod(wDesc.PropertyName)));
         }
     }
 
-    private static void GenerateMethodsForCardProps(CSClass @class, List<CSharpHelper.PropertyWidgetDescriptor> cardProps)
+    private static void GenerateMethodsForCardProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> cardProps)
     {
-        var dotClassName = cardProps.Count != 0
+        var entityClassName = cardProps.Count != 0
             ? NameHelper.NamesToPascalCase(cardProps[0].PropertyDefinition.OwnerDefinition.Names)
             : string.Empty;
 
@@ -466,15 +466,15 @@ public class ElementsPackage : PackNS.Package
         {
             var method = new CSMethod
             {
-                Class = @class,
+                Class = cSharpClass,
                 DocComment = new XmlComment(string.Format("View details of a property {0}", NameHelper.GetStringSuitableToXmlText(wDesc.WidgetCaption))),
                 Name = string.Format(string.Format("Card{0}", wDesc.PropertyName)),
                 ReturnType = "void",
                 Visibility = ElementVisibilityClassic.Private
             };
-            @class.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+            cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
-            method.BodyStrings.Add(string.Format("{0} o = ({0})_o;", dotClassName));
+            method.BodyStrings.Add(string.Format("{0} o = ({0})_o;", entityClassName));
             method.BodyStrings.Add(string.Empty);
             method.BodyStrings.Add(string.Format("if (o.{0} == null)", wDesc.PropertyName));
             method.BodyStrings.Add("{");
@@ -585,12 +585,12 @@ public class ElementsPackage : PackNS.Package
         var mm = ParentPackage.ParentPackage.ParentPackage.DomainModel;
         var dbMM = ParentPackage.ParentPackage.ParentPackage.DBbSchemaModel;
 
-        // For each data object type definition create a component with a corresponding class
-        var dotDefs = mm.AllDOTDefinitions.Values;
+        // For each entity type definition create a component with a corresponding class
+        var entityDefs = mm.AllEntityDefinitions.Values;
 
-        foreach (var dotDef in dotDefs)
+        foreach (var entityDef in entityDefs)
         {
-            var name = CSharpHelper.GenerateDOTClassName(dotDef);
+            var name = CSharpHelper.GenerateEntityClassName(entityDef);
             var formName = "DOP" + name;
 
             #region Main component of a card
@@ -598,7 +598,7 @@ public class ElementsPackage : PackNS.Package
             {
                 Package = this,
                 Name = formName + ".cs",
-                DOTDefinition = dotDef,
+                EntityDefinition = entityDef,
                 Namespace = string.Format("{0}.Gui.Elements", ParentPackage.ParentPackage.RootNamespace)
             };
             _components.Add(panComponent.Name, panComponent);
@@ -614,7 +614,7 @@ public class ElementsPackage : PackNS.Package
             var panClass = new CSClass
             {
                 Component = panComponent,
-                DocComment = new XmlComment("Panel (card) for editing an object " + NameHelper.GetLocalNameUpperCase(dotDef.Names)),
+                DocComment = new XmlComment("Panel (card) for editing an object " + NameHelper.GetLocalNameUpperCase(entityDef.Names)),
                 Name = formName,
                 InheritsFrom = "DOEditPanel",
                 Partial = true
@@ -629,13 +629,13 @@ public class ElementsPackage : PackNS.Package
                 listProps = [];
 
             // 1. Generate constructor
-            List<CSharpHelper.PropertyWidgetDescriptor> wDescs = GenerateConstructor(panClass, dotDef, clearProps, selectProps, cardProps, listProps);
+            List<CSharpHelper.PropertyWidgetDescriptor> wDescs = GenerateConstructor(panClass, entityDef, clearProps, selectProps, cardProps, listProps);
 
             // 2. Generate method SyncFromDOT
-            GenerateMethodSyncFromDOT(panClass, dotDef, wDescs);
+            GenerateMethodSyncFromEntity(panClass, entityDef, wDescs);
 
             // 3. Generate method SyncToDOT
-            GenerateMethodSyncToDOT(panClass, dotDef, wDescs);
+            GenerateMethodSyncToEntity(panClass, entityDef, wDescs);
 
             // 4. Generate methods for work with reference properties
             GenerateMethodsForClearProps(panClass, clearProps);
@@ -735,8 +735,11 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    public new GuiPackage ParentPackage { get { return (GuiPackage)_parentPackage; } }
-    public IDictionary<string, CSComponentWMainClass> MainComponents { get { return _mainComponents; } }
-    public IDictionary<string, ComponentWPredefinedCode> DesignerComponents { get { return _designerComponents; } }
-    public IDictionary<string, ComponentWPredefinedCode> ResxComponents { get { return _resxComponents; } }
+    public new GuiPackage ParentPackage => (GuiPackage)_parentPackage;
+
+    public IDictionary<string, CSComponentWMainClass> MainComponents => _mainComponents;
+
+    public IDictionary<string, ComponentWPredefinedCode> DesignerComponents => _designerComponents;
+
+    public IDictionary<string, ComponentWPredefinedCode> ResxComponents => _resxComponents;
 }

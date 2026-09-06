@@ -1,4 +1,16 @@
-﻿using PackNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Package;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Field;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property.Getter;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property.Setter;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
+using VkRadio.LowCode.AppGen.Domain;
+using VkRadio.LowCode.AppGen.Domain.Names;
+using PackNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Package;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Gui;
 
@@ -43,31 +55,31 @@ public class GuiPackage : PackNS.Package
         var mm = ParentPackage.ParentPackage.DomainModel;
         var dbMM = ParentPackage.ParentPackage.DBbSchemaModel;
 
-        var classes = new List<CSharpHelper.ClassNameDOTDefPair>();
+        var classes = new List<CSharpHelper.ClassNameEntityDefPair>();
         
-        foreach (var component in _launchersPackage.Components.Values)
+        foreach (var component in _launchersPackage.Components.Values.Cast<CSComponentWMainClass>())
         {
-            DOTDefinition? thisDotDef = null;
+            EntityDefinition? thisEntityDef = null;
 
-            foreach (var dotDef in mm.AllDOTDefinitions.Values)
+            foreach (var entDef in mm.AllEntityDefinitions.Values)
             {
-                if (CSharpHelper.GenerateDOTClassName(dotDef) == component.MainClass.Name.Substring(3))
+                if (CSharpHelper.GenerateEntityClassName(entDef) == component.MainClass.Name[3..])
                 {
-                    thisDotDef = dotDef;
+                    thisEntityDef = entDef;
                     break;
                 }
             }
 
             classes.Add(
-                new CSharpHelper.ClassNameDOTDefPair
+                new CSharpHelper.ClassNameEntityDefPair
                 {
                     ClassName = component.MainClass.Name,
-                    DOTDefinition = thisDotDef
+                    EntityDefinition = thisEntityDef
                 }
             );
         }
 
-        classes.Sort(CSharpHelper.ClassNameDOTDefPair.Compare);
+        classes.Sort(CSharpHelper.ClassNameEntityDefPair.Compare);
 
         var ctor = new CSConstructor(clsUiRegistry)
         {
@@ -138,10 +150,10 @@ public class GuiPackage : PackNS.Package
 
         foreach (var cls in classes)
         {
-            var dotClassName = CSharpHelper.GenerateDOTClassName(cls.DOTDefinition);
+            var dotClassName = CSharpHelper.GenerateEntityClassName(cls.EntityDefinition);
             var fieldName = "_uil" + dotClassName;
             var propName = "Uil" + dotClassName;
-            var localName = NameHelper.GetLocalNameUpperCase(cls.DOTDefinition.Names);
+            var localName = NameHelper.GetLocalNameUpperCase(cls.EntityDefinition.Names);
             var docComment = "Launcher of GUI for working with objects " + localName;
 
             // Private fields for launchers
@@ -175,8 +187,11 @@ public class GuiPackage : PackNS.Package
         #endregion
     }
 
-    public new CSharpProjectBase ParentPackage { get { return (CSharpProjectBase)_parentPackage; } }
-    public ElementsPackage ElementsPackage { get { return _elementsPackage; } }
-    public LaunchersPackage LaunchersPackage { get { return _launchersPackage; } }
-    public ListsPackage ListsPackage { get { return _listsPackage; } }
+    public new CSharpProjectBase ParentPackage => (CSharpProjectBase)_parentPackage;
+
+    public ElementsPackage ElementsPackage => _elementsPackage;
+
+    public LaunchersPackage LaunchersPackage => _launchersPackage;
+
+    public ListsPackage ListsPackage => _listsPackage;
 }

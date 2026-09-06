@@ -1,5 +1,7 @@
 ﻿using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.Core;
 using VkRadio.LowCode.AppGen.Domain;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp;
@@ -17,7 +19,7 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
     public override string? Generate()
     {
         // Create model of package of C# source code, based on database schema model.
-        var solution = new CSharpSolution(this, Target.Parent.TargetSql.Generator.DBSchemaMetaModel);
+        var solution = new CSharpSolution(this, ((ArtefactGeneratorSql)Target.ParentTarget.TargetSql.ArtefactGenerator).DBSchemaMetaModel);
         solution.Init();
 
         // Generate artefacts.
@@ -31,5 +33,5 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
         throw new NotImplementedException();
     }
 
-    public new TargetCSharpSolutionLegacy Target { get => (TargetCSharpSolutionLegacy)base.Target; }
+    public new TargetCSharpSolutionLegacy Target => (TargetCSharpSolutionLegacy)base.Target;
 }

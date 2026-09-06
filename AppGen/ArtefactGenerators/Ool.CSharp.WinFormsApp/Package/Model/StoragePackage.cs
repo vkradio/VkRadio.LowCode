@@ -37,7 +37,7 @@ public class StoragePackage: PackNS.Package
         storageRegistryComponent.Classes.Add(clsStorageRegistry.Name, clsStorageRegistry);
         storageRegistryComponent.MainClass = clsStorageRegistry;
 
-        var classDescriptors = new List<CSharpHelper.ClassNameDOTDefPair>();
+        var classDescriptors = new List<CSharpHelper.ClassNameEntityDefPair>();
 
         foreach (var component in package
             .Components
@@ -54,7 +54,7 @@ public class StoragePackage: PackNS.Package
                     .Values
                     .Where(entDef => CSharpHelper.GenerateEntityClassName(entDef) == entityClassName).Single();
 
-                classDescriptors.Add(new CSharpHelper.ClassNameDOTDefPair
+                classDescriptors.Add(new CSharpHelper.ClassNameEntityDefPair
                 {
                     ClassName = entityClassName,
                     EntityDefinition = thisEntDef
@@ -62,7 +62,7 @@ public class StoragePackage: PackNS.Package
             }
         }
 
-        classDescriptors.Sort(CSharpHelper.ClassNameDOTDefPair.Compare);
+        classDescriptors.Sort(CSharpHelper.ClassNameEntityDefPair.Compare);
 
         var ctor = new CSConstructor(clsStorageRegistry)
         {
@@ -150,7 +150,7 @@ public class StoragePackage: PackNS.Package
         var storageNamespace = string.Format("{0}.Model.Storage", ParentPackage.ParentPackage.RootNamespace);
 
         // For each definition of data object type create a component with a corresponding class
-        var entDefs = mm.AllDOTDefinitions.Values;
+        var entDefs = mm.AllEntityDefinitions.Values;
 
         foreach (var entDef in entDefs)
         {
@@ -175,9 +175,9 @@ public class StoragePackage: PackNS.Package
         };
         storageRegistryComponent.Classes.Add(clsStorageRegistry.Name, clsStorageRegistry);
 
-        var classes = new List<CSharpHelper.ClassNameDOTDefPair>();
+        var classes = new List<CSharpHelper.ClassNameEntityDefPair>();
 
-        foreach (var component in _components.Values)
+        foreach (var component in _components.Values.Cast<CSComponentWMainClass>())
         {
             if (component.Name != "StorageRegistry.cs")
             {
@@ -185,16 +185,16 @@ public class StoragePackage: PackNS.Package
 
                 EntityDefinition? thisEntityDef = null;
 
-                foreach (var dotDef in mm.AllDOTDefinitions.Values)
+                foreach (var dotDef in mm.AllEntityDefinitions.Values)
                 {
-                    if (CSharpHelper.GenerateDOTClassName(dotDef) == className)
+                    if (CSharpHelper.GenerateEntityClassName(dotDef) == className)
                     {
                         thisEntityDef = dotDef;
                         break;
                     }
                 }
 
-                classes.Add(new CSharpHelper.ClassNameDOTDefPair()
+                classes.Add(new CSharpHelper.ClassNameEntityDefPair()
                 {
                     ClassName = className,
                     EntityDefinition = thisEntityDef
@@ -202,7 +202,7 @@ public class StoragePackage: PackNS.Package
             }
         }
 
-        classes.Sort(CSharpHelper.ClassNameDOTDefPair.Compare);
+        classes.Sort(CSharpHelper.ClassNameEntityDefPair.Compare);
 
         var ctor = new CSConstructor(clsStorageRegistry)
         {

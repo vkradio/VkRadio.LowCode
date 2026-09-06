@@ -1,4 +1,7 @@
-﻿namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component.ProjectRoot;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
+using VkRadio.Orm.Util;
+
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component.ProjectRoot;
 
 public class ProjectFileBase : ProjectFile
 {
@@ -8,7 +11,7 @@ public class ProjectFileBase : ProjectFile
         _lastLineWNewLine = false;
 
         var generator = projectPackage.ParentPackage.ArtefactGenerationTarget.Generator;
-        var cSharpAppTarget = generator.Target.Parent;
+        var cSharpAppTarget = generator.Target.ParentTarget;
 
         _predefinedCode.Add($"<?xml version=\"1.0\" encoding=\"utf-8\"?>");
         _predefinedCode.Add($"<Project ToolsVersion=\"12.0\" DefaultTargets=\"Build\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
@@ -22,7 +25,7 @@ public class ProjectFileBase : ProjectFile
         _predefinedCode.Add($"    <AppDesignerFolder>Properties</AppDesignerFolder>");
         _predefinedCode.Add($"    <RootNamespace>{projectPackage.RootNamespace}</RootNamespace>");
         _predefinedCode.Add($"    <AssemblyName>{projectPackage.RootNamespace}</AssemblyName>");
-        _predefinedCode.Add($"    <TargetFrameworkVersion>v{generator.Target.Parent.DotNetFramework}</TargetFrameworkVersion>");
+        _predefinedCode.Add($"    <TargetFrameworkVersion>v{generator.Target.ParentTarget.DotNetFramework}</TargetFrameworkVersion>");
         _predefinedCode.Add($"    <FileAlignment>512</FileAlignment>");
         _predefinedCode.Add($"    <TargetFrameworkProfile />");
         _predefinedCode.Add($"  </PropertyGroup>");
@@ -59,7 +62,7 @@ public class ProjectFileBase : ProjectFile
         _predefinedCode.Add($"  </ItemGroup>");
         _predefinedCode.Add($"  <ItemGroup>");
 
-        #region Including components for each data object type.
+        #region Including components for each entity type
         var guiElPackage = Package.GuiPackage.ElementsPackage;
 
         foreach (var component in guiElPackage.MainComponents.Values)
@@ -87,7 +90,7 @@ public class ProjectFileBase : ProjectFile
             // UI launchers
             _predefinedCode.Add($"    <Compile Include=\"Gui\\Launchers\\Uil{baseClassName}.cs\" />");
 
-            // Components of domain model package (data object types, DOT)
+            // Components of domain model package (entity)
             _predefinedCode.Add($"    <Compile Include=\"Model\\DOT\\{baseClassName}.cs\" />");
 
             // Components of storage
@@ -139,5 +142,5 @@ public class ProjectFileBase : ProjectFile
         _predefinedCode.Add($"</Project>");
     }
 
-    public new CSharpProjectBase Package { get { return (CSharpProjectBase)base.Package; } }
+    public new CSharpProjectBase Package => (CSharpProjectBase)base.Package;
 }

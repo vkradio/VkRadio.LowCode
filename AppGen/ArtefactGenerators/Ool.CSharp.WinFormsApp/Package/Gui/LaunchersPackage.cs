@@ -1,14 +1,12 @@
-﻿using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Component;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Common.Class.Method;
-using VkRadio.LowCode.AppGenerator.ArtefactGenerators.Sql;
-using PackNS = VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.Abstract.Package;
-using VkRadio.LowCode.AppGenerator.MetaModel.DOTDefinition;
-using Ool.CSharp.WinFormsApp.Package.Gui;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
+using VkRadio.LowCode.AppGen.Domain.Names;
+using PackNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Package;
 
-namespace VkRadio.LowCode.AppGenerator.ArtefactGenerator.Ool.CSharp.Classic.Package.Gui;
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Gui;
 
 public class LaunchersPackage : PackNS.Package
 {
@@ -19,18 +17,18 @@ public class LaunchersPackage : PackNS.Package
         var dbMM = ParentPackage.ParentPackage.ParentPackage.DBbSchemaModel;
 
         // For each data object type definition create a component with a corresponding class
-        var dotDefs = mm.AllDOTDefinitions.Values;
+        var entityDefs = mm.AllEntityDefinitions.Values;
 
-        foreach (var dotDef in dotDefs)
+        foreach (var entDef in entityDefs)
         {
-            var typeName = CSharpHelper.GenerateDOTClassName(dotDef);
+            var typeName = CSharpHelper.GenerateEntityClassName(entDef);
             var uilName = "Uil" + typeName;
 
             var component = new CSComponentWMainClass
             {
                 Package = this,
                 Name = uilName + ".cs",
-                DOTDefinition = dotDef,
+                EntityDefinition = entDef,
                 Namespace = string.Format("{0}.Gui.Launchers", ParentPackage.ParentPackage.RootNamespace)
             };
             _components.Add(component.Name, component);
@@ -44,7 +42,7 @@ public class LaunchersPackage : PackNS.Package
             var cls = new CSClass
             {
                 Component = component,
-                DocComment = new XmlComment("UI launcher for objects " + NameHelper.GetLocalNameUpperCase(dotDef.Names)),
+                DocComment = new XmlComment("UI launcher for objects " + NameHelper.GetLocalNameUpperCase(entDef.Names)),
                 Name = uilName,
                 InheritsFrom = "UILauncher"
             };
@@ -58,7 +56,7 @@ public class LaunchersPackage : PackNS.Package
             };
             cls.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
             ctor.BodyStrings.Add(string.Format("_storage = StorageRegistry.Instance.{0}Storage;", typeName));
-            ctor.BodyStrings.Add(string.Format("_dotName = \"{0}\";", NameHelper.GetLocalNameUpperCase(dotDef.Names)));
+            ctor.BodyStrings.Add(string.Format("_dotName = \"{0}\";", NameHelper.GetLocalNameUpperCase(entDef.Names)));
 
             var methodCard = new CSMethod
             {
@@ -94,5 +92,5 @@ public class LaunchersPackage : PackNS.Package
         }
     }
 
-    public new GuiPackage ParentPackage { get { return (GuiPackage)_parentPackage; } }
+    public new GuiPackage ParentPackage => (GuiPackage)_parentPackage;
 }

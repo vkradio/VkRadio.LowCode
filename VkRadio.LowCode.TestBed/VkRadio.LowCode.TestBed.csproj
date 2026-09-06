@@ -22,7 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VkRadio.LowCode.Gui.WinForms\VkRadio.LowCode.Gui.WinForms.csproj" />
     <ProjectReference Include="..\VkRadio.LowCode.Orm.MsSql\Orm.MsSql.csproj" />
     <ProjectReference Include="..\VkRadio.LowCode.Orm\Orm.csproj" />
   </ItemGroup>

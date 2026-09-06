@@ -1,4 +1,5 @@
 ﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Package;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.Core;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
@@ -34,7 +35,7 @@ public class CSharpSolution : ProjectPackage
     /// </summary>
     public override void Init()
     {
-        var projectId = ArtefactGenerationTarget.Parent.Id;
+        var projectId = ArtefactGenerationTarget.ParentTarget.Id;
         BaseProject = new CSharpProjectBase(this, projectId);
         _subpackages.Add(BaseProject.Name, BaseProject);
 
@@ -50,10 +51,15 @@ public class CSharpSolution : ProjectPackage
         _components.Add(MiniSolutionDescriptor.Name, MiniSolutionDescriptor);
     }
 
-    public new TargetCSharpSolutionLegacy ArtefactGenerationTarget { get => (TargetCSharpSolutionLegacy)base.ArtefactGenerationTarget; }
+    public new TargetCSharpSolutionLegacy ArtefactGenerationTarget => (TargetCSharpSolutionLegacy)base.ArtefactGenerationTarget;
+
     public ArtefactGeneratorCSharpClassic Generator { get; private set; }
+
     public Solution MiniSolutionDescriptor { get; private set; }
+
     public CSharpProjectBase BaseProject { get; private set; }
+
     public CSharpProjectExtension ExtensionProject { get; private set; }
+
     public CSharpProjectLauncher LauncherProject { get; private set; }
 }

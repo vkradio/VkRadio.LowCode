@@ -17,9 +17,9 @@ public class EntitySingleFile : CSComponent
         UserUsings.Add("orm.Db");
         UserUsings.Add($"{package.ParentPackage.RootNamespace}.Model.Storage");
 
-        foreach (var dotDef in package.ParentPackage.ParentPackage.DomainModel.AllEntityDefinitions.Values)
+        foreach (var entityDef in package.ParentPackage.ParentPackage.DomainModel.AllEntityDefinitions.Values)
         {
-            EntityPackage.CreateEntityClass(this, dotDef);
+            EntityPackage.CreateEntityClass(this, entityDef);
         }
     }
 }

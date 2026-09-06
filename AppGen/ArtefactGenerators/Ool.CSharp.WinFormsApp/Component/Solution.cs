@@ -1,6 +1,6 @@
 ﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Component;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
-using VkRadio.LowCode.AppGen.Domain.Names;
+using VkRadio.Orm.Util;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
 
@@ -31,10 +31,10 @@ public class Solution : ComponentWPredefinedCode
 
     public Solution(CSharpSolution rootPackage)
     {
-        var cSharpAppTarget = rootPackage.Generator.Target.Parent;
+        var cSharpAppTarget = rootPackage.Generator.Target.ParentTarget;
         Package = rootPackage;
         _emitUtf8Bom = true;
-        var name = NameHelper.NameToUnderscoreSeparatedName(rootPackage.DomainModel.Names);
+        var name = Domain.Names.NameHelper.NameToUnderscoreSeparatedName(rootPackage.DomainModel.Names);
         Name = name + ".sln";
         string? vcRelPath = null;
 

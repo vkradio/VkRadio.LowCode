@@ -25,7 +25,7 @@ public class TargetCSharpSolutionLegacy : Target
 
     public string? SQLiteProjectFullPath { get => null; }
 
-    //public new TargetCSharpAppLegacy Parent { get => (TargetCSharpAppLegacy)base.Parent; }
+    public new TargetCSharpAppLegacy ParentTarget => (TargetCSharpAppLegacy)base.ParentTarget;
 
-    //public new ArtefactGeneratorCSharpClassic Generator { get; set; } // { get => (ArtefactGeneratorCSharpClassic)base.Generator; set => base.Generator = value; }
+    public new ArtefactGeneratorCSharpClassic Generator { get => (ArtefactGeneratorCSharpClassic)base.ArtefactGenerator; set => base.ArtefactGenerator = value; }
 }

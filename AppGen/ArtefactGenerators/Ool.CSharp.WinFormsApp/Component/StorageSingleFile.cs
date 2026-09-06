@@ -18,9 +18,9 @@ public class StorageSingleFile : CSComponent
 
         var dbModel = package.ParentPackage.ParentPackage.DBbSchemaModel;
 
-        foreach (var dotDef in package.ParentPackage.ParentPackage.DomainModel.AllEntityDefinitions.Values)
+        foreach (var entityDef in package.ParentPackage.ParentPackage.DomainModel.AllEntityDefinitions.Values)
         {
-            Storage.CreateStorageClass(this, dotDef, dbModel);
+            Storage.CreateStorageClass(this, entityDef, dbModel);
         }
     }
 }

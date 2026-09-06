@@ -1,4 +1,6 @@
-﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Model;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component.ProjectRoot;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Gui;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Model;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
 
@@ -20,8 +22,11 @@ public class CSharpProjectBase : CSharpProjectAbstract
         _components.Add(ProjectFile.Name, ProjectFile);
     }
 
-    new public CSharpSolution ParentPackage { get { return (CSharpSolution)_parentPackage; } }
+    new public CSharpSolution ParentPackage => (CSharpSolution)_parentPackage;
+
     new public PropertiesPackageBase PropertiesPackage { get; private set; }
+
     public ModelPackage ModelPackage { get; private set; }
+
     public GuiPackage GuiPackage { get; private set; }
 }

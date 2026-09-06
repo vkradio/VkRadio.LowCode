@@ -41,7 +41,7 @@ public class Target : IUnique
     /// <summary>
     /// Artefact Generator
     /// </summary>
-    public ArtefactGenerator ArtefactGenerator { get; private set; }
+    public ArtefactGenerator ArtefactGenerator { get; set; }
 
     /// <summary>
     /// Generation Succeeded
@@ -51,7 +51,7 @@ public class Target : IUnique
     /// <summary>
     /// Parent (upper level) target
     /// </summary>
-    //public Target? ParentTarget { get; private set; }
+    public Target? ParentTarget { get; private set; }
 
     /// <summary>
     /// Type of a generated artefact
@@ -157,7 +157,7 @@ public class Target : IUnique
     /// Generate target artefacts
     /// </summary>
     /// <returns>null - if success, otherwise return error message</returns>
-    public string GenerateArtefacts() { return ArtefactGenerator.Generate(); }
+    public string GenerateArtefacts() => ArtefactGenerator.Generate();
 
     /// <summary>
     /// Deferred dependency linkage
