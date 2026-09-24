@@ -31,16 +31,17 @@ public class Solution : ComponentWPredefinedCode
 
     public Solution(CSharpSolution rootPackage)
     {
-        var cSharpAppTarget = rootPackage.Generator.Target.ParentTarget;
+        var generator = (ArtefactGeneratorCSharpClassic)rootPackage.Generator;
+        var cSharpAppTarget = rootPackage.Generator.Target;
         Package = rootPackage;
         _emitUtf8Bom = true;
         var name = Domain.Names.NameHelper.NameToUnderscoreSeparatedName(rootPackage.DomainModel.Names);
         Name = name + ".sln";
         string? vcRelPath = null;
 
-        if (!string.IsNullOrEmpty(cSharpAppTarget.VersionControlWcRoot))
+        if (!string.IsNullOrEmpty(generator.VersionControlWcRoot))
         {
-            vcRelPath = FileHelper.GetRelativePath(rootPackage.FullPath + "\\", cSharpAppTarget.VersionControlWcRoot);
+            vcRelPath = FileHelper.GetRelativePath(rootPackage.FullPath + "\\", generator.VersionControlWcRoot);
 
             if (vcRelPath.Length > 0 && vcRelPath[vcRelPath.Length - 1] == '\\')
             {
@@ -53,7 +54,7 @@ public class Solution : ComponentWPredefinedCode
         _predefinedCode.Add($"# Visual Studio 14");
         _predefinedCode.Add($"VisualStudioVersion = 14.0.23107.0");
         _predefinedCode.Add($"MinimumVisualStudioVersion = 10.0.40219.1");
-        _predefinedCode.Add($"Project(\"{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}\") = \"{cSharpAppTarget.OrmLibProjectName}\", \"{FileHelper.GetRelativePath(rootPackage.FullPath + "\\", cSharpAppTarget.OrmLibProjectDir)}\\{cSharpAppTarget.OrmLibProjectName}.csproj\", \"{{{TargetCSharpAppLegacy.C_ORMLIB_PROJECT_GUID_STRING}}}\"");
+        _predefinedCode.Add($"Project(\"{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}\") = \"{generator.OrmLibProjectName}\", \"{FileHelper.GetRelativePath(rootPackage.FullPath + "\\", generator.OrmLibProjectDir)}\\{generator.OrmLibProjectName}.csproj\", \"{{{ArtefactGeneratorCSharpClassic.C_ORMLIB_PROJECT_GUID_STRING}}}\"");
         _predefinedCode.Add($"EndProject");
         //if (in_rootPackage.Generator.Target.IsDependantOnSQLite)
         //{
@@ -72,7 +73,7 @@ public class Solution : ComponentWPredefinedCode
         _predefinedCode.Add($"\t\tRelease|Any CPU = Release|Any CPU");
         _predefinedCode.Add($"\tEndGlobalSection");
         _predefinedCode.Add($"\tGlobalSection(ProjectConfigurationPlatforms) = postSolution");
-        _predefinedCode.AddRange(GetConfigBatch(new Guid(TargetCSharpAppLegacy.C_ORMLIB_PROJECT_GUID_STRING)));
+        _predefinedCode.AddRange(GetConfigBatch(new Guid(ArtefactGeneratorCSharpClassic.C_ORMLIB_PROJECT_GUID_STRING)));
         //if (in_rootPackage.Generator.Target.IsDependantOnSQLite)
         //    _predefinedCode.AddRange(GetConfigBatch(TargetSQLite.C_SQLITE_PROJECT_GUID));
         _predefinedCode.AddRange(GetConfigBatch(rootPackage.BaseProject.ProjectGuid));

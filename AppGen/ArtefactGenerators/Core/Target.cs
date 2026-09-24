@@ -49,18 +49,13 @@ public class Target : IUnique
     public bool GenerationSucceeded { get; set; } = true;
 
     /// <summary>
-    /// Parent (upper level) target
-    /// </summary>
-    public Target? ParentTarget { get; private set; }
-
-    /// <summary>
     /// Type of a generated artefact
     /// </summary>
     public ArtefactTypeEnum Type { get; private set; }
 
     public Guid? UseOutputPathFromTargetId { get; private set; }
 
-    protected Target(
+    public Target(
         Guid id,
         ArtefactTypeEnum type,
         ArtefactGenerationProject project,
@@ -74,16 +69,16 @@ public class Target : IUnique
         Id = id;
         Type = type;
         Project = project;
-        ArtefactGenerator = Core.ArtefactGenerator.CreateConcrete(
-            this,
-            type,
-            project.MetaModel,
-            xelTarget,
-            artefactGeneratorConstructor
-        );
         OutputPath = outputPath;
         UseOutputPathFromTargetId = useOutputPathFromTargetId;
         _dependsOnIds = [.. dependsOnIds];
+
+        ArtefactGenerator = artefactGeneratorConstructor(type, project.DomainModel, this);
+        ArtefactGenerator.InitFromTargetXElement(xelTarget);
+    }
+
+    protected virtual void InitConcrete(XElement xelTarget)
+    {
     }
 
     //public void WireToProject(ArtefactGenerationProject project) => Project = project;
@@ -97,7 +92,15 @@ public class Target : IUnique
     /// <param name="xelTarget">XML node with description of a generation target</param>
     /// <param name="artefactGeneratorConstructor">constructor for concrete ArtefactGenerator</param>
     /// <returns>Artefact generation target</returns>
-    public static Target LoadFromXElement(ArtefactGenerationProject project, XElement xelTarget, Func<ArtefactTypeEnum, DomainModel, Target, ArtefactGenerator> artefactGeneratorConstructor)
+    public static Target LoadFromXElement(
+        ArtefactGenerationProject project,
+        XElement xelTarget,
+        Func<
+            ArtefactTypeEnum,
+            DomainModel,
+            Target,
+            ArtefactGenerator> artefactGeneratorConstructor
+    )
     {
         var id = new Guid(xelTarget.Element("Id")!.Value);
         var xelOutputPath = xelTarget.Element("OutputPath")!;
@@ -139,7 +142,7 @@ public class Target : IUnique
             throw new Exception($"ArtefactType \"{artefactTypeStr}\" not parsed.");
         }
 
-        Target target = new Target(
+        var target = new Target(
             id,
             artefactType.Value,
             project,
@@ -149,6 +152,8 @@ public class Target : IUnique
             dependsOnIds,
             artefactGeneratorConstructor
         );
+
+        target.InitConcrete(xelTarget);
 
         return target;
     }

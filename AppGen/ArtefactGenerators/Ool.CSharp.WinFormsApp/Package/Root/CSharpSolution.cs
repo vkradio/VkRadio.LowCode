@@ -27,7 +27,7 @@ public class CSharpSolution : ProjectPackage
     /// <param name="cSharpGenerator">C# artefacts generator</param>
     /// <param name="dbSchemaModel">Database schema model</param>
     public CSharpSolution(ArtefactGeneratorCSharpClassic cSharpGenerator, DBSchemaDomainModel dbSchemaModel)
-        : base(cSharpGenerator.Target.Project.MetaModel, cSharpGenerator.Target, dbSchemaModel)
+        : base(cSharpGenerator.Target.Project.DomainModel, cSharpGenerator.Target, dbSchemaModel)
         => Generator = cSharpGenerator;
 
     /// <summary>
@@ -35,7 +35,7 @@ public class CSharpSolution : ProjectPackage
     /// </summary>
     public override void Init()
     {
-        var projectId = ArtefactGenerationTarget.ParentTarget.Id;
+        var projectId = ArtefactGenerationTarget.Id;
         BaseProject = new CSharpProjectBase(this, projectId);
         _subpackages.Add(BaseProject.Name, BaseProject);
 
@@ -50,8 +50,6 @@ public class CSharpSolution : ProjectPackage
         MiniSolutionDescriptor = new Solution(this);
         _components.Add(MiniSolutionDescriptor.Name, MiniSolutionDescriptor);
     }
-
-    public new TargetCSharpSolutionLegacy ArtefactGenerationTarget => (TargetCSharpSolutionLegacy)base.ArtefactGenerationTarget;
 
     public ArtefactGeneratorCSharpClassic Generator { get; private set; }
 

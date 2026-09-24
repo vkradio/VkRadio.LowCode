@@ -10,8 +10,8 @@ public class ProjectFileBase : ProjectFile
     {
         _lastLineWNewLine = false;
 
-        var generator = projectPackage.ParentPackage.ArtefactGenerationTarget.Generator;
-        var cSharpAppTarget = generator.Target.ParentTarget;
+        var generator = (ArtefactGeneratorCSharpClassic)projectPackage.ParentPackage.ArtefactGenerationTarget.ArtefactGenerator;
+        var cSharpAppTarget = generator.Target;
 
         _predefinedCode.Add($"<?xml version=\"1.0\" encoding=\"utf-8\"?>");
         _predefinedCode.Add($"<Project ToolsVersion=\"12.0\" DefaultTargets=\"Build\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">");
@@ -25,7 +25,7 @@ public class ProjectFileBase : ProjectFile
         _predefinedCode.Add($"    <AppDesignerFolder>Properties</AppDesignerFolder>");
         _predefinedCode.Add($"    <RootNamespace>{projectPackage.RootNamespace}</RootNamespace>");
         _predefinedCode.Add($"    <AssemblyName>{projectPackage.RootNamespace}</AssemblyName>");
-        _predefinedCode.Add($"    <TargetFrameworkVersion>v{generator.Target.ParentTarget.DotNetFramework}</TargetFrameworkVersion>");
+        _predefinedCode.Add($"    <TargetFrameworkVersion>v{generator.DotNetFramework}</TargetFrameworkVersion>");
         _predefinedCode.Add($"    <FileAlignment>512</FileAlignment>");
         _predefinedCode.Add($"    <TargetFrameworkProfile />");
         _predefinedCode.Add($"  </PropertyGroup>");
@@ -118,9 +118,9 @@ public class ProjectFileBase : ProjectFile
         _predefinedCode.Add($"    </Compile>");
         _predefinedCode.Add($"  </ItemGroup>");
         _predefinedCode.Add($"  <ItemGroup>");
-        _predefinedCode.Add($"    <ProjectReference Include=\"{FileHelper.GetRelativePath(projectPackage.FullPath + "\\", cSharpAppTarget.OrmLibProjectDir)}\\{cSharpAppTarget.OrmLibProjectName}.csproj\">");
-        _predefinedCode.Add($"      <Project>{{{TargetCSharpAppLegacy.C_ORMLIB_PROJECT_GUID_STRING.ToLower()}}}</Project>");
-        _predefinedCode.Add($"      <Name>{cSharpAppTarget.OrmLibProjectName}</Name>");
+        _predefinedCode.Add($"    <ProjectReference Include=\"{FileHelper.GetRelativePath(projectPackage.FullPath + "\\", generator.OrmLibProjectDir)}\\{generator.OrmLibProjectName}.csproj\">");
+        _predefinedCode.Add($"      <Project>{{{ArtefactGeneratorCSharpClassic.C_ORMLIB_PROJECT_GUID_STRING.ToLower()}}}</Project>");
+        _predefinedCode.Add($"      <Name>{generator.OrmLibProjectName}</Name>");
         _predefinedCode.Add("    </ProjectReference>");
         //if (generator.Target.IsDependantOnSQLite)
         //{

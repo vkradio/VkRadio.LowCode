@@ -24,12 +24,12 @@ public class ArtefactGeneratorSql : ArtefactGenerator
     /// <summary>
     /// DB Domain Model
     /// </summary>
-    public DBSchemaDomainModel DBSchemaMetaModel { get { return _dbSchemaMetaModel; } }
+    public DBSchemaDomainModel DBSchemaMetaModel => _dbSchemaMetaModel;
 
     /// <summary>
     /// DB parameter used during development
     /// </summary>
-    public DbParams? DevelopmentDbParams { get { return _developmentDbParams; } }
+    public DbParams? DevelopmentDbParams => _developmentDbParams;
 
     /// <summary>
     /// Generate DB schema and SQL artefacts
@@ -59,7 +59,7 @@ public class ArtefactGeneratorSql : ArtefactGenerator
         return null;
     }
 
-    protected override void InitFromTargetXElement(XElement xelTarget)
+    public override void InitFromTargetXElement(XElement xelTarget)
     {
         var xel = xelTarget.Element("DevelopmentDbParams");
 

@@ -42,14 +42,14 @@ public class ArtefactGenerationProject : IUnique
     public string Name { get; private set; }
 
     /// <summary>
-    /// MetaModel
+    /// Domain Model
     /// </summary>
-    public DomainModel MetaModel { get; private set; } = default!;
+    public DomainModel DomainModel { get; private set; } = default!;
 
     /// <summary>
     /// Targets of artefact generation
     /// </summary>
-    public List<Target> Targets { get; private set; }
+    public List<Target> Targets { get; private set; } = [];
 
     /// <summary>
     /// Project root path
@@ -70,6 +70,7 @@ public class ArtefactGenerationProject : IUnique
         Guid id,
         string name,
         string projectRootPath,
+        DomainModel domainModel,
         string? svnWcRootPath //,
         //IEnumerable<Target> targets
     ) //: base(id, name, projectRootPath, svnWcRootPath)
@@ -77,27 +78,26 @@ public class ArtefactGenerationProject : IUnique
         Id = id;
         Name = Guard.Against.NullOrEmpty(name, nameof(name));
         ProjectRootPath = projectRootPath;
+        DomainModel = Guard.Against.Null(domainModel, nameof(domainModel));
         SvnWcRootPath = svnWcRootPath;
 
         //Targets = [.. targets ?? []];
         //Targets.ForEach(x => x.WireToProject(this));
     }
 
-    //public async Task InitializeAfterLoad()
-    //{
-    //    Guard.Against.Null(Targets);
-
-    //    var initTasks = Targets.Select(x => x.InitializeAfterLoad());
-
-    //    await Task.WhenAll(initTasks);
-    //}
-
     /// <summary>
     /// Load an artefact generation project from a file
     /// </summary>
     /// <param name="filePath"></param>
     /// <returns></returns>
-    public static ArtefactGenerationProject Load(string filePath, Func<ArtefactTypeEnum, DomainModel, Target, ArtefactGenerator> artefactGeneratorConstructor)
+    public static ArtefactGenerationProject Load(
+        string filePath,
+        Func<
+            ArtefactTypeEnum,
+            DomainModel,
+            Target,
+            ArtefactGenerator> artefactGeneratorConstructor
+    )
     {
         var xelRoot = XElement.Load(filePath);
 
@@ -153,17 +153,17 @@ public class ArtefactGenerationProject : IUnique
         }
         #endregion
 
-        var metaModel = DomainModel.Load(metaModelFilePath);
+        var domainModel = DomainModel.Load(metaModelFilePath);
 
         var project = new ArtefactGenerationProject(
             id,
             name,
             projectRootPath,
+            domainModel,
             string.IsNullOrEmpty(svnWcRootDirRelativePath) ? null : Path.Combine(projectRootPath, svnWcRootDirRelativePath)
         );
 
         var xelTargets = xelRoot.Element("ArtefactGenerationTargets")!;
-        var targets = new List<Target>();
 
         foreach (var xel in xelTargets.Elements("Target"))
         {

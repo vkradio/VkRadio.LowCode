@@ -7,7 +7,7 @@ public class AssemblyInfoBase : AssemblyInfoAbstract
     public AssemblyInfoBase(PropertiesPackageBase package)
         : base(package)
     {
-        var cSharpAppTarget = package.ParentPackage.ParentPackage.ArtefactGenerationTarget.ParentTarget;
+        var cSharpAppTarget = package.ParentPackage.ParentPackage.ArtefactGenerationTarget;
 
         _predefinedCode.Add($"using System.Reflection;");
         _predefinedCode.Add($"using System.Runtime.CompilerServices;");
@@ -21,7 +21,7 @@ public class AssemblyInfoBase : AssemblyInfoAbstract
         _predefinedCode.Add($"[assembly: AssemblyConfiguration(\"\")]");
         _predefinedCode.Add($"[assembly: AssemblyCompany(\"\")]");
         _predefinedCode.Add($"[assembly: AssemblyProduct(\"{package.ParentPackage.RootNamespace}\")]");
-        _predefinedCode.Add($"[assembly: AssemblyCopyright(\"Copyright ©  {DateTime.Today.Year}\")]");
+        _predefinedCode.Add($"[assembly: AssemblyCopyright(\"Copyright © {DateTime.Today.Year}\")]");
         _predefinedCode.Add($"[assembly: AssemblyTrademark(\"\")]");
         _predefinedCode.Add($"[assembly: AssemblyCulture(\"\")]");
         _predefinedCode.Add(string.Empty);

@@ -209,7 +209,7 @@ public class DomainModel : INamed
             {
                 var pftLink = pValue.Definition.FunctionalType as PFTLink;
 
-                if (pValue?.ValueObject is not null)
+                if (pftLink is not null && pValue?.ValueObject is not null)
                 {
                     var refObj = (SRefObject)pValue.ValueObject;
 

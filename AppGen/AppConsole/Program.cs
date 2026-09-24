@@ -53,7 +53,7 @@ class Program
                     //ArtefactTypeEnum.CSharpProjectVersion => (ArtefactGenerator)new ArtefactGeneratorCSharpProjectVersion() { _code = type, _metaModel = domainModel, _target = target },
                     //ArtefactTypeEnum.InnoSetup => (ArtefactGenerator)new ArtefactGeneratorInnoSetup() { _code = type, _metaModel = domainModel, _target = target },
                     //ArtefactTypeEnum.MSBuild => (ArtefactGenerator)new ArtefactGeneratorMSBuild() { _code = type, _metaModel = domainModel, _target = target },
-                    _ => throw new ApplicationException($"Unsupported ArtefactTypeEnum value: {type}."),
+                    _ => throw new ApplicationException($"Unsupported ArtefactTypeEnum value: {type}.")
                 };
 
                 return generator;
@@ -86,7 +86,7 @@ class Program
                 Console.WriteLine($"General exception: [{ex.GetType().Name}] {ex.Message}");
             }
 
-            Console.WriteLine(success ? project.Name : "Generation failed.");
+            Console.WriteLine(success ? $"{project.Name} - Done. Press Enter to quit." : "Generation failed.");
 
             error = !success;
         }

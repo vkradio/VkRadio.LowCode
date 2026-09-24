@@ -1,4 +1,5 @@
-﻿using VkRadio.LowCode.AppGen.Domain;
+﻿using Ardalis.GuardClauses;
+using VkRadio.LowCode.AppGen.Domain;
 using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
@@ -276,8 +277,8 @@ public abstract class DBSchemaDomainModel
 
     public DBSchemaDomainModel(DomainModel domainModel, ArtefactGeneratorSql artefactGeneratorSql)
     {
-        _domainModel = domainModel;
-        _artefactGeneratorSql = artefactGeneratorSql;
+        _domainModel = Guard.Against.Null(domainModel, nameof(domainModel));
+        _artefactGeneratorSql = Guard.Against.Null(artefactGeneratorSql, nameof(artefactGeneratorSql));
     }
 
     /// <summary>

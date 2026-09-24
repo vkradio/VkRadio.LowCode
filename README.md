@@ -53,3 +53,23 @@ from the Domain.
 *VkRadio.LowCode.Orm* (.NET Standard 2.0) - Object-relational mapper
 
 *VkRadio.LowCode.Orm.MsSql* (.NET Standard 2.0) - MS SQL Server specifics for an ORM library
+
+# Misc considerations about legacy project design (should be reviewed and updated according to modern design practices)
+
+1. Console app: Loads the project file
+
+1.1. Load each target description
+
+2. Console app: Generate artefacts for each target
+
+2.1. Target - calls a cocrete Artefact Generator to generate artefacts for itself
+
+Here Target creates an Artefact Generator upon project load and saves it inside its properties. Generator inself also
+has link to its Target - to have an ability to extract Target dependencies (and their generated results).
+
+Initially the Target class was common for all Artefact Generators, and concrete settings were stored in concrete Generators,
+but then concrete Targets were introduced, so mix of settings between Targets and Generates introduced over-complications.
+Essentially, from the Project point of view the Target is a "passive" bag of settings, and the Generator is an "active"
+process that reads its Target properties and produces artifacts. But from the OOP point of view, it could be considered
+as a single object with properties and procedures. Let for starters simplify a structure a bit - remove all concrete properties
+from Target and make it to be a single class back, and move all concrete properties to corresponding concrete Generators.
