@@ -1,5 +1,5 @@
-﻿using System.Xml.Linq;
-using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
+using VkRadio.LowCode.AppGen.Domain.Names;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core;
 
@@ -20,9 +20,7 @@ public class XmlComment : AbstractDocComment
     // TODO: Extend XmlDoc for an ability to comment params and return values
     public override string[] GenerateText()
     {
-        var xel = new XElement("root", _text);
-        var encodedText = xel.ToString();
-        encodedText = encodedText.Substring(6, encodedText.Length - 13);
+        var encodedText = NameHelper.EncodeXmlText(_text ?? string.Empty);
 
         return
         [

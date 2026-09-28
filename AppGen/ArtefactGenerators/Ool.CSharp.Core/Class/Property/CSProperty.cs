@@ -111,7 +111,7 @@ public class CSProperty
     /// </summary>
     /// <param name="cSharpClass"></param>
     /// <param name="propDef"></param>
-    public static CSProperty GeneratePropertyCollection(CSClass cSharpClass, PropertyDefinition propDef)
+    public static CSProperty GeneratePropertyCollection(CSClass cSharpClass, PropertyDefinition propDef, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         if (!(propDef.FunctionalType is PFTBackReferencedTable || propDef.FunctionalType is PFTTablePart))
         {
@@ -144,22 +144,22 @@ public class CSProperty
         var filterProp = new CSPropertyPredefined
         {
             Class = cSharpClass,
-            DocComment = new XmlComment("Filter for the property " + NameHelper.GetLocalNameLowerCase(propDef.Names)),
+            DocComment = new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Фильтр для свойства " : "Filter for the property ") + NameHelper.GetLocalNameLowerCase(propDef.Names, preferNaturalLanguageForComments)),
             Name = filterPropName,
-            PredefinedValue = $"public virtual FilterSimple {filterPropName} {{ get {{ return FilterSimple.CreateTableFilter(id, \"{fieldName}\"); }} }}"
+            PredefinedValue = $"public virtual FilterSimple {filterPropName} {{ get {{ return FilterSimple.CreateTableFilter(_id, \"{fieldName}\"); }} }}"
         };
         cSharpClass.Properties.Add(filterProp.Name, filterProp);
 
         var result = new CSProperty
         {
             Class = cSharpClass,
-            DocComment = TypeHelper.GetXmlCommentForTablePropDef(propDef),
+            DocComment = TypeHelper.GetXmlCommentForTablePropDef(propDef, preferNaturalLanguageForComments),
             Name = NameHelper.NamesToPascalCase(propDef.Names, true) + "DataTable",
             Type = TypeHelper.PropertyDefinitionToCSType(propDef),
             DOTType = TypeHelper.PropertyDefinitionToCSEntityType(propDef),
             AdditionalKeywords = "virtual"
         };
-        result.DocComment.Text += " (read table)";
+        result.DocComment.Text += (preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? " (чтение таблицы)" : " (read table)");
         result.Getter = new CSPropertyGetterCollection(result, propDef);
 
         return result;

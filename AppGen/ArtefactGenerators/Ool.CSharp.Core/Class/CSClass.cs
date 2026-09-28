@@ -45,7 +45,7 @@ public class CSClass : AbstClassNS.Class
             text[i] = c_tab + text[i];
         }
 
-        return text.ToArray();
+        return [.. text];
     }
 
     protected override string[] GenerateClassBodyLines()
@@ -157,25 +157,28 @@ public class CSClass : AbstClassNS.Class
             }
         }
 
-        return text.ToArray();
+        return [.. text];
     }
 
-    protected override string[] GenerateClassFooter() { return [c_tab + "};"]; }
+    protected override string[] GenerateClassFooter() => [c_tab + "};"];
 
     /// <summary>
     /// Embedded class for fast extraction of a predefined data object
     /// </summary>
     public CSClassPredefined EmbeddedClassPredefined { get; set; }
+
     /// <summary>
     /// Is it a partial class representation
     /// </summary>
     public bool Partial { get; set; }
+
     /// <summary>
     /// Class properties
     /// </summary>
-    public IDictionary<string, CSProperty> Properties { get { return _properties; } }
+    public IDictionary<string, CSProperty> Properties => _properties;
+
     /// <summary>
     /// Class constructors
     /// </summary>
-    public IDictionary<string, CSConstructor> Constructors { get { return _constructors; } }
+    public IDictionary<string, CSConstructor> Constructors => _constructors;
 }

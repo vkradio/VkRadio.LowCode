@@ -10,7 +10,7 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Packa
 
 public class LaunchersPackage : PackNS.Package
 {
-    public LaunchersPackage(GuiPackage in_parentPackage)
+    public LaunchersPackage(GuiPackage in_parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments)
         : base(in_parentPackage, "Launchers")
     {
         var mm = ParentPackage.ParentPackage.ParentPackage.DomainModel;
@@ -42,7 +42,7 @@ public class LaunchersPackage : PackNS.Package
             var cls = new CSClass
             {
                 Component = component,
-                DocComment = new XmlComment("UI launcher for objects " + NameHelper.GetLocalNameUpperCase(entDef.Names)),
+                DocComment = new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Запускальщик средств UI для объектов " : "UI launcher for objects ") + NameHelper.GetLocalNameUpperCase(entDef.Names, preferNaturalLanguageForComments)),
                 Name = uilName,
                 InheritsFrom = "UILauncher"
             };
@@ -51,18 +51,18 @@ public class LaunchersPackage : PackNS.Package
 
             var ctor = new CSConstructor(cls)
             {
-                DocComment = new XmlComment("Launcher constructor"),
+                DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Конструктор запускальщика" : "Launcher constructor"),
                 Visibility = ElementVisibilityClassic.Public
             };
             cls.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
             ctor.BodyStrings.Add(string.Format("_storage = StorageRegistry.Instance.{0}Storage;", typeName));
-            ctor.BodyStrings.Add(string.Format("_dotName = \"{0}\";", NameHelper.GetLocalNameUpperCase(entDef.Names)));
+            ctor.BodyStrings.Add(string.Format("_dotName = \"{0}\";", NameHelper.EncodeCSharpText(NameHelper.GetLocalNameUpperCase(entDef.Names, preferNaturalLanguageForComments))));
 
             var methodCard = new CSMethod
             {
                 AdditionalKeywords = "override",
                 Class = cls,
-                DocComment = new XmlComment("Create a card of an element (data object)"),
+                DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Создание карточки элемента" : "Create a card of an element (data object)"),
                 Name = "CreateDOCard",
                 ReturnType = "DOCard",
                 Visibility = ElementVisibilityClassic.Protected
@@ -82,7 +82,7 @@ public class LaunchersPackage : PackNS.Package
             {
                 AdditionalKeywords = "override",
                 Class = cls,
-                DocComment = new XmlComment("Create a list of elements (data objects)"),
+                DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Создание списка элементов" : "Create a list of elements (data objects)"),
                 Name = "CreateDOList",
                 ReturnType = "DOList",
                 Visibility = ElementVisibilityClassic.Protected

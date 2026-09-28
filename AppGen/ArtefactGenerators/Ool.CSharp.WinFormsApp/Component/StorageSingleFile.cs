@@ -1,10 +1,11 @@
 ﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Model;
+using VkRadio.LowCode.AppGen.Domain.Names;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
 
 public class StorageSingleFile : CSComponent
 {
-    public StorageSingleFile(ModelPackage package)
+    public StorageSingleFile(ModelPackage package, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         Package = package;
         Name = "Storages.cs";
@@ -20,7 +21,7 @@ public class StorageSingleFile : CSComponent
 
         foreach (var entityDef in package.ParentPackage.ParentPackage.DomainModel.AllEntityDefinitions.Values)
         {
-            Storage.CreateStorageClass(this, entityDef, dbModel);
+            Storage.CreateStorageClass(this, entityDef, dbModel, preferNaturalLanguageForComments);
         }
     }
 }

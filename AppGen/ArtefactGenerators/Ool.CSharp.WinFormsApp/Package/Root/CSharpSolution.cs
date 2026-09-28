@@ -1,11 +1,14 @@
 ﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Package;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.Core;
+using VkRadio.LowCode.AppGen.Domain.Names;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
 
 public class CSharpSolution : ProjectPackage
 {
+    private readonly NaturalLanguageEnum _preferNaturalLanguageForComments;
+
     /// <summary>
     /// Increment ProjectGuid of &quot;base&quot; project to generate ProjectGuid
     /// of &quot;extension&quot; project
@@ -26,9 +29,12 @@ public class CSharpSolution : ProjectPackage
     /// </summary>
     /// <param name="cSharpGenerator">C# artefacts generator</param>
     /// <param name="dbSchemaModel">Database schema model</param>
-    public CSharpSolution(ArtefactGeneratorCSharpClassic cSharpGenerator, DBSchemaDomainModel dbSchemaModel)
+    public CSharpSolution(ArtefactGeneratorCSharpClassic cSharpGenerator, DBSchemaDomainModel dbSchemaModel, NaturalLanguageEnum preferNaturalLanguageForComments)
         : base(cSharpGenerator.Target.Project.DomainModel, cSharpGenerator.Target, dbSchemaModel)
-        => Generator = cSharpGenerator;
+    {
+        _preferNaturalLanguageForComments = preferNaturalLanguageForComments;
+        Generator = cSharpGenerator;
+    }
 
     /// <summary>
     /// Initializing after creation for concrete class
@@ -36,7 +42,7 @@ public class CSharpSolution : ProjectPackage
     public override void Init()
     {
         var projectId = ArtefactGenerationTarget.Id;
-        BaseProject = new CSharpProjectBase(this, projectId);
+        BaseProject = new CSharpProjectBase(this, projectId, _preferNaturalLanguageForComments);
         _subpackages.Add(BaseProject.Name, BaseProject);
 
         projectId = SimpleIncrementGuid(projectId);

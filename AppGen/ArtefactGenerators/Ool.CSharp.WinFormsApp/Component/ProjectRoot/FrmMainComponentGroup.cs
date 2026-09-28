@@ -1,6 +1,7 @@
 ﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
+using VkRadio.LowCode.AppGen.Domain.Names;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component.ProjectRoot;
 
@@ -8,7 +9,7 @@ public class FrmMainComponentGroup
 {
     CSComponentWMainClass _mainComponent;
 
-    public FrmMainComponentGroup(CSharpProjectExtension package)
+    public FrmMainComponentGroup(CSharpProjectExtension package, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         _mainComponent = new CSComponentWMainClass()
         {
@@ -22,7 +23,7 @@ public class FrmMainComponentGroup
         var cls = new CSClass
         {
             Component = _mainComponent,
-            DocComment = new XmlComment("Главная форма приложения"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Главная форма приложения" : "App main window"),
             InheritsFrom = "Form",
             Name = "FRM_Main",
             Partial = true

@@ -38,9 +38,10 @@ public static class GeneralHelper
                                 ? 4
                                 : (x.FunctionalType is PFTString
                                     ? 5
-                                    : 6
+                                    : -1
                     ))))
             })
+            .Where(x => x.Priority != -1)
             .OrderBy(x => x.Priority)
             .Select(x => x.PropDef)
             .FirstOrDefault();

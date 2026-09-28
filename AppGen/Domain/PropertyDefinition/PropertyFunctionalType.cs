@@ -22,17 +22,17 @@ public abstract class PropertyFunctionalType
     /// <summary>
     /// Property type definition of a data object type or a register, that own this functional type
     /// </summary>
-    public IPropertyDefinition PropertyDefinition { get => _propertyDefinition; set { _propertyDefinition = value; } }
+    public IPropertyDefinition PropertyDefinition { get => _propertyDefinition; set => _propertyDefinition = value; }
 
     /// <summary>
     /// Default value of a property
     /// </summary>
-    public object? DefaultValue { get => _defaultValue; set { _defaultValue = value; } }
+    public object? DefaultValue { get => _defaultValue; set => _defaultValue = value; }
 
     /// <summary>
     /// Is it possible to have missing values
     /// </summary>
-    public bool Nullable { get => _nullable; set { _nullable = value; } }
+    public bool Nullable { get => _nullable; set => _nullable = value; }
 
     /// <summary>
     /// Is it a qualitative type
@@ -47,7 +47,7 @@ public abstract class PropertyFunctionalType
     /// <summary>
     /// Is it a unique value (among other properties withing a full list of owning objects)
     /// </summary>
-    public bool Unique { get => _unique; set { _unique = value; } }
+    public bool Unique { get => _unique; set => _unique = value; }
 
     /// <summary>
     /// System (.NET) type, containing a value (this value is not stored in a MetaModel, but only
@@ -125,8 +125,15 @@ public abstract class PropertyFunctionalType
             _ => throw new ApplicationException(string.Format("Property functional type not supported: {0}.", ftName ?? "<NULL>")),
         };
 
-        result.Nullable = nullable ?? false;
-        result.Unique = unique ?? false;
+        if (nullable.HasValue)
+        {
+            result.Nullable = nullable.Value;
+        }
+
+        if (unique.HasValue)
+        {
+            result.Unique = unique.Value;
+        }
 
         var dependentLink = result as IPFTDependentLink;
 

@@ -160,7 +160,7 @@ public class TypeHelper
     /// </summary>
     /// <param name="propDef"></param>
     /// <returns>XmlComment</returns>
-    public static XmlComment GetXmlCommentForTablePropDef(PropertyDefinition propDef) // TODO: Move it to a generalized generator of XmlComment or DocComment
+    public static XmlComment GetXmlCommentForTablePropDef(PropertyDefinition propDef, NaturalLanguageEnum preferNaturalLanguageForComments) // TODO: Move it to a generalized generator of XmlComment or DocComment
     {
         XmlComment result;
 
@@ -178,13 +178,13 @@ public class TypeHelper
                 if (pftBackRefTable is not null)
                 {
                     //result = new XmlComment(c_tableOfObjects + NameHelper.GetLocalNameUpperCase(((PropertyDefinition)pftBackRefTable.RelationshipReference.OwnerPropertyDefinition).OwnerDefinition.Names));
-                    result = new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names));
+                    result = new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments));
                 }
                 else
                 {
                     //var pftTable = in_propDef.FunctionalType as PFTTablePart;
                     //result = new XmlComment(c_tableOfObjects + NameHelper.GetLocalNameUpperCase(pftTable.RelationshipTable.PropertyDefinitionInTable.OwnerDefinition.Names));
-                    result = new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names));
+                    result = new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments));
                 }
             }
             else

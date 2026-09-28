@@ -22,7 +22,8 @@ public class FieldPropertyHelper
 
     public static void GenerateFieldPropertyAndGetter(
         PropertyDefinition propDef,
-        CSClass @class,
+        CSClass cSharpClass,
+        NaturalLanguageEnum preferNaturalLanguageForComments,
         out CSClassField? outField,
         out CSClassField? outFieldId,
         out CSProperty? outProperty,
@@ -46,14 +47,14 @@ public class FieldPropertyHelper
         {
             outField = new CSClassField()
             {
-                Class = @class,
+                Class = cSharpClass,
                 Visibility = ElementVisibilityClassic.Protected,
                 Name = fieldName,
-                DocComment = new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names)),
+                DocComment = new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments)),
                 TypeKeyword = TypeHelper.PropertyDefinitionToCSType(propDef)
             };
 
-            outProperty = CSProperty.GenerateProperty(@class, propDef, outField, outField.DocComment as XmlComment);
+            outProperty = CSProperty.GenerateProperty(cSharpClass, propDef, outField, outField.DocComment as XmlComment);
         }
         #endregion
         else
@@ -79,32 +80,32 @@ public class FieldPropertyHelper
 
                 outField = new CSClassField
                 {
-                    Class = @class,
+                    Class = cSharpClass,
                     Visibility = ElementVisibilityClassic.Protected,
                     Name = fieldName,
-                    DocComment = new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names)),
+                    DocComment = new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments)),
                     TypeKeyword = TypeHelper.PropertyDefinitionToCSType(propDef)
                 };
 
                 outFieldId = new CSClassField()
                 {
-                    Class = @class,
+                    Class = cSharpClass,
                     Visibility = ElementVisibilityClassic.Protected,
                     Name = fieldIdName,
-                    DocComment = new XmlComment("Foreign Key to " + NameHelper.GetLocalNameUpperCase(propDef.Names)),
+                    DocComment = new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Внешний ключ на " : "Foreign Key to ") + NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments)),
                     TypeKeyword = "Guid?"
                 };
 
-                outProperty = CSProperty.GenerateProperty(@class, propDef, outField, outField.DocComment as XmlComment);
-                outPropertyId = CSProperty.GeneratePropertyId(@class, propDef, outFieldId, outFieldId.DocComment as XmlComment);
+                outProperty = CSProperty.GenerateProperty(cSharpClass, propDef, outField, outField.DocComment as XmlComment);
+                outPropertyId = CSProperty.GeneratePropertyId(cSharpClass, propDef, outFieldId, outFieldId.DocComment as XmlComment);
             }
             #endregion
             else if (propDef.FunctionalType is PFTTablePart || propDef.FunctionalType is PFTBackReferencedTable)
             #region 1.3. Fields for collections (no tables)
             {
-                outProperty = CSProperty.GeneratePropertyCollection(@class, propDef);
-                outCollectionGetter = CSCollectionGetter.Instantiate(@class, propDef);
-                outCollectionCounter = CSCollectionCounter.Instantiate(@class, propDef);
+                outProperty = CSProperty.GeneratePropertyCollection(cSharpClass, propDef, preferNaturalLanguageForComments);
+                outCollectionGetter = CSCollectionGetter.Instantiate(cSharpClass, propDef, preferNaturalLanguageForComments);
+                outCollectionCounter = CSCollectionCounter.Instantiate(cSharpClass, propDef, preferNaturalLanguageForComments);
             }
             #endregion
             else

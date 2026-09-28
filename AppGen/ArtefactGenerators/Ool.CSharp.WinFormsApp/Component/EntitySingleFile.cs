@@ -1,10 +1,11 @@
 ﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Model;
+using VkRadio.LowCode.AppGen.Domain.Names;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
 
 public class EntitySingleFile : CSComponent
 {
-    public EntitySingleFile(ModelPackage package)
+    public EntitySingleFile(ModelPackage package, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         Package = package;
         Name = "DOTs.cs";
@@ -19,7 +20,7 @@ public class EntitySingleFile : CSComponent
 
         foreach (var entityDef in package.ParentPackage.ParentPackage.DomainModel.AllEntityDefinitions.Values)
         {
-            EntityPackage.CreateEntityClass(this, entityDef);
+            EntityPackage.CreateEntityClass(this, entityDef, preferNaturalLanguageForComments);
         }
     }
 }

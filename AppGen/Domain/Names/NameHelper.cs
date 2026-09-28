@@ -186,9 +186,9 @@ public class NameHelper
     /// </summary>
     /// <param name="names">Name dictionary</param>
     /// <returns>Localized name with a big first letter</returns>
-    public static string GetLocalNameUpperCase(IDictionary<NaturalLanguageEnum, string> names)
+    public static string GetLocalNameUpperCase(IDictionary<NaturalLanguageEnum, string> names, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
-        var localName = GetLocalNameLowerCase(names);
+        var localName = GetLocalNameLowerCase(names, preferNaturalLanguageForComments);
 
         if (localName.Length > 0)
         {
@@ -203,10 +203,10 @@ public class NameHelper
     /// </summary>
     /// <param name="names">Name dictionary</param>
     /// <returns>Localized name with a small first letter</returns>
-    public static string GetLocalNameLowerCase(IDictionary<NaturalLanguageEnum, string> names)
+    public static string GetLocalNameLowerCase(IDictionary<NaturalLanguageEnum, string> names, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
-        var localName = names.ContainsKey(NaturalLanguageEnum.Ru)
-            ? names[NaturalLanguageEnum.Ru]
+        var localName = names.ContainsKey(preferNaturalLanguageForComments)
+            ? names[preferNaturalLanguageForComments]
             : names[NaturalLanguageEnum.En];
 
         return localName;
@@ -217,14 +217,14 @@ public class NameHelper
     /// </summary>
     /// <param name="stringValue"></param>
     /// <returns></returns>
-    public static string GetStringSuitableToCSharp(string stringValue) => stringValue.Replace("\"", "\\\"");
+    public static string EncodeCSharpText(string stringValue) => stringValue.Replace("\"", "\\\"");
 
     /// <summary>
     /// Filling a string with escapes such that they are represented a valid XML tag value
     /// </summary>
     /// <param name="stringValue"></param>
     /// <returns></returns>
-    public static string GetStringSuitableToXmlText(string stringValue) => stringValue
+    public static string EncodeXmlText(string stringValue) => stringValue
         .Replace("&", "&amp;")
         .Replace("\"", "&quot;")
         .Replace("<", "&lt;")
@@ -263,6 +263,78 @@ public class NameHelper
 public static class NameHelperExtension
 {
     static readonly char[] c_consonants = ['б', 'в', 'г', 'д', 'ж', 'з', 'к', 'л', 'м', 'н', 'п', 'р', 'с', 'т', 'ф', 'х', 'ц', 'ч', 'ш', 'щ'];
+
+    /// <summary>
+    /// Shorten a name (legacy impelementation - for compatibolity of generated legacy code)
+    /// </summary>
+    /// <param name="thisName">Full name</param>
+    /// <param name="maxSymbols">Optionally: max number of symbols</param>
+    /// <returns></returns>
+    public static string ShortenLegacy(this string thisName)
+    {
+        var result = string.Empty;
+        var words = thisName.Split(new char[] { ' ', '-', '.', ',', '(', ')', '?', '!', ':', ';' });
+        var nextChars = new char[words.Length - 1];
+        var startIndex = 0;
+
+        for (var i = 0; i < words.Length - 1; i++)
+        {
+            startIndex += words[i].Length;
+            nextChars[i] = thisName[startIndex];
+            startIndex++;
+        }
+
+        for (var i = 0; i < words.Length; i++)
+        {
+            var shortened = false;
+
+            words[i] = words[i].Trim();
+
+            if (words[i].Length > 3)
+            {
+                for (var j = 2; j < words[i].Length - 2; j++)
+                {
+                    var thisChar = words[i][j].ToString().ToLower()[0];
+                    var isConsonant = false;
+
+                    foreach (var consChar in c_consonants)
+                    {
+                        if (thisChar == consChar)
+                        {
+                            isConsonant = true;
+                            break;
+                        }
+                    }
+
+                    if (isConsonant)
+                    {
+                        words[i] = words[i].Substring(0, j + 1) + ".";
+                        shortened = true;
+                        break;
+                    }
+                }
+            }
+
+            result += words[i];
+
+            if (shortened)
+            {
+                if (i != words.Length - 1 && nextChars[i] != '.')
+                {
+                    result += nextChars[i];
+                }
+            }
+            else
+            {
+                if (i != words.Length - 1)
+                {
+                    result += nextChars[i];
+                }
+            }
+        }
+
+        return result;
+    }
 
     /// <summary>
     /// Shorten a name

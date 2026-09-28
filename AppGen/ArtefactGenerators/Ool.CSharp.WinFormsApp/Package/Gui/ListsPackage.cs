@@ -22,18 +22,18 @@ public class ListsPackage : PackNS.Package
 
     const float c_pixelsPerSymbol = 200f / 36f;
 
-    public ListsPackage(GuiPackage in_parentPackage)
-        : base(in_parentPackage, "Lists")
+    public ListsPackage(GuiPackage parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments)
+        : base(parentPackage, "Lists")
     {
         var model = ParentPackage.ParentPackage.ParentPackage.DomainModel;
         var dbModel = ParentPackage.ParentPackage.ParentPackage.DBbSchemaModel;
 
         // For each data object type definition create component with a corresponding class
-        var dotDefs = model.AllEntityDefinitions.Values;
+        var entityDefs = model.AllEntityDefinitions.Values;
 
-        foreach (var dotDef in dotDefs)
+        foreach (var entityDef in entityDefs)
         {
-            var typeName = CSharpHelper.GenerateEntityClassName(dotDef);
+            var typeName = CSharpHelper.GenerateEntityClassName(entityDef);
             var formName = "DOL" + typeName;
 
             #region Main comonent of a card
@@ -42,7 +42,7 @@ public class ListsPackage : PackNS.Package
             {
                 Package = this,
                 Name = formName + ".cs",
-                EntityDefinition = dotDef,
+                EntityDefinition = entityDef,
                 Namespace = $"{ParentPackage.ParentPackage.RootNamespace}.Gui.Lists"
             };
             _components.Add(component.Name, component);
@@ -52,7 +52,7 @@ public class ListsPackage : PackNS.Package
             var cls = new CSClass
             {
                 Component = component,
-                DocComment = new XmlComment("List of objects " + NameHelper.GetLocalNameUpperCase(dotDef.Names)),
+                DocComment = new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Список объектов " : "List of objects ") + NameHelper.GetLocalNameUpperCase(entityDef.Names, preferNaturalLanguageForComments)),
                 Name = formName,
                 InheritsFrom = "DOList",
                 Partial = true
@@ -60,11 +60,11 @@ public class ListsPackage : PackNS.Package
             component.Classes.Add(cls.Name, cls);
             component.MainClass = cls;
 
-            var correspondence = (TableAndEntityCorrespondence)dbModel.TableAndSourceCorrespondence[dotDef.Id];
+            var correspondence = (TableAndEntityCorrespondence)dbModel.TableAndSourceCorrespondence[entityDef.Id];
 
             var ctor = new CSConstructor(cls)
             {
-                DocComment = new XmlComment("List constructor"),
+                DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Конструктор списка" : "List constructor"),
                 Visibility = ElementVisibilityClassic.Public
             };
             cls.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
@@ -76,7 +76,7 @@ public class ListsPackage : PackNS.Package
             // Default sort order
             bool reverseOrder;
             var orderByPropertyIndex = -1;
-            var orderByProperty = GeneralHelper.GetListSortProperty(dotDef, out reverseOrder);
+            var orderByProperty = GeneralHelper.GetListSortProperty(entityDef, out reverseOrder);
 
             var index = 0;
             var isFirst = true;
@@ -140,15 +140,16 @@ public class ListsPackage : PackNS.Package
                         align = ContentAlignment.Right;
                     }
 
-                    var colCaption = NameHelper.GetLocalNameUpperCase(propCorr.PropertyDefinition.Names);
+                    var colCaption = NameHelper.GetLocalNameUpperCase(propCorr.PropertyDefinition.Names, preferNaturalLanguageForComments);
                     var measuredCaptionWidth = (int)Math.Floor(colCaption.Length * c_pixelsPerSymbol);
 
                     if (measuredCaptionWidth > colWidth)
                     {
-                        colCaption = colCaption.Shorten((int)Math.Floor(colWidth / c_pixelsPerSymbol));
+                        //colCaption = colCaption.Shorten((int)Math.Floor(colWidth / c_pixelsPerSymbol));
+                        colCaption = colCaption.ShortenLegacy(); // The upper shortening is too restrictive, need to think how to fit the descriptive headers without overflowing the width
                     }
 
-                    colCaption = NameHelper.GetStringSuitableToCSharp(colCaption);
+                    colCaption = NameHelper.EncodeCSharpText(colCaption);
                     alignments.Add(align);
                     #endregion
 
@@ -223,7 +224,7 @@ public class ListsPackage : PackNS.Package
             var methodFormatter = new CSMethod
             {
                 Class = cls,
-                DocComment = new XmlComment("Formatter for some values"),
+                DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Обработчик форматирования некоторых значений" : "Formatter for some values"),
                 Name = "DGV_ListProtected_CellFormatting",
                 ReturnType = "void",
                 Visibility = ElementVisibilityClassic.Private

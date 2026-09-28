@@ -118,7 +118,7 @@ public class ProjectFileBase : ProjectFile
         _predefinedCode.Add($"    </Compile>");
         _predefinedCode.Add($"  </ItemGroup>");
         _predefinedCode.Add($"  <ItemGroup>");
-        _predefinedCode.Add($"    <ProjectReference Include=\"{FileHelper.GetRelativePath(projectPackage.FullPath + "\\", generator.OrmLibProjectDir)}\\{generator.OrmLibProjectName}.csproj\">");
+        _predefinedCode.Add($"    <ProjectReference Include=\"{FileHelper.GetRelativePath(projectPackage.FullPath + "\\", generator.OrmLibProjectDir)}\">");
         _predefinedCode.Add($"      <Project>{{{ArtefactGeneratorCSharpClassic.C_ORMLIB_PROJECT_GUID_STRING.ToLower()}}}</Project>");
         _predefinedCode.Add($"      <Name>{generator.OrmLibProjectName}</Name>");
         _predefinedCode.Add("    </ProjectReference>");

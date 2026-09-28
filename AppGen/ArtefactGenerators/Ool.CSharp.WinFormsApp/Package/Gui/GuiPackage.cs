@@ -20,16 +20,16 @@ public class GuiPackage : PackNS.Package
     LaunchersPackage _launchersPackage;
     ListsPackage _listsPackage;
 
-    public GuiPackage(CSharpProjectBase parentPackage)
+    public GuiPackage(CSharpProjectBase parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments)
         : base(parentPackage, "Gui")
     {
-        _elementsPackage = new ElementsPackage(this);
+        _elementsPackage = new ElementsPackage(this, preferNaturalLanguageForComments);
         _subpackages.Add(_elementsPackage.Name, _elementsPackage);
 
-        _launchersPackage = new LaunchersPackage(this);
+        _launchersPackage = new LaunchersPackage(this, preferNaturalLanguageForComments);
         _subpackages.Add(_launchersPackage.Name, _launchersPackage);
 
-        _listsPackage = new ListsPackage(this);
+        _listsPackage = new ListsPackage(this, preferNaturalLanguageForComments);
         _subpackages.Add(_listsPackage.Name, _listsPackage);
 
         #region UiRegistry.cs component
@@ -46,7 +46,7 @@ public class GuiPackage : PackNS.Package
         var clsUiRegistry = new CSClass
         {
             Component = uiRegistryComp,
-            DocComment = new XmlComment("Registry of UI launchers"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Реестр запускальщиков средств UI" : "Registry of UI launchers"),
             Name = "UiRegistry"
         };
         uiRegistryComp.Classes.Add(clsUiRegistry.Name, clsUiRegistry);
@@ -83,14 +83,14 @@ public class GuiPackage : PackNS.Package
 
         var ctor = new CSConstructor(clsUiRegistry)
         {
-            DocComment = new XmlComment("Private constructor of UI lauchers registry"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Закрытый конструктор реестра запускальщиков" : "Private constructor of UI lauchers registry"),
             Visibility = ElementVisibilityClassic.Private
         };
         clsUiRegistry.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
 
         var ctorStatic = new CSConstructor(clsUiRegistry)
         {
-            DocComment = new XmlComment("Static constructor of UI lauchers registry"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Статический конструктор реестра запускальщиков" : "Static constructor of UI lauchers registry"),
             Visibility = ElementVisibilityClassic.Private,
             //AdditionalKeywords = "static",
             HintSingleLineBody = true,
@@ -99,11 +99,11 @@ public class GuiPackage : PackNS.Package
         ctorStatic.BodyStrings.Add("_instance = new UiRegistry();");
         clsUiRegistry.Constructors.Add(CSharpHelper.GenerateMethodKey(ctorStatic), ctorStatic);
 
-        const string c_docCommentSingleton = "Singleton";
+        var docCommentSingleton = preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Единственный экземпляр (Singleton)" : "Singleton";
         var field = new CSClassField
         {
             Class = clsUiRegistry,
-            DocComment = new XmlComment(c_docCommentSingleton),
+            DocComment = new XmlComment(docCommentSingleton),
             //InitialValue = "new UiRegistry()",
             IsStatic = true,
             Name = "_instance",
@@ -115,7 +115,7 @@ public class GuiPackage : PackNS.Package
         var prop = new CSProperty
         {
             Class = clsUiRegistry,
-            DocComment = new XmlComment(c_docCommentSingleton),
+            DocComment = new XmlComment(docCommentSingleton),
             IsStatic = true,
             Name = "Instance",
             NameFieldCorresponding = "_instance",
@@ -128,7 +128,7 @@ public class GuiPackage : PackNS.Package
         var qSelectorField = new CSClassField
         {
             Class = clsUiRegistry,
-            DocComment = new XmlComment("Quick select storage of objects from lists"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Хранилище быстрого выбора объектов из списков" : "Quick select storage of objects from lists"),
             InitialValue = "new QuickSelectStorage()",
             Name = "_quickSelectStorage",
             TypeKeyword = "QuickSelectStorage",
@@ -139,7 +139,7 @@ public class GuiPackage : PackNS.Package
         var qSelectorProp = new CSProperty
         {
             Class = clsUiRegistry,
-            DocComment = new XmlComment("Quick select storage of objects from lists"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Хранилище быстрого выбора объектов из списков" : "Quick select storage of objects from lists"),
             Name = "QuickSelectStorage",
             NameFieldCorresponding = "_quickSelectStorage",
             Type = "QuickSelectStorage",
@@ -153,8 +153,8 @@ public class GuiPackage : PackNS.Package
             var dotClassName = CSharpHelper.GenerateEntityClassName(cls.EntityDefinition);
             var fieldName = "_uil" + dotClassName;
             var propName = "Uil" + dotClassName;
-            var localName = NameHelper.GetLocalNameUpperCase(cls.EntityDefinition.Names);
-            var docComment = "Launcher of GUI for working with objects " + localName;
+            var localName = NameHelper.GetLocalNameUpperCase(cls.EntityDefinition.Names, preferNaturalLanguageForComments);
+            var docComment = (preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Запускальщик графического интерфейса для управления объектами " : "Launcher of GUI for working with objects ") + localName;
 
             // Private fields for launchers
             var uilField = new CSClassField

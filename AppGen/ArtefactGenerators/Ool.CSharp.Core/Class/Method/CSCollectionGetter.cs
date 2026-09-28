@@ -8,7 +8,7 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method
 
 public class CSCollectionGetter : CSMethod
 {
-    public static CSCollectionGetter Instantiate(CSClass @class, PropertyDefinition propDef)
+    public static CSCollectionGetter Instantiate(CSClass @class, PropertyDefinition propDef, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         if (!(propDef.FunctionalType is PFTBackReferencedTable || propDef.FunctionalType is PFTTablePart))
         {
@@ -21,14 +21,14 @@ public class CSCollectionGetter : CSMethod
         var getter = new CSCollectionGetter
         {
             _class = @class,
-            _docComment = TypeHelper.GetXmlCommentForTablePropDef(propDef),
+            _docComment = TypeHelper.GetXmlCommentForTablePropDef(propDef, preferNaturalLanguageForComments),
             _name = "Get" + basePropName,
             ReturnType = $"List<{dotClassName}>",
             AdditionalKeywords = "virtual",
             _hintSingleLineBody = true,
             _visibility = ElementVisibilityClassic.Public
         };
-        getter.DocComment.Text += " (read collection)";
+        getter.DocComment.Text += preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? " (чтение коллекции)" : " (read collection)";
 
         var param = new CSParameter
         {

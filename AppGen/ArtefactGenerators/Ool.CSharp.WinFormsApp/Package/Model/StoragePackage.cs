@@ -18,7 +18,7 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Packa
 
 public class StoragePackage: PackNS.Package
 {
-    public static CSComponentWMainClass CreateStorageRegistryComponent(DomainModel domainModel, PackNS.Package package, string namespaceName)
+    public static CSComponentWMainClass CreateStorageRegistryComponent(DomainModel domainModel, PackNS.Package package, string namespaceName, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         var storageRegistryComponent = new CSComponentWMainClass
         {
@@ -31,7 +31,7 @@ public class StoragePackage: PackNS.Package
         var clsStorageRegistry = new CSClass
         {
             Component = storageRegistryComponent,
-            DocComment = new XmlComment("Data object storage registry"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Реестр хранилищ ОД" : "Data object storage registry"),
             Name = "StorageRegistry"
         };
         storageRegistryComponent.Classes.Add(clsStorageRegistry.Name, clsStorageRegistry);
@@ -66,7 +66,7 @@ public class StoragePackage: PackNS.Package
 
         var ctor = new CSConstructor(clsStorageRegistry)
         {
-            DocComment = new XmlComment("Private constructor of storage registry"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Закрытый конструктор реестра хранилищ" : "Private constructor of storage registry"),
             HintSingleLineBody = false,
             Visibility = ElementVisibilityClassic.Private
         };
@@ -74,7 +74,7 @@ public class StoragePackage: PackNS.Package
 
         var ctorStatic = new CSConstructor(clsStorageRegistry)
         {
-            DocComment = new XmlComment("Static constructor of storage registry"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Статический конструктор реестра хранилищ" : "Static constructor of storage registry"),
             HintSingleLineBody = true,
             Visibility = ElementVisibilityClassic.Private,
             IsStatic = true
@@ -85,9 +85,9 @@ public class StoragePackage: PackNS.Package
         foreach (var cls in classDescriptors)
         {
             var fieldName = $"_{NameHelper.NamesToCamelCase(cls.EntityDefinition.Names)}Storage";
-            var dotLocalName = NameHelper.GetLocalNameUpperCase(cls.EntityDefinition.Names);
+            var dotLocalName = NameHelper.GetLocalNameUpperCase(cls.EntityDefinition.Names, preferNaturalLanguageForComments);
             var storageClassName = $"{NameHelper.NamesToPascalCase(cls.EntityDefinition.Names)}Storage";
-            var storageComment = $"{dotLocalName} Storage";
+            var storageComment = preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? $"Хранилище {dotLocalName}" : $"{dotLocalName} Storage";
 
             // 1. Storage field
             var field = new CSClassField
@@ -117,12 +117,12 @@ public class StoragePackage: PackNS.Package
             clsStorageRegistry.Properties.Add(prop.Name, prop);
         }
 
-        const string c_singletonComment = "Singleton";
+        string singletonComment = preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Единственный экземпляр (Singleton)" : "Singleton";
 
         var fieldInstance = new CSClassField
         {
             Class = clsStorageRegistry,
-            DocComment = new XmlComment(c_singletonComment),
+            DocComment = new XmlComment(singletonComment),
             Name = "_instance",
             TypeKeyword = "StorageRegistry",
             Visibility = ElementVisibilityClassic.Private,
@@ -134,27 +134,27 @@ public class StoragePackage: PackNS.Package
         {
             PredefinedValue = "public static StorageRegistry Instance { get => _instance; }",
             Name = "Instance",
-            DocComment = new XmlComment(c_singletonComment)
+            DocComment = new XmlComment(singletonComment)
         };
         clsStorageRegistry.Properties.Add(instanceProp.Name, instanceProp);
 
         return storageRegistryComponent;
     }
 
-    public StoragePackage(ModelPackage parentPackage)
+    public StoragePackage(ModelPackage parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments)
         : base(parentPackage, "Storage")
     {
-        var mm = ParentPackage.ParentPackage.ParentPackage.DomainModel;
-        var dbMM = ParentPackage.ParentPackage.ParentPackage.DBbSchemaModel;
+        var domainModel = ParentPackage.ParentPackage.ParentPackage.DomainModel;
+        var dbModel = ParentPackage.ParentPackage.ParentPackage.DBbSchemaModel;
 
         var storageNamespace = string.Format("{0}.Model.Storage", ParentPackage.ParentPackage.RootNamespace);
 
         // For each definition of data object type create a component with a corresponding class
-        var entDefs = mm.AllEntityDefinitions.Values;
+        var entDefs = domainModel.AllEntityDefinitions.Values;
 
         foreach (var entDef in entDefs)
         {
-            var storageComponent = new Storage(this, entDef, ParentPackage.ParentPackage.RootNamespace, dbMM);
+            var storageComponent = new Storage(this, entDef, ParentPackage.ParentPackage.RootNamespace, dbModel, preferNaturalLanguageForComments);
             _components.Add(storageComponent.Name, storageComponent);
         }
 
@@ -170,7 +170,7 @@ public class StoragePackage: PackNS.Package
         var clsStorageRegistry = new CSClass
         {
             Component = storageRegistryComponent,
-            DocComment = new XmlComment("Object data storage registry"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Реестр хранилищ ОД" : "Object data storage registry"),
             Name = "StorageRegistry"
         };
         storageRegistryComponent.Classes.Add(clsStorageRegistry.Name, clsStorageRegistry);
@@ -185,11 +185,11 @@ public class StoragePackage: PackNS.Package
 
                 EntityDefinition? thisEntityDef = null;
 
-                foreach (var dotDef in mm.AllEntityDefinitions.Values)
+                foreach (var entityDef in domainModel.AllEntityDefinitions.Values)
                 {
-                    if (CSharpHelper.GenerateEntityClassName(dotDef) == className)
+                    if (CSharpHelper.GenerateEntityClassName(entityDef) == className)
                     {
-                        thisEntityDef = dotDef;
+                        thisEntityDef = entityDef;
                         break;
                     }
                 }
@@ -206,7 +206,7 @@ public class StoragePackage: PackNS.Package
 
         var ctor = new CSConstructor(clsStorageRegistry)
         {
-            DocComment = new XmlComment("Private constructor of storage registry"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Закрытый конструктор реестра хранилищ" : "Private constructor of storage registry"),
             HintSingleLineBody = false,
             Visibility = ElementVisibilityClassic.Private
         };
@@ -214,7 +214,7 @@ public class StoragePackage: PackNS.Package
 
         var ctorStatic = new CSConstructor(clsStorageRegistry)
         {
-            DocComment = new XmlComment("Static constructor of storage registry"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Статический конструктор реестра хранилищ" : "Static constructor of storage registry"),
             HintSingleLineBody = true,
             Visibility = ElementVisibilityClassic.Private,
             //AdditionalKeywords = "static"
@@ -227,9 +227,9 @@ public class StoragePackage: PackNS.Package
         {
             string
                 fieldName = string.Format("_{0}Storage", NameHelper.NamesToCamelCase(cls.EntityDefinition.Names)),
-                entityLocalizedName = NameHelper.GetLocalNameUpperCase(cls.EntityDefinition.Names),
+                entityLocalizedName = NameHelper.GetLocalNameUpperCase(cls.EntityDefinition.Names, preferNaturalLanguageForComments),
                 storageClassName = string.Format("{0}Storage", NameHelper.NamesToPascalCase(cls.EntityDefinition.Names)),
-                storageComment = string.Format("Хранилище {0}", entityLocalizedName);
+                storageComment = string.Format((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Хранилище {0}" : "{0} Storage"), entityLocalizedName);
 
             // 1. Storage field
             var field = new CSClassField
@@ -259,12 +259,12 @@ public class StoragePackage: PackNS.Package
             clsStorageRegistry.Properties.Add(prop.Name, prop);
         }
 
-        const string c_singletonComment = "Singleton";
+        string singletonComment = preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Единственный экземпляр (Singleton)" : "Singleton";
         
         var fieldInstance = new CSClassField
         {
             Class = clsStorageRegistry,
-            DocComment = new XmlComment(c_singletonComment),
+            DocComment = new XmlComment(singletonComment),
             Name = "_instance",
             TypeKeyword = "StorageRegistry",
             Visibility = ElementVisibilityClassic.Private,
@@ -277,7 +277,7 @@ public class StoragePackage: PackNS.Package
         {
             PredefinedValue = "public static StorageRegistry Instance { get { return _instance; } }",
             Name = "Instance",
-            DocComment = new XmlComment(c_singletonComment)
+            DocComment = new XmlComment(singletonComment)
         };
         clsStorageRegistry.Properties.Add(instanceProp.Name, instanceProp);
         #endregion

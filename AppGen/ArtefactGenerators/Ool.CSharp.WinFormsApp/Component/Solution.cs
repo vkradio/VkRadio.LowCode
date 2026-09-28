@@ -37,15 +37,15 @@ public class Solution : ComponentWPredefinedCode
         _emitUtf8Bom = true;
         var name = Domain.Names.NameHelper.NameToUnderscoreSeparatedName(rootPackage.DomainModel.Names);
         Name = name + ".sln";
-        string? vcRelPath = null;
+        string? svnRelPath = null;
 
-        if (!string.IsNullOrEmpty(generator.VersionControlWcRoot))
+        if (!string.IsNullOrEmpty(generator.Target.Project.SvnWcRootPath))
         {
-            vcRelPath = FileHelper.GetRelativePath(rootPackage.FullPath + "\\", generator.VersionControlWcRoot);
+            svnRelPath = FileHelper.GetRelativePath(rootPackage.FullPath + "\\", generator.Target.Project.SvnWcRootPath);
 
-            if (vcRelPath.Length > 0 && vcRelPath[vcRelPath.Length - 1] == '\\')
+            if (svnRelPath.Length > 0 && svnRelPath[svnRelPath.Length - 1] == '\\')
             {
-                vcRelPath = vcRelPath.Substring(0, vcRelPath.Length - 1);
+                svnRelPath = svnRelPath.Substring(0, svnRelPath.Length - 1);
             }
         }
 
@@ -54,7 +54,7 @@ public class Solution : ComponentWPredefinedCode
         _predefinedCode.Add($"# Visual Studio 14");
         _predefinedCode.Add($"VisualStudioVersion = 14.0.23107.0");
         _predefinedCode.Add($"MinimumVisualStudioVersion = 10.0.40219.1");
-        _predefinedCode.Add($"Project(\"{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}\") = \"{generator.OrmLibProjectName}\", \"{FileHelper.GetRelativePath(rootPackage.FullPath + "\\", generator.OrmLibProjectDir)}\\{generator.OrmLibProjectName}.csproj\", \"{{{ArtefactGeneratorCSharpClassic.C_ORMLIB_PROJECT_GUID_STRING}}}\"");
+        _predefinedCode.Add($"Project(\"{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}\") = \"{generator.OrmLibProjectName}\", \"{FileHelper.GetRelativePath(rootPackage.FullPath + "\\", generator.OrmLibProjectDir)}\", \"{{{ArtefactGeneratorCSharpClassic.C_ORMLIB_PROJECT_GUID_STRING}}}\"");
         _predefinedCode.Add($"EndProject");
         //if (in_rootPackage.Generator.Target.IsDependantOnSQLite)
         //{
@@ -84,7 +84,7 @@ public class Solution : ComponentWPredefinedCode
         _predefinedCode.Add($"\t\tHideSolutionNode = FALSE");
         _predefinedCode.Add($"\tEndGlobalSection");
         _predefinedCode.Add($"\tGlobalSection(ExtensibilityGlobals) = postSolution");
-        _predefinedCode.Add($"\t\tVisualSVNWorkingCopyRoot = {vcRelPath}");
+        _predefinedCode.Add($"\t\tVisualSVNWorkingCopyRoot = {svnRelPath}");
         _predefinedCode.Add($"\tEndGlobalSection");
         _predefinedCode.Add($"EndGlobal");
     }

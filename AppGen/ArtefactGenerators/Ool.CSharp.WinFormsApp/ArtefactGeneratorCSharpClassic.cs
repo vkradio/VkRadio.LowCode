@@ -3,6 +3,7 @@ using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.Core;
 using VkRadio.LowCode.AppGen.Domain;
+using VkRadio.LowCode.AppGen.Domain.Names;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp;
 
@@ -15,10 +16,9 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
     const string c_defaultDotNetProfile = "Client"; // Profile is used only if there is no <DotNetVersion> element.
                                                     // If it exists, but does not contain an inner <Profile> element,
                                                     // then profile is set to null
-    string _ormLibProjectFilePath;
-    string _ormLibProjectName;
     string _dotNetVersion;
     string? _dotNetProfile;
+    NaturalLanguageEnum _preferNaturalLanguageForComments = NaturalLanguageEnum.En;
 
     public ArtefactGeneratorCSharpClassic(ArtefactTypeEnum type, DomainModel domainModel, Target target)
         : base(type, domainModel, target)
@@ -31,19 +31,19 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
 
     public string? SQLiteProjectFullPath => null;
 
-    public string OrmLibProjectDir => _ormLibProjectFilePath;
+    public string OrmLibProjectDir { get; private set; }
 
     /// <summary>
     /// Ormlib project name without any .csproj extension and path (as displayed in VS solution tree)
     /// </summary>
     public string OrmLibProjectName { get; private set; }
 
-    public string VersionControlWcRoot { get; private set; }
+    public bool PutSimilarArtefactsToSingleFile { get; private set; }
 
     public override string? Generate()
     {
         // Create model of package of C# source code, based on database schema model.
-        var solution = new CSharpSolution(this, ((ArtefactGeneratorSql)MsSqlTarget.ArtefactGenerator).DBSchemaMetaModel);
+        var solution = new CSharpSolution(this, ((ArtefactGeneratorSql)MsSqlTarget.ArtefactGenerator).DBSchemaMetaModel, _preferNaturalLanguageForComments);
         solution.Init();
 
         // Generate artefacts.
@@ -84,29 +84,42 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
         #endregion
 
         #region Initialize path to ormlib
-        var ormProjectFileName = "orm_" + _dotNetVersion;
+        OrmLibProjectName = "orm_" + _dotNetVersion;
 
         if (!string.IsNullOrEmpty(_dotNetProfile))
         {
-            ormProjectFileName += "_" + _dotNetProfile;
+            OrmLibProjectName += "_" + _dotNetProfile;
         }
 
-        _ormLibProjectName = ormProjectFileName;
-
-        ormProjectFileName += ".csproj";
+        var ormProjectFileName = OrmLibProjectName + ".csproj";
 
         if (xelTarget.Element("OrmLibProjectDir") is null)
         {
             throw new GeneratorException("C# Target has no <OrmLibProjectDir> value");
         }
 
-        _ormLibProjectFilePath = Path.Combine(_target.Project.ProjectRootPath, xelTarget.Element("OrmLibProjectDir")!.Value, ormProjectFileName);
+        OrmLibProjectDir = Path.Combine(_target.Project.ProjectRootPath, xelTarget.Element("OrmLibProjectDir")!.Value, ormProjectFileName);
 
-        if (!File.Exists(_ormLibProjectFilePath))
+        if (!File.Exists(OrmLibProjectDir))
         {
-            throw new GeneratorException($"File \"{_ormLibProjectFilePath}\" not exists");
+            throw new GeneratorException($"File \"{OrmLibProjectDir}\" not exists");
         }
         #endregion
+
+        var xelCommentLanguage = xelTarget.Element("PreferNaturalLanguageForComments");
+
+        if (xelCommentLanguage is not null &&
+            Enum.TryParse<NaturalLanguageEnum>(xelCommentLanguage.Value ?? string.Empty, true, out var parsedLang))
+        {
+            _preferNaturalLanguageForComments = parsedLang;
+        }
+
+        var xelPutSimilarArtefactsToSingleFile = xelTarget.Element("PutSimilarArtefactsToSingleFile");
+
+        if (xelPutSimilarArtefactsToSingleFile is not null && bool.TryParse(xelPutSimilarArtefactsToSingleFile.Value ?? string.Empty, out var parsedSingleFile))
+        {
+            PutSimilarArtefactsToSingleFile = parsedSingleFile;
+        }
     }
 
     public Target MsSqlTarget => Target

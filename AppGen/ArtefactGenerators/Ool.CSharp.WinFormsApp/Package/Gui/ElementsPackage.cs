@@ -1,4 +1,5 @@
-﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Component;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class;
@@ -36,14 +37,15 @@ public class ElementsPackage : PackNS.Package
         List<CSharpHelper.PropertyWidgetDescriptor> clearProps,
         List<CSharpHelper.PropertyWidgetDescriptor> selectProps,
         List<CSharpHelper.PropertyWidgetDescriptor> cardProps,
-        List<CSharpHelper.PropertyWidgetDescriptor> listProps
+        List<CSharpHelper.PropertyWidgetDescriptor> listProps,
+        NaturalLanguageEnum preferNaturalLanguageForComments
     )
     {
         var wDescs = new List<CSharpHelper.PropertyWidgetDescriptor>();
 
         var ctor = new CSConstructor(cSharpClass)
         {
-            DocComment = new XmlComment("Constructor of a view/edit card of a data object"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Конструктор панели редактирования/просмотра объекта данных" : "Constructor of a view/edit card of a data object"),
             Visibility = ElementVisibilityClassic.Public
         };
         cSharpClass.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
@@ -53,7 +55,7 @@ public class ElementsPackage : PackNS.Package
         
         foreach (var propDef in entityDef.PropertyDefinitions.Values)
         {
-            var wDesc = CSharpHelper.GenerateWidgetDescForProperty(propDef);
+            var wDesc = CSharpHelper.GenerateWidgetDescForProperty(propDef, preferNaturalLanguageForComments);
             wDescs.Add(wDesc);
 
             if (!(propDef.FunctionalType is PFTLink))
@@ -68,7 +70,7 @@ public class ElementsPackage : PackNS.Package
                 }
                 else
                 {
-                    throw new ApplicationException(string.Format("Unsupported widget prefix (name: {0}).", wDesc.WidgetName));
+                    throw new GeneratorException(string.Format("Unsupported widget prefix (name: {0}).", wDesc.WidgetName));
                 }
             }
             else
@@ -100,13 +102,13 @@ public class ElementsPackage : PackNS.Package
         return wDescs;
     }
 
-    private static void GenerateMethodSyncFromEntity(CSClass cSharpClass, EntityDefinition entityDef, List<CSharpHelper.PropertyWidgetDescriptor> widgetDescs)
+    private static void GenerateMethodSyncFromEntity(CSClass cSharpClass, EntityDefinition entityDef, List<CSharpHelper.PropertyWidgetDescriptor> widgetDescs, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         var method = new CSMethod
         {
             AdditionalKeywords = "override",
             Class = cSharpClass,
-            DocComment = new XmlComment("Synchronize widget content from object data"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Синхронизация виджета из данных объекта" : "Synchronize widget content from object data"),
             Name = "SyncFromDOT",
             ReturnType = "void",
             Visibility = ElementVisibilityClassic.Public
@@ -149,18 +151,18 @@ public class ElementsPackage : PackNS.Package
             }
             else
             {
-                throw new ApplicationException(string.Format("Unsupported widget prefix (name: {0}).", wDesc.WidgetName));
+                throw new GeneratorException(string.Format("Unsupported widget prefix (name: {0}).", wDesc.WidgetName));
             }
         }
     }
 
-    private static void GenerateMethodSyncToEntity(CSClass cSharpClass, EntityDefinition entityDef, List<CSharpHelper.PropertyWidgetDescriptor> widgetDescs)
+    private static void GenerateMethodSyncToEntity(CSClass cSharpClass, EntityDefinition entityDef, List<CSharpHelper.PropertyWidgetDescriptor> widgetDescs, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         var method = new CSMethod
         {
             AdditionalKeywords = "override",
             Class = cSharpClass,
-            DocComment = new XmlComment("Synchronize widget content from object data"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Синхронизация виджета из данных объекта" : "Synchronize widget content from object data"),
             Name = "SyncToDOT",
             ReturnType = "string",
             Visibility = ElementVisibilityClassic.Public
@@ -213,7 +215,7 @@ public class ElementsPackage : PackNS.Package
                 }
                 else
                 {
-                    throw new ApplicationException(string.Format("Unsupported typeName: {0}.", typeName ?? "NULL"));
+                    throw new GeneratorException(string.Format("Unsupported typeName: {0}.", typeName ?? "NULL"));
                 }
 
                 var gettingMethod = string.Format(
@@ -221,7 +223,7 @@ public class ElementsPackage : PackNS.Package
                     typeNameForMethod,
                     isNullable ? "Nullable" : string.Empty,
                     !isNullable && typeNameForMethod != "String"
-                        ? string.Format("o.{0}", wDesc.PropertyName)
+                        ? string.Format("o.{0}", NameHelper.EncodeCSharpText(wDesc.PropertyName))
                         : string.Empty
                 );
 
@@ -251,7 +253,7 @@ public class ElementsPackage : PackNS.Package
         method.BodyStrings.Add("return null;");
     }
 
-    private static void GenerateMethodsForClearProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> clearProps)
+    private static void GenerateMethodsForClearProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> clearProps, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         var entityClassName = clearProps.Count != 0
             ? NameHelper.NamesToPascalCase(clearProps[0].PropertyDefinition.OwnerDefinition.Names)
@@ -262,7 +264,7 @@ public class ElementsPackage : PackNS.Package
             var method = new CSMethod
             {
                 Class = cSharpClass,
-                DocComment = new XmlComment(string.Format("Clear properties of {0}", NameHelper.GetStringSuitableToXmlText(wDesc.WidgetCaption))),
+                DocComment = new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Очистка свойства {0}" : "Clear properties of {0}", wDesc.WidgetCaption)),
                 Name = string.Format(string.Format("ClearValue{0}", wDesc.PropertyName)),
                 ReturnType = "void",
                 Visibility = ElementVisibilityClassic.Private
@@ -275,7 +277,7 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    private static void GenerateMethodsForSelectProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> selectProps)
+    private static void GenerateMethodsForSelectProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> selectProps, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         var entityClassName = selectProps.Count != 0
             ? NameHelper.NamesToPascalCase(selectProps[0].PropertyDefinition.OwnerDefinition.Names)
@@ -286,7 +288,7 @@ public class ElementsPackage : PackNS.Package
             var method = new CSMethod
             {
                 Class = cSharpClass,
-                DocComment = new XmlComment(string.Format("Select value of {0}", NameHelper.GetStringSuitableToXmlText(wDesc.WidgetCaption))),
+                DocComment = new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Выбор значения свойства {0}" : "Select value of {0}", wDesc.WidgetCaption)),
                 Name = string.Format(string.Format("SelectValue{0}", wDesc.PropertyName)),
                 ReturnType = "void",
                 Visibility = ElementVisibilityClassic.Private
@@ -315,7 +317,7 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    private static void GenerateMethodsForQuickSelectProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> selectProps)
+    private static void GenerateMethodsForQuickSelectProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> selectProps, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         var entityClassName = selectProps.Count != 0
             ? NameHelper.NamesToPascalCase(selectProps[0].PropertyDefinition.OwnerDefinition.Names)
@@ -326,7 +328,7 @@ public class ElementsPackage : PackNS.Package
             var method = new CSMethod
             {
                 Class = cSharpClass,
-                DocComment = new XmlComment(string.Format("Quick select values of property {0}", NameHelper.GetStringSuitableToXmlText(wDesc.WidgetCaption))),
+                DocComment = new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Быстрый выбор значения свойства {0}" : "Quick select values of property {0}", wDesc.WidgetCaption)),
                 Name = string.Format(string.Format("QuickSelectValue{0}", wDesc.PropertyName)),
                 ReturnType = "void",
                 Visibility = ElementVisibilityClassic.Private
@@ -354,7 +356,7 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    private static void GenerateMethodsForQuickSelectPropsMIClick(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> selectProps)
+    private static void GenerateMethodsForQuickSelectPropsMIClick(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> selectProps, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         var entityClassName = selectProps.Count != 0
             ? NameHelper.NamesToPascalCase(selectProps[0].PropertyDefinition.OwnerDefinition.Names)
@@ -365,7 +367,7 @@ public class ElementsPackage : PackNS.Package
             var method = new CSMethod
             {
                 Class = cSharpClass,
-                DocComment = new XmlComment(string.Format("Quick select values of property {0} - click a menu item", NameHelper.GetStringSuitableToXmlText(wDesc.WidgetCaption))),
+                DocComment = new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Быстрый выбор значения свойства {0} - нажатие пункта меню" : "Quick select values of property {0} - click a menu item", wDesc.WidgetCaption)),
                 Name = string.Format(string.Format("MI_QuickSelectValue{0}_Click", wDesc.PropertyName)),
                 ReturnType = "void",
                 Visibility = ElementVisibilityClassic.Private
@@ -408,7 +410,7 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    private static void GenerateMethodsForListProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> listProps)
+    private static void GenerateMethodsForListProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> listProps, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         var entityClassName = listProps.Count != 0
             ? NameHelper.NamesToPascalCase(listProps[0].PropertyDefinition.OwnerDefinition.Names)
@@ -419,7 +421,7 @@ public class ElementsPackage : PackNS.Package
             var method = new CSMethod
             {
                 Class = cSharpClass,
-                DocComment = new XmlComment(string.Format("View a table part of a property {0}", NameHelper.GetStringSuitableToXmlText(wDesc.WidgetCaption))),
+                DocComment = new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Просмотр табличной части свойства {0}" : "View a table part of a property {0}", wDesc.WidgetCaption)),
                 Name = string.Format(string.Format("ListValue{0}", wDesc.PropertyName)),
                 ReturnType = "void",
                 Visibility = ElementVisibilityClassic.Private
@@ -442,7 +444,7 @@ public class ElementsPackage : PackNS.Package
                 }
                 else
                 {
-                    throw new ApplicationException(string.Format("Unsupported PropertyFunctionalType {0} for list (PropertyDefinition Id {1}).", wDesc.PropertyDefinition.FunctionalType.GetType().Name, wDesc.PropertyDefinition.Id));
+                    throw new GeneratorException(string.Format("Unsupported PropertyFunctionalType {0} for list (PropertyDefinition Id {1}).", wDesc.PropertyDefinition.FunctionalType.GetType().Name, wDesc.PropertyDefinition.Id));
                 }
             }
 
@@ -456,7 +458,7 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    private static void GenerateMethodsForCardProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> cardProps)
+    private static void GenerateMethodsForCardProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> cardProps, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         var entityClassName = cardProps.Count != 0
             ? NameHelper.NamesToPascalCase(cardProps[0].PropertyDefinition.OwnerDefinition.Names)
@@ -467,7 +469,7 @@ public class ElementsPackage : PackNS.Package
             var method = new CSMethod
             {
                 Class = cSharpClass,
-                DocComment = new XmlComment(string.Format("View details of a property {0}", NameHelper.GetStringSuitableToXmlText(wDesc.WidgetCaption))),
+                DocComment = new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Просмотр подробностей свойства {0}" : "View details of a property {0}", wDesc.WidgetCaption)),
                 Name = string.Format(string.Format("Card{0}", wDesc.PropertyName)),
                 ReturnType = "void",
                 Visibility = ElementVisibilityClassic.Private
@@ -529,7 +531,7 @@ public class ElementsPackage : PackNS.Package
             predefinedCode.Add("            // ");
             predefinedCode.Add(string.Format("            // {0}", wDesc.WidgetName));
             predefinedCode.Add("            // ");
-            predefinedCode.Add(string.Format("            this.{0}.{1} = \"{2}\";", wDesc.WidgetName, captionPropName, NameHelper.GetStringSuitableToCSharp(wDesc.WidgetCaption)));
+            predefinedCode.Add(string.Format("            this.{0}.{1} = \"{2}\";", wDesc.WidgetName, captionPropName, NameHelper.EncodeCSharpText(wDesc.WidgetCaption)));
 
             if (wDesc.WidgetName.IndexOf("SEL_") == 0)
             {
@@ -579,7 +581,7 @@ public class ElementsPackage : PackNS.Package
     }
     #endregion
 
-    public ElementsPackage(GuiPackage parentPackage)
+    public ElementsPackage(GuiPackage parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments)
         : base(parentPackage, "Elements")
     {
         var mm = ParentPackage.ParentPackage.ParentPackage.DomainModel;
@@ -614,7 +616,7 @@ public class ElementsPackage : PackNS.Package
             var panClass = new CSClass
             {
                 Component = panComponent,
-                DocComment = new XmlComment("Panel (card) for editing an object " + NameHelper.GetLocalNameUpperCase(entityDef.Names)),
+                DocComment = new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Панель (карточка) редактирования объекта " : "Panel (card) for editing an object ") + NameHelper.GetLocalNameUpperCase(entityDef.Names, preferNaturalLanguageForComments)),
                 Name = formName,
                 InheritsFrom = "DOEditPanel",
                 Partial = true
@@ -629,21 +631,21 @@ public class ElementsPackage : PackNS.Package
                 listProps = [];
 
             // 1. Generate constructor
-            List<CSharpHelper.PropertyWidgetDescriptor> wDescs = GenerateConstructor(panClass, entityDef, clearProps, selectProps, cardProps, listProps);
+            List<CSharpHelper.PropertyWidgetDescriptor> wDescs = GenerateConstructor(panClass, entityDef, clearProps, selectProps, cardProps, listProps, preferNaturalLanguageForComments);
 
             // 2. Generate method SyncFromDOT
-            GenerateMethodSyncFromEntity(panClass, entityDef, wDescs);
+            GenerateMethodSyncFromEntity(panClass, entityDef, wDescs, preferNaturalLanguageForComments);
 
             // 3. Generate method SyncToDOT
-            GenerateMethodSyncToEntity(panClass, entityDef, wDescs);
+            GenerateMethodSyncToEntity(panClass, entityDef, wDescs, preferNaturalLanguageForComments);
 
             // 4. Generate methods for work with reference properties
-            GenerateMethodsForClearProps(panClass, clearProps);
-            GenerateMethodsForSelectProps(panClass, selectProps);
-            GenerateMethodsForQuickSelectProps(panClass, selectProps);
-            GenerateMethodsForQuickSelectPropsMIClick(panClass, selectProps);
-            GenerateMethodsForListProps(panClass, listProps);
-            GenerateMethodsForCardProps(panClass, cardProps);
+            GenerateMethodsForClearProps(panClass, clearProps, preferNaturalLanguageForComments);
+            GenerateMethodsForSelectProps(panClass, selectProps, preferNaturalLanguageForComments);
+            GenerateMethodsForQuickSelectProps(panClass, selectProps, preferNaturalLanguageForComments);
+            GenerateMethodsForQuickSelectPropsMIClick(panClass, selectProps, preferNaturalLanguageForComments);
+            GenerateMethodsForListProps(panClass, listProps, preferNaturalLanguageForComments);
+            GenerateMethodsForCardProps(panClass, cardProps, preferNaturalLanguageForComments);
             #endregion
 
             #region *.Designer component

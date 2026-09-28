@@ -14,7 +14,12 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Compo
 
 public class Storage : CSComponentWMainClass
 {
-    private static List<CSClassConstant> GenerateFieldConstants(TableAndEntityCorrespondence tableAndEntityCorrespondence, CSClass storageClass, List<int> decimalConstants)
+    private static List<CSClassConstant> GenerateFieldConstants(
+        TableAndEntityCorrespondence tableAndEntityCorrespondence,
+        CSClass storageClass,
+        List<int> decimalConstants,
+        NaturalLanguageEnum preferNaturalLanguageForComments
+    )
     {
         var result = new List<CSClassConstant>();
 
@@ -43,7 +48,12 @@ public class Storage : CSComponentWMainClass
             var c = new CSClassConstant("string", ElementVisibilityClassic.Public, true)
             {
                 Class = storageClass,
-                DocComment = new XmlComment(string.Format("Table field {0} (variant without quot chars)", NameHelper.GetLocalNameUpperCase(field.EntityPropertyCorrespondence.PropertyDefinition.Names))),
+                DocComment = new XmlComment(string.Format(
+                    preferNaturalLanguageForComments == NaturalLanguageEnum.Ru
+                        ? "Табличное поле {0} (вариант без кавычек)"
+                        : "Table field {0} (variant without quot chars)",
+                    NameHelper.GetLocalNameUpperCase(field.EntityPropertyCorrespondence.PropertyDefinition.Names, preferNaturalLanguageForComments)
+                )),
                 Name = string.Format("{0}{1}", NameHelper.NameToConstant(field.EntityPropertyCorrespondence.PropertyDefinition.Names, false), fk != null ? "_ID" : string.Empty),
                 Value = string.Format("\"{0}\"", field.Name)
             };
@@ -53,7 +63,12 @@ public class Storage : CSComponentWMainClass
             c = new CSClassConstant("string", ElementVisibilityClassic.Public, true)
             {
                 Class = storageClass,
-                DocComment = new XmlComment(string.Format("Table field {0} (variant with quot chars)", NameHelper.GetLocalNameUpperCase(field.EntityPropertyCorrespondence.PropertyDefinition.Names))),
+                DocComment = new XmlComment(string.Format(
+                    preferNaturalLanguageForComments == NaturalLanguageEnum.Ru
+                        ? "Табличное поле {0} (вариант с кавычками)"
+                        : "Table field {0} (variant with quot chars)",
+                    NameHelper.GetLocalNameUpperCase(field.EntityPropertyCorrespondence.PropertyDefinition.Names, preferNaturalLanguageForComments)
+                )),
                 Name = string.Format("{0}{1}_Q", NameHelper.NameToConstant(field.EntityPropertyCorrespondence.PropertyDefinition.Names, false), fk != null ? "_ID" : string.Empty),
                 Value = string.Format("\"\\\"{0}\\\"\"", field.Name)
             };
@@ -87,13 +102,14 @@ public class Storage : CSComponentWMainClass
         string storageClassName,
         EntityDefinition entityDef,
         TableAndEntityCorrespondence tableAndDotCorrespondence,
-        List<int> decimalConstants
+        List<int> decimalConstants,
+        NaturalLanguageEnum preferNaturalLanguageForComments
     )
     {
         var ctor = new CSConstructor(storageClass)
         {
             Class = storageClass,
-            DocComment = new XmlComment("Storage constructor"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Конструктор хранилища" : "Storage constructor"),
             HintSingleLineBody = false,
             Visibility = ElementVisibilityClassic.Public
         };
@@ -191,14 +207,14 @@ public class Storage : CSComponentWMainClass
         #endregion
     }
     
-    private static void GenerateFillDOFromReader(CSClass storageClass, string dotClassName, TableAndEntityCorrespondence tableAndDotCorrespondence)
+    private static void GenerateFillDOFromReader(CSClass storageClass, string dotClassName, TableAndEntityCorrespondence tableAndDotCorrespondence, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         #region Method heading
         var method = new CSMethod
         {
             AdditionalKeywords = "override",
             Class = storageClass,
-            DocComment = new XmlComment("Fill data object properties from DbDataReader"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Заполнение свойств ОД из DbDataReader" : "Fill data object properties from DbDataReader"),
             HintSingleLineBody = false,
             IsStatic = false,
             Name = "FillDOFromReader",
@@ -297,14 +313,14 @@ public class Storage : CSComponentWMainClass
         }
     }
 
-    private static void GenerateFillParameters(CSClass storageClass, string entityClassName, TableAndEntityCorrespondence tableAndEntityCorrespondence)
+    private static void GenerateFillParameters(CSClass storageClass, string entityClassName, TableAndEntityCorrespondence tableAndEntityCorrespondence, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         #region Method heading
         var method = new CSMethod
         {
             AdditionalKeywords = "override",
             Class = storageClass,
-            DocComment = new XmlComment("Fill parameters for writing the state of a data object to a database"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Заполнение параметров для записи состояния ОД в БД" : "Fill parameters for writing the state of a data object to a database"),
             HintSingleLineBody = false,
             IsStatic = false,
             Name = "FillParameters",
@@ -363,7 +379,7 @@ public class Storage : CSComponentWMainClass
         }
     }
 
-    private static void GenerateRestoreByNameMethod(CSClass storageClass, string entityClassName, TableAndEntityCorrespondence tableAndEntityCorrespondence)
+    private static void GenerateRestoreByNameMethod(CSClass storageClass, string entityClassName, TableAndEntityCorrespondence tableAndEntityCorrespondence, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         // 1. Detect do the data object type has a field that corresponds to its name
         var candidate = tableAndEntityCorrespondence
@@ -390,11 +406,11 @@ public class Storage : CSComponentWMainClass
         var propName = NameHelper.NamesToPascalCase(candidate.PropertyDefinition.Names, false);
         var constName = NameHelper.NameToConstant(candidate.PropertyDefinition.Names, false) + "_Q";
         var isSingle = candidate.PropertyDefinition.FunctionalType.Unique;
-        var nameHuman = candidate.PropertyDefinition.Names[NaturalLanguageEnum.Ru][..1].ToUpper();
+        var nameHuman = candidate.PropertyDefinition.Names[preferNaturalLanguageForComments][..1].ToUpper();
 
-        if (candidate.PropertyDefinition.Names[NaturalLanguageEnum.Ru].Length > 1)
+        if (candidate.PropertyDefinition.Names[preferNaturalLanguageForComments].Length > 1)
         {
-            nameHuman += candidate.PropertyDefinition.Names[NaturalLanguageEnum.Ru][1..];
+            nameHuman += candidate.PropertyDefinition.Names[preferNaturalLanguageForComments][1..];
         }
 
         var method = new CSMethod
@@ -404,7 +420,11 @@ public class Storage : CSComponentWMainClass
             ReturnType = isSingle ? entityClassName : $"List<{entityClassName}>",
             Class = storageClass,
             Name = $"ReadBy{NameHelper.NamesToPascalCase(candidate.PropertyDefinition.Names)}",
-            DocComment = new XmlComment($"Reading {(isSingle ? "object" : "collection of objects")} by a value of a property {nameHuman.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;").Replace("\"", "&quot;").Replace("\'", "&apos;")}"),
+            DocComment = new XmlComment(
+                preferNaturalLanguageForComments == NaturalLanguageEnum.Ru
+                ? $"Чтение {(isSingle ? "объекта" : "коллекции объектов")} по значению свойства {nameHuman}"
+                : $"Reading {(isSingle ? "object" : "collection of objects")} by a value of a property {nameHuman}"
+            ),
             HintSingleLineBody = false,
             IsStatic = false
         };
@@ -438,7 +458,7 @@ public class Storage : CSComponentWMainClass
         method.BodyStrings.Add($"return result{(isSingle ? ".Count != 0 ? result[0] : null" : string.Empty)};");
     }
 
-    public static CSClass CreateStorageClass(CSComponent component, EntityDefinition entityDefinition, DBSchemaDomainModel dbModel)
+    public static CSClass CreateStorageClass(CSComponent component, EntityDefinition entityDefinition, DBSchemaDomainModel dbModel, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         var entityClassName = CSharpHelper.GenerateEntityClassName(entityDefinition);
         var storageClassName = entityClassName + "Storage";
@@ -447,7 +467,7 @@ public class Storage : CSComponentWMainClass
         var storageClass = new CSClass
         {
             Component = component,
-            DocComment = new XmlComment("Storage of objects " + NameHelper.GetLocalNameUpperCase(correspondence.EntityDefinition.Names)),
+            DocComment = new XmlComment("Storage of objects " + NameHelper.GetLocalNameUpperCase(correspondence.EntityDefinition.Names, preferNaturalLanguageForComments)),
             Name = storageClassName,
             InheritsFrom = $"DOStorage<{storageClassName}, {entityClassName}>",
             Partial = true
@@ -456,24 +476,24 @@ public class Storage : CSComponentWMainClass
 
         // Create constants corresponding to table fields
         var decimalConstants = new List<int>();
-        var fieldConstants = GenerateFieldConstants(correspondence, storageClass, decimalConstants);
+        var fieldConstants = GenerateFieldConstants(correspondence, storageClass, decimalConstants, preferNaturalLanguageForComments);
 
         // Create constructor
-        GenerateConstructor(fieldConstants, storageClass, entityClassName, storageClassName, entityDefinition, correspondence, decimalConstants);
+        GenerateConstructor(fieldConstants, storageClass, entityClassName, storageClassName, entityDefinition, correspondence, decimalConstants, preferNaturalLanguageForComments);
 
         // FillDOFromReader method
-        GenerateFillDOFromReader(storageClass, entityClassName, correspondence);
+        GenerateFillDOFromReader(storageClass, entityClassName, correspondence, preferNaturalLanguageForComments);
 
         // FillParameters method
-        GenerateFillParameters(storageClass, entityClassName, correspondence);
+        GenerateFillParameters(storageClass, entityClassName, correspondence, preferNaturalLanguageForComments);
 
         // RestoreByName method, if applicable
-        GenerateRestoreByNameMethod(storageClass, entityClassName, correspondence);
+        GenerateRestoreByNameMethod(storageClass, entityClassName, correspondence, preferNaturalLanguageForComments);
 
         return storageClass;
     }
 
-    public Storage(StoragePackage parentPackage, EntityDefinition entityDefinition, string rootNamespace, DBSchemaDomainModel dbModel)
+    public Storage(StoragePackage parentPackage, EntityDefinition entityDefinition, string rootNamespace, DBSchemaDomainModel dbModel, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         var entityClassName = CSharpHelper.GenerateEntityClassName(entityDefinition);
         var storageClassName = entityClassName + "Storage";
@@ -490,7 +510,7 @@ public class Storage : CSComponentWMainClass
         //UserUsings.Add("orm.Util");
         UserUsings.Add($"{rootNamespace}.Model.DOT");
 
-        var storageClass = CreateStorageClass(this, entityDefinition, dbModel);
+        var storageClass = CreateStorageClass(this, entityDefinition, dbModel, preferNaturalLanguageForComments);
         MainClass = storageClass;
     }
 }

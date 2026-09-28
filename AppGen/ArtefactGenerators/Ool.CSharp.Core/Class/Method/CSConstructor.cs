@@ -4,7 +4,7 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method
 
 public class CSConstructor : CSMethod
 {
-    public CSConstructor(CSClass @class) => _name = @class.Name;
+    public CSConstructor(CSClass cSharpClass) => _name = cSharpClass.Name;
 
     protected override string GenerateMethodNameString()
     {

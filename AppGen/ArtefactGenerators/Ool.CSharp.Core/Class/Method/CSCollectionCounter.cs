@@ -8,7 +8,7 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method
 
 public class CSCollectionCounter : CSMethod
 {
-    public static CSCollectionCounter Instantiate(CSClass cSharpClass, PropertyDefinition propDef)
+    public static CSCollectionCounter Instantiate(CSClass cSharpClass, PropertyDefinition propDef, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         if (!(propDef.FunctionalType is PFTBackReferencedTable || propDef.FunctionalType is PFTTablePart))
         {
@@ -21,14 +21,14 @@ public class CSCollectionCounter : CSMethod
         var counter = new CSCollectionCounter
         {
             _class = cSharpClass,
-            _docComment = TypeHelper.GetXmlCommentForTablePropDef(propDef),
+            _docComment = TypeHelper.GetXmlCommentForTablePropDef(propDef, preferNaturalLanguageForComments),
             _name = "Get" + basePropName + "Count",
             ReturnType = "int",
             AdditionalKeywords = "virtual",
             _hintSingleLineBody = true,
             _visibility = ElementVisibilityClassic.Public
         };
-        counter.DocComment.Text += " (count an amount of objects)";
+        counter.DocComment.Text += preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? " (подсчет количества объектов)" : " (count an amount of objects)";
 
         var param = new CSParameter
         {
