@@ -1,4 +1,4 @@
-﻿namespace VkRadio.Orm.Util;
+﻿namespace VkRadio.LowCode.Libs.Utils;
 
 public static class Transliteration
 {

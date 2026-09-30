@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 
-namespace VkRadio.LowCode.Orm
+namespace VkRadio.LowCode.Libs.Orm
 {
     /// <summary>
     /// Data Object Storage interface

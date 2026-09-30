@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36811.4
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orm", "Orm\Orm\Orm.csproj", "{E119063B-1D04-40A7-AC7A-4883B1598CDF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orm", "Libs\Orm\Orm.csproj", "{E119063B-1D04-40A7-AC7A-4883B1598CDF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orm.MsSql", "Orm\Orm.MsSql\Orm.MsSql.csproj", "{0ADB8030-DFF0-4DE9-82E1-D2266C5559ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Orm.MsSql", "Libs\Orm.MsSql\Orm.MsSql.csproj", "{0ADB8030-DFF0-4DE9-82E1-D2266C5559ED}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{AB55C6B3-B082-4AB3-8C62-706831F1CBB4}"
 	ProjectSection(SolutionItems) = preProject
@@ -32,9 +32,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AppGen", "AppGen", "{02EA68
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ArtefactGenerators", "ArtefactGenerators", "{D2BC3302-B796-4AEC-94A6-3993F0F27CF4}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Orm", "Orm", "{15553E11-5117-4E8E-BDE1-BF03B37C4339}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libs", "Libs", "{15553E11-5117-4E8E-BDE1-BF03B37C4339}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Orm.Util", "Orm\Orm.Util\Orm.Util.csproj", "{07AB3A13-69B9-476A-8E87-687DC065EF7B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils", "Libs\Utils\Utils.csproj", "{07AB3A13-69B9-476A-8E87-687DC065EF7B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

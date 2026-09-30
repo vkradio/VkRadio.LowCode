@@ -5,7 +5,7 @@ using System.Data;
 using System.Data.Common;
 using System.Globalization;
 
-namespace VkRadio.LowCode.Orm.MsSql;
+namespace VkRadio.LowCode.Libs.Orm.MsSql;
 
 public class SqlClientFactory : DbProviderFactory
 {
@@ -83,17 +83,16 @@ public class SqlClientFactory : DbProviderFactory
 
         if (exception is SqlException exSql)
         {
-#pragma warning disable CA1307 // Specify StringComparison for clarity
             if (exSql.Message.Contains("UNIQUE KEY constraint"))
-#pragma warning restore CA1307 // Specify StringComparison for clarity
             {
                 var indexOfBegin = exSql.Message.IndexOf('\'', 0) + 1;
                 var indexOfEnd = exSql.Message.IndexOf('\'', indexOfBegin);
-                var uniqueIndexName = exSql.Message[indexOfBegin..indexOfEnd];
+                var uniqueIndexName = exSql.Message.Substring(indexOfBegin, indexOfEnd - indexOfBegin);
                 // Example (for CRUD generated naming only): Let we have a table called sp_vendor and it has a field containing unique
                 // values called web_site_or_name, then constructed index will be called ux_sp_vendor_web_site_or_name.
-                var fieldName = uniqueIndexName[$"ux_{tableName}_".Length..];
+                var fieldName = uniqueIndexName.Substring($"ux_{tableName}_".Length);
                 var fieldIndex = -1;
+
                 for (var i = 0; i < tableFieldDbNames.Length; i++)
                 {
                     if (fieldName == tableFieldDbNames[i])
@@ -102,9 +101,14 @@ public class SqlClientFactory : DbProviderFactory
                         break;
                     }
                 }
+
                 var fieldNameHuman = tableFieldHumanNames[fieldIndex].Substring(0, 1).ToUpper(CultureInfo.CurrentCulture);
+
                 if (tableFieldHumanNames[fieldIndex].Length > 1)
-                    fieldNameHuman += tableFieldHumanNames[fieldIndex][1..];
+                {
+                    fieldNameHuman += tableFieldHumanNames[fieldIndex].Substring(1);
+                }
+
                 return fieldNameHuman;
             }
             else

@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>VkRadio.LowCode.Libs.Utils</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>vkradio</Authors>
+    <Description>Miscellaneous utils used in VkRadio.LowCode toolset or in dependent app projects</Description>
+    <PackageProjectUrl>https://github.com/vkradio/VkRadio.LowCode/tree/main/Libs.Utils</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/vkradio/VkRadio.LowCode</RepositoryUrl>
+    <PackageTags>low code;utils</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+</Project>

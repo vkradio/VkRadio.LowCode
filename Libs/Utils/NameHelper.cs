@@ -1,4 +1,4 @@
-﻿namespace VkRadio.Orm.Util;
+﻿namespace VkRadio.LowCode.Libs.Utils;
 
 /// <summary>
 /// Helper functions to work with names

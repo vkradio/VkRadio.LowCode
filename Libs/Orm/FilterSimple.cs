@@ -1,7 +1,7 @@
 ﻿using Ardalis.GuardClauses;
 using System;
 
-namespace VkRadio.LowCode.Orm
+namespace VkRadio.LowCode.Libs.Orm
 {
     public class FilterSimple : FilterAbstract
     {
@@ -22,7 +22,7 @@ namespace VkRadio.LowCode.Orm
 
         public override string? ToOrderBy() => orderBy;
 
-        public static FilterSimple CreateTableFilter(Guid? id, string fieldName, DbProviderFactory dbProviderFactory, bool fieldIsNullable = true)
+        public static FilterSimple CreateTableFilter(Guid? id, string fieldName, IDbProviderFactory dbProviderFactory, bool fieldIsNullable = true)
         {
             Guard.Against.Null(fieldName, nameof(fieldName));
             Guard.Against.Null(dbProviderFactory, nameof(dbProviderFactory));

@@ -1,9 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-
-    <!-- Modern C# and .NET features: -->
+    <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <AnalysisLevel>latest</AnalysisLevel>
@@ -12,11 +10,11 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <PackageId>VkRadio.LowCode.Orm</PackageId>
-    <Version>0.0.0-dev.7</Version>
+    <PackageId>VkRadio.LowCode.Libs.Orm</PackageId>
+    <Version>1.0.1</Version>
     <Authors>vkradio</Authors>
     <Description>Simple micro-ORM base library used in VkRadio.LowCode toolset</Description>
-    <PackageProjectUrl>https://github.com/vkradio/VkRadio.LowCode/tree/main/VkRadio.LowCode.Orm</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/vkradio/VkRadio.LowCode/tree/main/Libs.Orm</PackageProjectUrl>
     <RepositoryUrl>https://github.com/vkradio/VkRadio.LowCode</RepositoryUrl>
     <PackageTags>low code;ORM;micro-ORM;.NET;ADO.NET</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

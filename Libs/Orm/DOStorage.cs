@@ -8,7 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 
-namespace VkRadio.LowCode.Orm
+namespace VkRadio.LowCode.Libs.Orm
 {
     [SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "SQL queries are generated internally and so they are secure by design")]
     public abstract class DOStorage<TStorage, TDOT>: IDOStorage
