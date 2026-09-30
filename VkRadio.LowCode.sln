@@ -12,8 +12,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VkRadio.LowCode.TestBed", "VkRadio.LowCode.TestBed\VkRadio.LowCode.TestBed.csproj", "{2D9A21CD-BEF0-441E-BC03-BC50B650D484}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppConsole", "AppGen\AppConsole\AppConsole.csproj", "{B09352B7-AE02-4BC0-A463-60ECB0E955C4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "AppGen\Domain\Domain.csproj", "{79789461-00C8-48CB-94D4-06196E339F4F}"
@@ -52,10 +50,6 @@ Global
 		{0ADB8030-DFF0-4DE9-82E1-D2266C5559ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0ADB8030-DFF0-4DE9-82E1-D2266C5559ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0ADB8030-DFF0-4DE9-82E1-D2266C5559ED}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2D9A21CD-BEF0-441E-BC03-BC50B650D484}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2D9A21CD-BEF0-441E-BC03-BC50B650D484}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2D9A21CD-BEF0-441E-BC03-BC50B650D484}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2D9A21CD-BEF0-441E-BC03-BC50B650D484}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B09352B7-AE02-4BC0-A463-60ECB0E955C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B09352B7-AE02-4BC0-A463-60ECB0E955C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B09352B7-AE02-4BC0-A463-60ECB0E955C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
