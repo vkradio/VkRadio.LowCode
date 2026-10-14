@@ -18,7 +18,7 @@ public static class FormatHelper
 
         if (value < 0)
         {
-            result = result[1..];
+            result = result.Substring(1);
         }
 
         if (result.Length <= decimalPositions)

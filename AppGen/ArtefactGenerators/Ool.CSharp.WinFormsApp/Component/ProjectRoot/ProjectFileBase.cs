@@ -1,5 +1,5 @@
 ﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
-using VkRadio.Orm.Util;
+using VkRadio.LowCode.Libs.Utils;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component.ProjectRoot;
 

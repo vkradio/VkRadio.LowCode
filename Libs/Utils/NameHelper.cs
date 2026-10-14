@@ -35,11 +35,11 @@ public static class NameHelper
             return name;
         }
 
-        var result = name[..1].ToUpper();
+        var result = name.Substring(0, 1).ToUpper();
 
         if (name.Length > 1)
         {
-            result += name[1..];
+            result += name.Substring(1);
         }
 
         return result;
@@ -69,13 +69,13 @@ public static class NameHelper
 
         var invertedString = new string(chars);
 
-        if (invertedString.Length >= 3 && invertedString.StartsWith(')'))
+        if (invertedString.Length >= 3 && invertedString.StartsWith(")"))
         {
             var indexOfClosingBrace = invertedString.IndexOf('(', 1);
 
             if (indexOfClosingBrace != -1)
             {
-                var numberCandidate = invertedString[1..indexOfClosingBrace];
+                var numberCandidate = invertedString.Substring(1, indexOfClosingBrace - 1);
 
                 var digitChars = numberCandidate
                     .ToCharArray()
@@ -94,7 +94,7 @@ public static class NameHelper
                     // any spaces and other space symbols between them
                     stringValue = stringValue.Length == digitChars.Length + 2
                         ? string.Empty
-                        : stringValue[..(stringValue.Length - digitChars.Length - 2)].Trim();
+                        : stringValue.Substring(0, stringValue.Length - digitChars.Length - 2).Trim();
                 }
             }
         }
