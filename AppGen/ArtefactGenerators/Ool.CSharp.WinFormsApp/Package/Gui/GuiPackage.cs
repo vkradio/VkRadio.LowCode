@@ -20,16 +20,16 @@ public class GuiPackage : PackNS.Package
     LaunchersPackage _launchersPackage;
     ListsPackage _listsPackage;
 
-    public GuiPackage(CSharpProjectBase parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments)
+    public GuiPackage(CSharpProjectBase parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
         : base(parentPackage, "Gui")
     {
-        _elementsPackage = new ElementsPackage(this, preferNaturalLanguageForComments);
+        _elementsPackage = new ElementsPackage(this, preferNaturalLanguageForComments, uiLanguage);
         _subpackages.Add(_elementsPackage.Name, _elementsPackage);
 
-        _launchersPackage = new LaunchersPackage(this, preferNaturalLanguageForComments);
+        _launchersPackage = new LaunchersPackage(this, preferNaturalLanguageForComments, uiLanguage);
         _subpackages.Add(_launchersPackage.Name, _launchersPackage);
 
-        _listsPackage = new ListsPackage(this, preferNaturalLanguageForComments);
+        _listsPackage = new ListsPackage(this, preferNaturalLanguageForComments, uiLanguage);
         _subpackages.Add(_listsPackage.Name, _listsPackage);
 
         #region UiRegistry.cs component

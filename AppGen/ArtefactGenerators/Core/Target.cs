@@ -63,7 +63,7 @@ public class Target : IUnique
         string? outputPath,
         Guid? useOutputPathFromTargetId,
         IEnumerable<Guid> dependsOnIds,
-        Func<ArtefactTypeEnum, DomainModel, Target, ArtefactGenerator> artefactGeneratorConstructor
+        Func<ArtefactTypeEnum, DomainModel, Target, NaturalLanguageEnum, ArtefactGenerator> artefactGeneratorConstructor
     )
     {
         Id = id;
@@ -73,7 +73,7 @@ public class Target : IUnique
         UseOutputPathFromTargetId = useOutputPathFromTargetId;
         _dependsOnIds = [.. dependsOnIds];
 
-        ArtefactGenerator = artefactGeneratorConstructor(type, project.DomainModel, this);
+        ArtefactGenerator = artefactGeneratorConstructor(type, project.DomainModel, this, project.UILanguage);
         ArtefactGenerator.InitFromTargetXElement(xelTarget);
     }
 
@@ -99,6 +99,7 @@ public class Target : IUnique
             ArtefactTypeEnum,
             DomainModel,
             Target,
+            NaturalLanguageEnum,
             ArtefactGenerator> artefactGeneratorConstructor
     )
     {

@@ -7,16 +7,16 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Packa
 
 public class CSharpProjectBase : CSharpProjectAbstract
 {
-    public CSharpProjectBase(CSharpSolution solution, Guid projectGuid, NaturalLanguageEnum preferNaturalLanguageForComments)
+    public CSharpProjectBase(CSharpSolution solution, Guid projectGuid, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
         : base(solution, "base", projectGuid)
     {
         PropertiesPackage = new PropertiesPackageBase(this);
         _subpackages.Add(PropertiesPackage.Name, PropertiesPackage);
 
-        ModelPackage = new ModelPackage(this, preferNaturalLanguageForComments);
+        ModelPackage = new ModelPackage(this, preferNaturalLanguageForComments, uiLanguage);
         _subpackages.Add(ModelPackage.Name, ModelPackage);
 
-        GuiPackage = new GuiPackage(this, preferNaturalLanguageForComments);
+        GuiPackage = new GuiPackage(this, preferNaturalLanguageForComments, uiLanguage);
         _subpackages.Add(GuiPackage.Name, GuiPackage);
 
         ProjectFile = new ProjectFileBase(this);

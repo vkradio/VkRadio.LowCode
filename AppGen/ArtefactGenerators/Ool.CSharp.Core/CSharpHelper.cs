@@ -122,11 +122,11 @@ public static class CSharpHelper
     /// </summary>
     /// <param name="propDef"></param>
     /// <returns></returns>
-    public static PropertyWidgetDescriptor GenerateWidgetDescForProperty(PropertyDefinition propDef, NaturalLanguageEnum preferNaturalLanguageForComments)
+    public static PropertyWidgetDescriptor GenerateWidgetDescForProperty(PropertyDefinition propDef, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
     {
         var name = "_" + NameHelper.NamesToPascalCase(propDef.Names);
         var prefix = string.Empty;
-        var caption = NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments);
+        var caption = NameHelper.GetLocalNameUpperCase(propDef.Names, uiLanguage);
         var canSelect = false;
         var isTable = false;
 

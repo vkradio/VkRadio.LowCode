@@ -431,7 +431,7 @@ public class EntityPackage : PackNS.Package
     #endregion
 
     #region Validate method
-    private static void GenerateValidateForMethod(EntityDefinition entityDef, CSMethod method, NaturalLanguageEnum preferNaturalLanguageForComments)
+    private static void GenerateValidateForMethod(EntityDefinition entityDef, CSMethod method, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
     {
         method.BodyStrings.Add("string baseResult = base.Validate();");
         method.BodyStrings.Add("if (baseResult != null)");
@@ -446,7 +446,7 @@ public class EntityPackage : PackNS.Package
 
         foreach (var propDef in entityDef.PropertyDefinitions.Values)
         {
-            propValidateStrings.AddRange(GenerateValidatesStringsForPropDef(propDef, preferNaturalLanguageForComments));
+            propValidateStrings.AddRange(GenerateValidatesStringsForPropDef(propDef, preferNaturalLanguageForComments, uiLanguage));
         }
 
         if (propValidateStrings.Count != 0)
@@ -462,12 +462,12 @@ public class EntityPackage : PackNS.Package
         method.BodyStrings.Add("return null;");
     }
 
-    private static string[] GenerateValidatesStringsForPropDef(PropertyDefinition propDef, NaturalLanguageEnum preferNaturalLanguageForComments)
+    private static string[] GenerateValidatesStringsForPropDef(PropertyDefinition propDef, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
     {
         var text = new List<string>();
 
         var varName = "_" + NameHelper.NamesToCamelCase(propDef.Names);
-        var propLocalName = NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments);
+        var propLocalName = NameHelper.GetLocalNameUpperCase(propDef.Names, uiLanguage);
 
         #region Explicit (non-reference) values
         if (!(propDef.FunctionalType is PFTLink))
@@ -832,7 +832,7 @@ public class EntityPackage : PackNS.Package
     /// </summary>
     /// <param name="cSharpClass"></param>
     /// <param name="entityDef"></param>
-    private static void CreateMethodValidate(CSClass cSharpClass, EntityDefinition entityDef, NaturalLanguageEnum preferNaturalLanguageForComments)
+    private static void CreateMethodValidate(CSClass cSharpClass, EntityDefinition entityDef, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
     {
         var method = new CSMethod
         {
@@ -847,10 +847,10 @@ public class EntityPackage : PackNS.Package
         };
 
         cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
-        GenerateValidateForMethod(entityDef, method, preferNaturalLanguageForComments);
+        GenerateValidateForMethod(entityDef, method, preferNaturalLanguageForComments, uiLanguage);
     }
 
-    public static CSClass CreateEntityClass(CSComponent component, EntityDefinition entityDef, NaturalLanguageEnum preferNaturalLanguageForComments)
+    public static CSClass CreateEntityClass(CSComponent component, EntityDefinition entityDef, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
     {
         var name = CSharpHelper.GenerateEntityClassName(entityDef);
 
@@ -920,7 +920,7 @@ public class EntityPackage : PackNS.Package
         CreateMethodInitNew(result, entityDef, preferNaturalLanguageForComments);
         CreateMethodClone(result, entityDef, preferNaturalLanguageForComments);
         CreateMethodToString(result, entityDef, preferNaturalLanguageForComments);
-        CreateMethodValidate(result, entityDef, preferNaturalLanguageForComments);
+        CreateMethodValidate(result, entityDef, preferNaturalLanguageForComments, uiLanguage);
         GenerateResetCachedRefPropertiesMethod(result, entityDef, preferNaturalLanguageForComments);
         #endregion
 
@@ -968,7 +968,7 @@ public class EntityPackage : PackNS.Package
         return result;
     }
 
-    public EntityPackage(ModelPackage parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments)
+    public EntityPackage(ModelPackage parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
         : base(parentPackage, "DOT")
     {
         var model = ParentPackage.ParentPackage.ParentPackage.DomainModel;
@@ -997,7 +997,7 @@ public class EntityPackage : PackNS.Package
             //modelComponent.UserUsings.Add("orm.Util");
             modelComponent.UserUsings.Add($"{ParentPackage.ParentPackage.RootNamespace}.Model.Storage");
 
-            var modelClass = CreateEntityClass(modelComponent, entityDef, preferNaturalLanguageForComments);
+            var modelClass = CreateEntityClass(modelComponent, entityDef, preferNaturalLanguageForComments, uiLanguage);
             modelComponent.MainClass = modelClass;
         }
     }

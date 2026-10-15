@@ -13,19 +13,18 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp;
 public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
 {
     const string c_defaultDotNetVersion = "4.0";
-    
+
+    private readonly NaturalLanguageEnum _uiLanguage;
+
     private NaturalLanguageEnum _preferNaturalLanguageForComments = NaturalLanguageEnum.En;
 
-    public ArtefactGeneratorCSharpClassic(ArtefactTypeEnum type, DomainModel domainModel, Target target)
+    public ArtefactGeneratorCSharpClassic(ArtefactTypeEnum type, DomainModel domainModel, Target target, NaturalLanguageEnum uiLanguage)
         : base(type, domainModel, target)
     {
+        _uiLanguage = uiLanguage;
     }
 
     public string DotNetVersion { get; private set; } = default!;
-
-    public bool IsDependantOnSQLite => false;
-
-    public string? SQLiteProjectFullPath => null;
 
     public string OrmLibProjectDir { get; private set; } = default!;
 
@@ -36,10 +35,14 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
 
     public bool PutSimilarArtefactsToSingleFile { get; private set; }
 
+    public bool GenerateDemoApp { get; private set; }
+
+    public bool DoNoOverwriteAppIfExists { get; private set; }
+
     public override string? Generate()
     {
         // Create model of package of C# source code, based on database schema model.
-        var solution = new CSharpSolution(this, ((ArtefactGeneratorSql)MsSqlTarget.ArtefactGenerator).DBSchemaMetaModel, _preferNaturalLanguageForComments);
+        var solution = new CSharpSolution(this, ((ArtefactGeneratorSql)MsSqlTarget.ArtefactGenerator).DBSchemaMetaModel, _preferNaturalLanguageForComments, _uiLanguage);
         solution.Init();
 
         // Generate artefacts.
@@ -56,7 +59,7 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
         if (xelDotNetVersion is not null)
         {
             var xel = xelDotNetVersion.Element("Number")
-                ?? throw new GeneratorException("Element DotNetVersion of the C# Target has no inner element Number");
+                ?? throw new GeneratorException("Element DotNetVersion of C# Target has no inner element Number");
 
             DotNetVersion = (xel.Value ?? string.Empty).Trim();
 
@@ -86,6 +89,29 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
         if (!File.Exists(OrmLibProjectDir))
         {
             throw new GeneratorException($"File \"{OrmLibProjectDir}\" not exists");
+        }
+        #endregion
+
+        #region Demo App
+        var xelDemoApp = xelTarget.Element("DemoApp");
+
+        if (xelDemoApp is not null)
+        {
+            var generateIt = xelDemoApp.Element("Generate");
+
+            if (generateIt is not null &&
+                bool.TryParse(generateIt.Value, out var parsedGenerateIt))
+            {
+                GenerateDemoApp = parsedGenerateIt;
+            }
+
+            var doNotOverwrite = xelDemoApp.Element("DoNotOverwriteIfExists");
+
+            if (doNotOverwrite is not null &&
+                bool.TryParse(doNotOverwrite.Value, out var parsedDoNotOverwrite))
+            {
+                DoNoOverwriteAppIfExists = parsedDoNotOverwrite;
+            }
         }
         #endregion
 

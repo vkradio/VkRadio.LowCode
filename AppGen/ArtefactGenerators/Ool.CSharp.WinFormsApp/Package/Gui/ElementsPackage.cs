@@ -38,7 +38,8 @@ public class ElementsPackage : PackNS.Package
         List<CSharpHelper.PropertyWidgetDescriptor> selectProps,
         List<CSharpHelper.PropertyWidgetDescriptor> cardProps,
         List<CSharpHelper.PropertyWidgetDescriptor> listProps,
-        NaturalLanguageEnum preferNaturalLanguageForComments
+        NaturalLanguageEnum preferNaturalLanguageForComments,
+        NaturalLanguageEnum uiLanguage
     )
     {
         var wDescs = new List<CSharpHelper.PropertyWidgetDescriptor>();
@@ -55,7 +56,7 @@ public class ElementsPackage : PackNS.Package
         
         foreach (var propDef in entityDef.PropertyDefinitions.Values)
         {
-            var wDesc = CSharpHelper.GenerateWidgetDescForProperty(propDef, preferNaturalLanguageForComments);
+            var wDesc = CSharpHelper.GenerateWidgetDescForProperty(propDef, preferNaturalLanguageForComments, uiLanguage);
             wDescs.Add(wDesc);
 
             if (!(propDef.FunctionalType is PFTLink))
@@ -317,7 +318,7 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    private static void GenerateMethodsForQuickSelectProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> selectProps, NaturalLanguageEnum preferNaturalLanguageForComments)
+    private static void GenerateMethodsForQuickSelectProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> selectProps, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
     {
         var entityClassName = selectProps.Count != 0
             ? NameHelper.NamesToPascalCase(selectProps[0].PropertyDefinition.OwnerDefinition.Names)
@@ -340,7 +341,8 @@ public class ElementsPackage : PackNS.Package
             method.BodyStrings.Add("ToolStripMenuItem mi;");
             method.BodyStrings.Add("if (qSelectList.Count == 0)");
             method.BodyStrings.Add("{");
-            method.BodyStrings.Add("    mi = new ToolStripMenuItem() { Text = \"пусто\", Enabled = false };");
+            var emptyCaption = uiLanguage == NaturalLanguageEnum.Ru ? "пусто" : "empty";
+            method.BodyStrings.Add("    mi = new ToolStripMenuItem() { Text = \"" + emptyCaption + "\", Enabled = false };");
             method.BodyStrings.Add("    cmnu.Items.Add(mi);");
             method.BodyStrings.Add("}");
             method.BodyStrings.Add("else");
@@ -356,11 +358,14 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    private static void GenerateMethodsForQuickSelectPropsMIClick(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> selectProps, NaturalLanguageEnum preferNaturalLanguageForComments)
+    private static void GenerateMethodsForQuickSelectPropsMIClick(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> selectProps, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
     {
         var entityClassName = selectProps.Count != 0
             ? NameHelper.NamesToPascalCase(selectProps[0].PropertyDefinition.OwnerDefinition.Names)
             : string.Empty;
+
+        var messageCaption = uiLanguage == NaturalLanguageEnum.Ru ? "Сообщение" : "Message";
+        var objDoesNotExistsText = uiLanguage == NaturalLanguageEnum.Ru ? "Этот объект больше не существует." : "This object does not exist anymore.";
 
         foreach (var wDesc in selectProps)
         {
@@ -395,7 +400,7 @@ public class ElementsPackage : PackNS.Package
             method.BodyStrings.Add(string.Format("{0} selectedValue = StorageRegistry.Instance.{0}Storage.Restore(id) as {0};", wDesc.PropertyClass));
             method.BodyStrings.Add("if (selectedValue == null)");
             method.BodyStrings.Add("{");
-            method.BodyStrings.Add("    MessageBox.Show(this, \"Этот объект больше не существует.\", \"Сообщение\", MessageBoxButtons.OK, MessageBoxIcon.Information);");
+            method.BodyStrings.Add("    MessageBox.Show(this, \"" + objDoesNotExistsText + "\", \"" + messageCaption + "\", MessageBoxButtons.OK, MessageBoxIcon.Information);");
             method.BodyStrings.Add("    UiRegistry.Instance.QuickSelectStorage.RemoveRow(qSelectList, id);");
             method.BodyStrings.Add(string.Format("    UiRegistry.Instance.QuickSelectStorage.SaveList(\"{0}\", qSelectList);", wDesc.PropertyClass));
             method.BodyStrings.Add("    return;");
@@ -581,7 +586,7 @@ public class ElementsPackage : PackNS.Package
     }
     #endregion
 
-    public ElementsPackage(GuiPackage parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments)
+    public ElementsPackage(GuiPackage parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
         : base(parentPackage, "Elements")
     {
         var mm = ParentPackage.ParentPackage.ParentPackage.DomainModel;
@@ -631,7 +636,7 @@ public class ElementsPackage : PackNS.Package
                 listProps = [];
 
             // 1. Generate constructor
-            List<CSharpHelper.PropertyWidgetDescriptor> wDescs = GenerateConstructor(panClass, entityDef, clearProps, selectProps, cardProps, listProps, preferNaturalLanguageForComments);
+            List<CSharpHelper.PropertyWidgetDescriptor> wDescs = GenerateConstructor(panClass, entityDef, clearProps, selectProps, cardProps, listProps, preferNaturalLanguageForComments, uiLanguage);
 
             // 2. Generate method SyncFromDOT
             GenerateMethodSyncFromEntity(panClass, entityDef, wDescs, preferNaturalLanguageForComments);
@@ -642,8 +647,8 @@ public class ElementsPackage : PackNS.Package
             // 4. Generate methods for work with reference properties
             GenerateMethodsForClearProps(panClass, clearProps, preferNaturalLanguageForComments);
             GenerateMethodsForSelectProps(panClass, selectProps, preferNaturalLanguageForComments);
-            GenerateMethodsForQuickSelectProps(panClass, selectProps, preferNaturalLanguageForComments);
-            GenerateMethodsForQuickSelectPropsMIClick(panClass, selectProps, preferNaturalLanguageForComments);
+            GenerateMethodsForQuickSelectProps(panClass, selectProps, preferNaturalLanguageForComments, uiLanguage);
+            GenerateMethodsForQuickSelectPropsMIClick(panClass, selectProps, preferNaturalLanguageForComments, uiLanguage);
             GenerateMethodsForListProps(panClass, listProps, preferNaturalLanguageForComments);
             GenerateMethodsForCardProps(panClass, cardProps, preferNaturalLanguageForComments);
             #endregion

@@ -5,7 +5,7 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Compo
 
 public class EntitySingleFile : CSComponent
 {
-    public EntitySingleFile(ModelPackage package, NaturalLanguageEnum preferNaturalLanguageForComments)
+    public EntitySingleFile(ModelPackage package, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
     {
         Package = package;
         Name = "DOTs.cs";
@@ -20,7 +20,7 @@ public class EntitySingleFile : CSComponent
 
         foreach (var entityDef in package.ParentPackage.ParentPackage.DomainModel.AllEntityDefinitions.Values)
         {
-            EntityPackage.CreateEntityClass(this, entityDef, preferNaturalLanguageForComments);
+            EntityPackage.CreateEntityClass(this, entityDef, preferNaturalLanguageForComments, uiLanguage);
         }
     }
 }

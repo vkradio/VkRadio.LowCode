@@ -10,7 +10,7 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Packa
 
 public class LaunchersPackage : PackNS.Package
 {
-    public LaunchersPackage(GuiPackage in_parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments)
+    public LaunchersPackage(GuiPackage in_parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
         : base(in_parentPackage, "Launchers")
     {
         var mm = ParentPackage.ParentPackage.ParentPackage.DomainModel;
@@ -56,7 +56,7 @@ public class LaunchersPackage : PackNS.Package
             };
             cls.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
             ctor.BodyStrings.Add(string.Format("_storage = StorageRegistry.Instance.{0}Storage;", typeName));
-            ctor.BodyStrings.Add(string.Format("_dotName = \"{0}\";", NameHelper.EncodeCSharpText(NameHelper.GetLocalNameUpperCase(entDef.Names, preferNaturalLanguageForComments))));
+            ctor.BodyStrings.Add(string.Format("_dotName = \"{0}\";", NameHelper.EncodeCSharpText(NameHelper.GetLocalNameUpperCase(entDef.Names, uiLanguage))));
 
             var methodCard = new CSMethod
             {

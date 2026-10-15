@@ -12,6 +12,8 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
 public class ArtefactGenerationProject : IUnique
 {
     #region Internals
+    private const NaturalLanguageEnum c_defaultUiLanguage = NaturalLanguageEnum.En;
+
     /// <summary>
     /// Append message about generation
     /// </summary>
@@ -61,6 +63,8 @@ public class ArtefactGenerationProject : IUnique
     /// </summary>
     public string? SvnWcRootPath { get; private set; }
 
+    public NaturalLanguageEnum UILanguage { get; private set; }
+
     /// <summary>
     /// Timezone of an executable code
     /// </summary>
@@ -71,7 +75,8 @@ public class ArtefactGenerationProject : IUnique
         string name,
         string projectRootPath,
         DomainModel domainModel,
-        string? svnWcRootPath //,
+        string? svnWcRootPath,
+        NaturalLanguageEnum uiLanguage
         //IEnumerable<Target> targets
     ) //: base(id, name, projectRootPath, svnWcRootPath)
     {
@@ -80,6 +85,7 @@ public class ArtefactGenerationProject : IUnique
         ProjectRootPath = projectRootPath;
         DomainModel = Guard.Against.Null(domainModel, nameof(domainModel));
         SvnWcRootPath = svnWcRootPath;
+        UILanguage = uiLanguage;
 
         //Targets = [.. targets ?? []];
         //Targets.ForEach(x => x.WireToProject(this));
@@ -96,6 +102,7 @@ public class ArtefactGenerationProject : IUnique
             ArtefactTypeEnum,
             DomainModel,
             Target,
+            NaturalLanguageEnum,
             ArtefactGenerator> artefactGeneratorConstructor
     )
     {
@@ -114,6 +121,15 @@ public class ArtefactGenerationProject : IUnique
 
         var xelSvnWcRootRelativeDir = xelRoot.Element("SvnWcRootRelativeDir");
         var svnWcRootDirRelativePath = xelSvnWcRootRelativeDir?.Value.Trim();
+
+        var uiLanguage = c_defaultUiLanguage;
+        var xelUiLanguage = xelRoot.Element("UILanguage");
+
+        if (xelUiLanguage is not null &&
+            Enum.TryParse<NaturalLanguageEnum>(xelUiLanguage.Value, out var uiLanguageParsed))
+        {
+            uiLanguage = uiLanguageParsed;
+        }
 
         #region Set the timezone of an executing code
         // Full list of timezones:
@@ -160,7 +176,8 @@ public class ArtefactGenerationProject : IUnique
             name,
             projectRootPath,
             domainModel,
-            string.IsNullOrEmpty(svnWcRootDirRelativePath) ? null : Path.Combine(projectRootPath, svnWcRootDirRelativePath)
+            string.IsNullOrEmpty(svnWcRootDirRelativePath) ? null : Path.Combine(projectRootPath, svnWcRootDirRelativePath),
+            uiLanguage
         );
 
         var xelTargets = xelRoot.Element("ArtefactGenerationTargets")!;

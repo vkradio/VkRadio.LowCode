@@ -4,6 +4,7 @@ using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.MsSql;
 using VkRadio.LowCode.AppGen.Domain;
+using VkRadio.LowCode.AppGen.Domain.Names;
 
 namespace VkRadio.LowCode.AppGen.AppConsole;
 
@@ -41,14 +42,14 @@ class Program
                 return schemaDomainModel;
             }
 
-            static ArtefactGenerator ArtefactGeneratorConstructor(ArtefactTypeEnum type, DomainModel domainModel, Target target)
+            static ArtefactGenerator ArtefactGeneratorConstructor(ArtefactTypeEnum type, DomainModel domainModel, Target target, NaturalLanguageEnum uiLanguage)
             {
                 ArtefactGenerator generator = type switch
                 {
                     //ArtefactTypeEnum.MySql or ArtefactTypeEnum.MsSql or ArtefactTypeEnum.SQLite => (ArtefactGenerator)new ArtefactGeneratorSql() { _code = type, _metaModel = domainModel, _target = target },
                     ArtefactTypeEnum.MsSql => new ArtefactGeneratorSql(DbSchemaDomainModelConstructor, type, domainModel, target),
                     //ArtefactTypeEnum.PhpZf => (ArtefactGenerator)new ArtefactGeneratorPhpZf() { _code = type, _metaModel = domainModel, _target = target },
-                    ArtefactTypeEnum.CSharp => new ArtefactGeneratorCSharpClassic(ArtefactTypeEnum.CSharp, domainModel, target),
+                    ArtefactTypeEnum.CSharp => new ArtefactGeneratorCSharpClassic(ArtefactTypeEnum.CSharp, domainModel, target, uiLanguage),
                     //ArtefactTypeEnum.CSharpOldVersionSave => (ArtefactGenerator)new ArtefactGeneratorCSharpOldVersionSave() { _code = type, _metaModel = domainModel, _target = target },
                     //ArtefactTypeEnum.CSharpProjectVersion => (ArtefactGenerator)new ArtefactGeneratorCSharpProjectVersion() { _code = type, _metaModel = domainModel, _target = target },
                     //ArtefactTypeEnum.InnoSetup => (ArtefactGenerator)new ArtefactGeneratorInnoSetup() { _code = type, _metaModel = domainModel, _target = target },

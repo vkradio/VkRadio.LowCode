@@ -7,14 +7,14 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Packa
 
 public class ModelPackage : PackNS.Package
 {
-    public ModelPackage(CSharpProjectBase parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments)
+    public ModelPackage(CSharpProjectBase parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
         : base(parentPackage, "Model")
     {
         var generator = (ArtefactGeneratorCSharpClassic)parentPackage.ParentPackage.ArtefactGenerationTarget.ArtefactGenerator;
 
         if (generator.PutSimilarArtefactsToSingleFile)
         {
-            EntitySingleFile = new EntitySingleFile(this, preferNaturalLanguageForComments);
+            EntitySingleFile = new EntitySingleFile(this, preferNaturalLanguageForComments, uiLanguage);
             _components.Add(EntitySingleFile.Name, EntitySingleFile);
 
             StorageSingleFile = new StorageSingleFile(this, preferNaturalLanguageForComments);
@@ -24,7 +24,7 @@ public class ModelPackage : PackNS.Package
         }
         else
         {
-            EntityPackage = new EntityPackage(this, preferNaturalLanguageForComments);
+            EntityPackage = new EntityPackage(this, preferNaturalLanguageForComments, uiLanguage);
             _subpackages.Add(EntityPackage.Name, EntityPackage);
 
             StoragePackage = new StoragePackage(this, preferNaturalLanguageForComments);

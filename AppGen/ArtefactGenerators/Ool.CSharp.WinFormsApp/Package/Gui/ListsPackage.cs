@@ -22,7 +22,7 @@ public class ListsPackage : PackNS.Package
 
     const float c_pixelsPerSymbol = 200f / 36f;
 
-    public ListsPackage(GuiPackage parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments)
+    public ListsPackage(GuiPackage parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
         : base(parentPackage, "Lists")
     {
         var model = ParentPackage.ParentPackage.ParentPackage.DomainModel;
@@ -140,7 +140,7 @@ public class ListsPackage : PackNS.Package
                         align = ContentAlignment.Right;
                     }
 
-                    var colCaption = NameHelper.GetLocalNameUpperCase(propCorr.PropertyDefinition.Names, preferNaturalLanguageForComments);
+                    var colCaption = NameHelper.GetLocalNameUpperCase(propCorr.PropertyDefinition.Names, uiLanguage);
                     var measuredCaptionWidth = (int)Math.Floor(colCaption.Length * c_pixelsPerSymbol);
 
                     if (measuredCaptionWidth > colWidth)
