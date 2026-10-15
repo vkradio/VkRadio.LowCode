@@ -25,7 +25,7 @@ public class ProjectFileBase : ProjectFile
         _predefinedCode.Add($"    <AppDesignerFolder>Properties</AppDesignerFolder>");
         _predefinedCode.Add($"    <RootNamespace>{projectPackage.RootNamespace}</RootNamespace>");
         _predefinedCode.Add($"    <AssemblyName>{projectPackage.RootNamespace}</AssemblyName>");
-        _predefinedCode.Add($"    <TargetFrameworkVersion>v{generator.DotNetFramework}</TargetFrameworkVersion>");
+        _predefinedCode.Add($"    <TargetFrameworkVersion>v{generator.DotNetVersion}</TargetFrameworkVersion>");
         _predefinedCode.Add($"    <FileAlignment>512</FileAlignment>");
         _predefinedCode.Add($"    <TargetFrameworkProfile />");
         _predefinedCode.Add($"  </PropertyGroup>");

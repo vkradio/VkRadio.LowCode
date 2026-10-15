@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using Ardalis.GuardClauses;
+using System.Text;
 using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
 using VkRadio.LowCode.AppGen.Domain;
@@ -7,8 +8,6 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.Core;
 
 public class ArtefactGeneratorSql : ArtefactGenerator
 {
-    private DBSchemaDomainModel _dbSchemaMetaModel;
-    private DbParams? _developmentDbParams;
     private readonly Func<DomainModel, ArtefactGeneratorSql, DBSchemaDomainModel> _dbSchemaDomainModelConstructor;
 
     public ArtefactGeneratorSql(
@@ -18,18 +17,18 @@ public class ArtefactGeneratorSql : ArtefactGenerator
         Target target
     ) : base(type, domainModel, target)
     {
-        _dbSchemaDomainModelConstructor = dbSchemaDomainModelConstructor;
+        _dbSchemaDomainModelConstructor = Guard.Against.Null(dbSchemaDomainModelConstructor, nameof(dbSchemaDomainModelConstructor));
     }
 
     /// <summary>
     /// DB Domain Model
     /// </summary>
-    public DBSchemaDomainModel DBSchemaMetaModel => _dbSchemaMetaModel;
+    public DBSchemaDomainModel DBSchemaMetaModel { get; private set; } = default!;
 
     /// <summary>
     /// DB parameter used during development
     /// </summary>
-    public DbParams? DevelopmentDbParams => _developmentDbParams;
+    public DbParams? DevelopmentDbParams { get; private set; }
 
     /// <summary>
     /// Generate DB schema and SQL artefacts
@@ -38,23 +37,23 @@ public class ArtefactGeneratorSql : ArtefactGenerator
     {
         const string c_sigleFileName = "dbschema.sql";
 
-        _dbSchemaMetaModel = _dbSchemaDomainModelConstructor(_domainModel, this);
-        _dbSchemaMetaModel.Init();
+        DBSchemaMetaModel = _dbSchemaDomainModelConstructor(DomainModel, this);
+        DBSchemaMetaModel.Init();
 
         // Generate artefacts
-        var scriptStrings = _dbSchemaMetaModel.SchemaDeploymentScript.Generate();
+        var scriptStrings = DBSchemaMetaModel.SchemaDeploymentScript.Generate();
 
-        if (string.IsNullOrWhiteSpace(_target.OutputPath))
+        if (string.IsNullOrWhiteSpace(Target.OutputPath))
         {
-            throw new InvalidOperationException($"{nameof(_target.OutputPath)} is empty");
+            throw new InvalidOperationException($"{nameof(Target.OutputPath)} is empty");
         }
 
-        if (!Directory.Exists(_target.OutputPath))
+        if (!Directory.Exists(Target.OutputPath))
         {
-            Directory.CreateDirectory(_target.OutputPath);
+            Directory.CreateDirectory(Target.OutputPath);
         }
 
-        File.WriteAllLines(Path.Combine(_target.OutputPath, c_sigleFileName), scriptStrings, Encoding.UTF8);
+        File.WriteAllLines(Path.Combine(Target.OutputPath, c_sigleFileName), scriptStrings, Encoding.UTF8);
 
         return null;
     }
@@ -65,7 +64,7 @@ public class ArtefactGeneratorSql : ArtefactGenerator
 
         if (xel is not null)
         {
-            _developmentDbParams = DbParams.ReadFromXElement(xel);
+            DevelopmentDbParams = DbParams.ReadFromXElement(xel);
         }
     }
 }

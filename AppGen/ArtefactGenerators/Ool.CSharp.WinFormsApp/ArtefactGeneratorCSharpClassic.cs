@@ -13,30 +13,26 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp;
 public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
 {
     const string c_defaultDotNetVersion = "4.0";
-    const string c_defaultDotNetProfile = "Client"; // Profile is used only if there is no <DotNetVersion> element.
-                                                    // If it exists, but does not contain an inner <Profile> element,
-                                                    // then profile is set to null
-    string _dotNetVersion;
-    string? _dotNetProfile;
-    NaturalLanguageEnum _preferNaturalLanguageForComments = NaturalLanguageEnum.En;
+    
+    private NaturalLanguageEnum _preferNaturalLanguageForComments = NaturalLanguageEnum.En;
 
     public ArtefactGeneratorCSharpClassic(ArtefactTypeEnum type, DomainModel domainModel, Target target)
         : base(type, domainModel, target)
     {
     }
 
-    public string DotNetFramework => _dotNetVersion;
+    public string DotNetVersion { get; private set; } = default!;
 
     public bool IsDependantOnSQLite => false;
 
     public string? SQLiteProjectFullPath => null;
 
-    public string OrmLibProjectDir { get; private set; }
+    public string OrmLibProjectDir { get; private set; } = default!;
 
     /// <summary>
     /// Ormlib project name without any .csproj extension and path (as displayed in VS solution tree)
     /// </summary>
-    public string OrmLibProjectName { get; private set; }
+    public string OrmLibProjectName { get; private set; } = default!;
 
     public bool PutSimilarArtefactsToSingleFile { get; private set; }
 
@@ -62,34 +58,21 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
             var xel = xelDotNetVersion.Element("Number")
                 ?? throw new GeneratorException("Element DotNetVersion of the C# Target has no inner element Number");
 
-            _dotNetVersion = (xel.Value ?? string.Empty).Trim();
+            DotNetVersion = (xel.Value ?? string.Empty).Trim();
 
-            if (string.IsNullOrEmpty(_dotNetVersion))
+            if (string.IsNullOrEmpty(DotNetVersion))
             {
                 throw new GeneratorException("In C# Target an element DotNetVersion.Number has no value");
-            }
-
-            xel = xelDotNetVersion.Element("Profile");
-
-            if (xel is not null && (xel.Value ?? string.Empty).Trim() != string.Empty)
-            {
-                _dotNetProfile = xel.Value!.Trim();
             }
         }
         else
         {
-            _dotNetVersion = c_defaultDotNetVersion;
-            _dotNetProfile = c_defaultDotNetProfile;
+            DotNetVersion = c_defaultDotNetVersion;
         }
         #endregion
 
         #region Initialize path to ormlib
-        OrmLibProjectName = "orm_" + _dotNetVersion;
-
-        if (!string.IsNullOrEmpty(_dotNetProfile))
-        {
-            OrmLibProjectName += "_" + _dotNetProfile;
-        }
+        OrmLibProjectName = $"orm_{DotNetVersion}";
 
         var ormProjectFileName = OrmLibProjectName + ".csproj";
 
@@ -98,7 +81,7 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
             throw new GeneratorException("C# Target has no <OrmLibProjectDir> value");
         }
 
-        OrmLibProjectDir = Path.Combine(_target.Project.ProjectRootPath, xelTarget.Element("OrmLibProjectDir")!.Value, ormProjectFileName);
+        OrmLibProjectDir = Path.Combine(Target.Project.ProjectRootPath, xelTarget.Element("OrmLibProjectDir")!.Value, ormProjectFileName);
 
         if (!File.Exists(OrmLibProjectDir))
         {

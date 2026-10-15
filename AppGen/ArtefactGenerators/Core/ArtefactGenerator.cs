@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using Ardalis.GuardClauses;
+using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.Domain;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
@@ -8,31 +9,27 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
 /// </summary>
 public abstract class ArtefactGenerator
 {
-    protected Target _target;
-    protected ArtefactTypeEnum _type;
-    protected DomainModel _domainModel;
-
     protected ArtefactGenerator(ArtefactTypeEnum type, DomainModel domainModel, Target target)
     {
-        _type = type;
-        _domainModel = domainModel;
-        _target = target;
+        Type = type;
+        DomainModel = Guard.Against.Null(domainModel, nameof(domainModel));
+        Target = Guard.Against.Null(target, nameof(target));
     }
 
     /// <summary>
     /// Generation target
     /// </summary>
-    public Target Target => _target;
+    public Target Target { get; protected set; }
 
     /// <summary>
     /// Artefact type
     /// </summary>
-    public ArtefactTypeEnum Type => _type;
+    public ArtefactTypeEnum Type { get; protected set; }
 
     /// <summary>
     /// Domain Model
     /// </summary>
-    public DomainModel DomainModel => _domainModel;
+    public DomainModel DomainModel { get; protected set; }
 
     public abstract void InitFromTargetXElement(XElement xelTarget);
 
