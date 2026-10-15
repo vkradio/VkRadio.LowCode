@@ -126,7 +126,7 @@ public class ArtefactGenerationProject : IUnique
         var xelUiLanguage = xelRoot.Element("UILanguage");
 
         if (xelUiLanguage is not null &&
-            Enum.TryParse<NaturalLanguageEnum>(xelUiLanguage.Value, out var uiLanguageParsed))
+            Enum.TryParse<NaturalLanguageEnum>(xelUiLanguage.Value, true, out var uiLanguageParsed))
         {
             uiLanguage = uiLanguageParsed;
         }

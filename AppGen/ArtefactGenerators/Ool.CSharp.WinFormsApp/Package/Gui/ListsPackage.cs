@@ -22,7 +22,7 @@ public class ListsPackage : PackNS.Package
 
     const float c_pixelsPerSymbol = 200f / 36f;
 
-    public ListsPackage(GuiPackage parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
+    public ListsPackage(GuiPackage parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage, bool supportHiDpi)
         : base(parentPackage, "Lists")
     {
         var model = ParentPackage.ParentPackage.ParentPackage.DomainModel;
@@ -151,6 +151,10 @@ public class ListsPackage : PackNS.Package
 
                     colCaption = NameHelper.EncodeCSharpText(colCaption);
                     alignments.Add(align);
+
+                    var colWidthExpression = supportHiDpi
+                        ? $"LogicalToDeviceUnits({colWidth})"
+                        : $"{colWidth}";
                     #endregion
 
                     ctor.BodyStrings.Add($"    new DataGridViewTextBoxColumn()");
@@ -160,7 +164,7 @@ public class ListsPackage : PackNS.Package
                     ctor.BodyStrings.Add($"        Name = \"COL_{NameHelper.NamesToPascalCase(propCorr.PropertyDefinition.Names)}\",");
                     ctor.BodyStrings.Add($"        ReadOnly = true,");
                     ctor.BodyStrings.Add($"        Visible = true,");
-                    ctor.BodyStrings.Add($"        Width = {colWidth},");
+                    ctor.BodyStrings.Add($"        Width = {colWidthExpression},");
                     ctor.BodyStrings.Add($"        DisplayIndex = {index}");
                     ctor.BodyStrings.Add($"    }}");
                     index++;

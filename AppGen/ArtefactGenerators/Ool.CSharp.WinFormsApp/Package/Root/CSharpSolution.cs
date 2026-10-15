@@ -11,6 +11,8 @@ public class CSharpSolution : ProjectPackage
 
     private readonly NaturalLanguageEnum _uiLanguage;
 
+    private readonly bool _supportHiDpi;
+
     /// <summary>
     /// Increment ProjectGuid of &quot;base&quot; project to generate ProjectGuid
     /// of &quot;extension&quot; project
@@ -31,11 +33,20 @@ public class CSharpSolution : ProjectPackage
     /// </summary>
     /// <param name="cSharpGenerator">C# artefacts generator</param>
     /// <param name="dbSchemaModel">Database schema model</param>
-    public CSharpSolution(ArtefactGeneratorCSharpClassic cSharpGenerator, DBSchemaDomainModel dbSchemaModel, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
-        : base(cSharpGenerator.Target.Project.DomainModel, cSharpGenerator.Target, dbSchemaModel)
+    public CSharpSolution(
+        ArtefactGeneratorCSharpClassic cSharpGenerator,
+        DBSchemaDomainModel dbSchemaModel,
+        NaturalLanguageEnum preferNaturalLanguageForComments,
+        NaturalLanguageEnum uiLanguage,
+        bool supportHiDpi
+    ) : base(cSharpGenerator.Target.Project.DomainModel, cSharpGenerator.Target, dbSchemaModel)
     {
         _preferNaturalLanguageForComments = preferNaturalLanguageForComments;
+
         _uiLanguage = uiLanguage;
+
+        _supportHiDpi = supportHiDpi;
+
         Generator = cSharpGenerator;
     }
 
@@ -45,7 +56,7 @@ public class CSharpSolution : ProjectPackage
     public override void Init()
     {
         var projectId = ArtefactGenerationTarget.Id;
-        BaseProject = new CSharpProjectBase(this, projectId, _preferNaturalLanguageForComments, _uiLanguage);
+        BaseProject = new CSharpProjectBase(this, projectId, _preferNaturalLanguageForComments, _uiLanguage, _supportHiDpi);
         _subpackages.Add(BaseProject.Name, BaseProject);
 
         projectId = SimpleIncrementGuid(projectId);

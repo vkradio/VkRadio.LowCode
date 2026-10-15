@@ -20,7 +20,7 @@ public class GuiPackage : PackNS.Package
     LaunchersPackage _launchersPackage;
     ListsPackage _listsPackage;
 
-    public GuiPackage(CSharpProjectBase parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
+    public GuiPackage(CSharpProjectBase parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage, bool supportHiDpi)
         : base(parentPackage, "Gui")
     {
         _elementsPackage = new ElementsPackage(this, preferNaturalLanguageForComments, uiLanguage);
@@ -29,7 +29,7 @@ public class GuiPackage : PackNS.Package
         _launchersPackage = new LaunchersPackage(this, preferNaturalLanguageForComments, uiLanguage);
         _subpackages.Add(_launchersPackage.Name, _launchersPackage);
 
-        _listsPackage = new ListsPackage(this, preferNaturalLanguageForComments, uiLanguage);
+        _listsPackage = new ListsPackage(this, preferNaturalLanguageForComments, uiLanguage, supportHiDpi);
         _subpackages.Add(_listsPackage.Name, _listsPackage);
 
         #region UiRegistry.cs component
