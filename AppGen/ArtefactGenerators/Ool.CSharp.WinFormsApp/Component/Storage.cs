@@ -467,7 +467,7 @@ public class Storage : CSComponentWMainClass
         var storageClass = new CSClass
         {
             Component = component,
-            DocComment = new XmlComment("Storage of objects " + NameHelper.GetLocalNameUpperCase(correspondence.EntityDefinition.Names, preferNaturalLanguageForComments)),
+            DocComment = new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Хранилище объектов " : "Storage of objects ") + NameHelper.GetLocalNameUpperCase(correspondence.EntityDefinition.Names, preferNaturalLanguageForComments)),
             Name = storageClassName,
             InheritsFrom = $"DOStorage<{storageClassName}, {entityClassName}>",
             Partial = true
