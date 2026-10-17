@@ -16,8 +16,6 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
 
     private readonly NaturalLanguageEnum _uiLanguage;
 
-    private bool _supportHiDpi;
-
     private NaturalLanguageEnum _preferNaturalLanguageForComments = NaturalLanguageEnum.En;
 
     public ArtefactGeneratorCSharpClassic(ArtefactTypeEnum type, DomainModel domainModel, Target target, NaturalLanguageEnum uiLanguage)
@@ -41,10 +39,12 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
 
     public bool DoNoOverwriteAppIfExists { get; private set; }
 
+    public bool SupportHiDpi { get; private set; }
+
     public override string? Generate()
     {
         // Create model of package of C# source code, based on database schema model.
-        var solution = new CSharpSolution(this, ((ArtefactGeneratorSql)MsSqlTarget.ArtefactGenerator).DBSchemaMetaModel, _preferNaturalLanguageForComments, _uiLanguage, _supportHiDpi);
+        var solution = new CSharpSolution(this, ((ArtefactGeneratorSql)MsSqlTarget.ArtefactGenerator).DBSchemaMetaModel, _preferNaturalLanguageForComments, _uiLanguage, SupportHiDpi);
         solution.Init();
 
         // Generate artefacts.
@@ -80,7 +80,7 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
         if (dotNetVersion.Major >= 4 &&
             dotNetVersion.Minor >= 7)
         {
-            _supportHiDpi = true;
+            SupportHiDpi = true;
         }
         #endregion
 

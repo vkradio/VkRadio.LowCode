@@ -513,7 +513,7 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    private static int SetupWidgetParameters(IList<CSharpHelper.PropertyWidgetDescriptor> widgetDescs, IList<string> predefinedCode)
+    private static int SetupWidgetParameters(IList<CSharpHelper.PropertyWidgetDescriptor> widgetDescs, IList<string> predefinedCode, bool supportHiDpi)
     {
         const int c_widgetHeight = 37;
         const int c_widgetVertGap = 6;
@@ -546,7 +546,11 @@ public class ElementsPackage : PackNS.Package
                 predefinedCode.Add(string.Format("            this.{0}.EnabledQuickSelect = {1};", wDesc.WidgetName, canSelectString));
             }
 
-            predefinedCode.Add(string.Format("            this.{0}.Location = new System.Drawing.Point({1}, {2});", wDesc.WidgetName, isBoolProp ? c_checkBoxOffset : 0, widgetTop));
+            var posOffset = isBoolProp
+                ? c_checkBoxOffset
+                : 0;
+
+            predefinedCode.Add(string.Format("            this.{0}.Location = new System.Drawing.Point({1}, {2});", wDesc.WidgetName, posOffset, widgetTop));
             predefinedCode.Add(string.Format("            this.{0}.Name = \"{0}\";", wDesc.WidgetName));
 
             if (isMultiline)
@@ -562,7 +566,17 @@ public class ElementsPackage : PackNS.Package
                 predefinedCode.Add(string.Format("            this.{0}.DecimalPositions = {1};", wDesc.WidgetName, pftMoney.DecimalPositions));
             }
 
-            predefinedCode.Add(string.Format("            this.{0}.Size = new System.Drawing.Size({1}, {2});", wDesc.WidgetName, isMultiline ? c_textWindgetWidth : isBoolProp ? c_widgetWidth - c_checkBoxOffset : c_widgetWidth, widgetHeight));
+            var sizeWidth = isMultiline
+                ? c_textWindgetWidth
+                : (isBoolProp
+                    ? (c_widgetWidth - c_checkBoxOffset)
+                    : c_widgetWidth
+                );
+            var widthExpression = supportHiDpi
+                ? $"LogicalToDeviceUnits({sizeWidth})"
+                : $"{sizeWidth}";
+
+            predefinedCode.Add(string.Format("            this.{0}.Size = new System.Drawing.Size({1}, {2});", wDesc.WidgetName, widthExpression, widgetHeight));
             predefinedCode.Add(string.Format("            this.{0}.TabIndex = {1};", wDesc.WidgetName, tabIndex));
             
             if (wDesc.WidgetName.IndexOf("SEL_") == 0)
@@ -701,7 +715,7 @@ public class ElementsPackage : PackNS.Package
             designerComponent.PredefinedCode.Add("            this.SuspendLayout();");
 
             // 2. Setting up parameters of properties
-            int formHeight = SetupWidgetParameters(wDescs, designerComponent.PredefinedCode) + 42;
+            int formHeight = SetupWidgetParameters(wDescs, designerComponent.PredefinedCode, parentPackage.ParentPackage.ParentPackage.Generator.SupportHiDpi) + 42;
 
             designerComponent.PredefinedCode.Add("            // ");
             designerComponent.PredefinedCode.Add(string.Format("            // {0}", formName));
