@@ -19,8 +19,8 @@ public class ElementsPackage : PackNS.Package
     Dictionary<string, ComponentWPredefinedCode> _resxComponents = [];
 
     const int c_widgetWidth = 305;
-    const int c_textWindgetWidth = c_widgetWidth * 2;
-    const int c_panelWidth = c_textWindgetWidth + 3;
+    const int c_textWidgetWidth = c_widgetWidth * 2;
+    const int c_panelWidth = c_textWidgetWidth + 3;
     const int c_checkBoxOffset = 3;
 
     #region Generate a main component of an element card
@@ -53,7 +53,7 @@ public class ElementsPackage : PackNS.Package
 
         ctor.BodyStrings.Add("InitializeComponent();");
         ctor.BodyStrings.Add(string.Empty);
-        
+
         foreach (var propDef in entityDef.PropertyDefinitions.Values)
         {
             var wDesc = CSharpHelper.GenerateWidgetDescForProperty(propDef, preferNaturalLanguageForComments, uiLanguage);
@@ -377,7 +377,7 @@ public class ElementsPackage : PackNS.Package
                 ReturnType = "void",
                 Visibility = ElementVisibilityClassic.Private
             };
-            
+
             var param = new CSParameter
             {
                 Type = "object",
@@ -513,7 +513,7 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    private static int SetupWidgetParameters(IList<CSharpHelper.PropertyWidgetDescriptor> widgetDescs, IList<string> predefinedCode, bool supportHiDpi)
+    private static int SetupWidgetParameters(IList<CSharpHelper.PropertyWidgetDescriptor> widgetDescs, IList<string> predefinedCode)
     {
         const int c_widgetHeight = 37;
         const int c_widgetVertGap = 6;
@@ -567,18 +567,15 @@ public class ElementsPackage : PackNS.Package
             }
 
             var sizeWidth = isMultiline
-                ? c_textWindgetWidth
+                ? c_textWidgetWidth
                 : (isBoolProp
                     ? (c_widgetWidth - c_checkBoxOffset)
                     : c_widgetWidth
                 );
-            var widthExpression = supportHiDpi
-                ? $"LogicalToDeviceUnits({sizeWidth})"
-                : $"{sizeWidth}";
 
-            predefinedCode.Add(string.Format("            this.{0}.Size = new System.Drawing.Size({1}, {2});", wDesc.WidgetName, widthExpression, widgetHeight));
+            predefinedCode.Add(string.Format("            this.{0}.Size = new System.Drawing.Size({1}, {2});", wDesc.WidgetName, sizeWidth, widgetHeight));
             predefinedCode.Add(string.Format("            this.{0}.TabIndex = {1};", wDesc.WidgetName, tabIndex));
-            
+
             if (wDesc.WidgetName.IndexOf("SEL_") == 0)
             {
                 predefinedCode.Add(string.Format("            this.{0}.UseCard = {1};", wDesc.WidgetName, canSelectString));
@@ -715,8 +712,7 @@ public class ElementsPackage : PackNS.Package
             designerComponent.PredefinedCode.Add("            this.SuspendLayout();");
 
             // 2. Setting up parameters of properties
-            int formHeight = SetupWidgetParameters(wDescs, designerComponent.PredefinedCode, parentPackage.ParentPackage.ParentPackage.Generator.SupportHiDpi) + 42;
-
+            var formHeight = SetupWidgetParameters(wDescs, designerComponent.PredefinedCode) + 42;
             designerComponent.PredefinedCode.Add("            // ");
             designerComponent.PredefinedCode.Add(string.Format("            // {0}", formName));
             designerComponent.PredefinedCode.Add("            // ");
