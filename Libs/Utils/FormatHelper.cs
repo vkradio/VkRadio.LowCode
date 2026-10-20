@@ -51,4 +51,12 @@ public static class FormatHelper
         fullStringNotSeparated.Substring(fullStringNotSeparated.Length - decimalPositions);
 
     public static string[] SplitTextToLines(string text) => (text ?? string.Empty).Split(["\r\n"], StringSplitOptions.None);
+
+    /// <summary>
+    /// Safely truncate string to maximum available length
+    /// </summary>
+    /// <param name="str">String to truncate</param>
+    /// <param name="maxLen">Max available length</param>
+    /// <returns></returns>
+    public static string? SafeTruncString(this string? str, int maxLen) => (str?.Length ?? 0) > maxLen ? str!.Substring(0, maxLen) : str;
 }
