@@ -33,11 +33,11 @@ public class LaunchersPackage : PackNS.Package
             };
             _components.Add(component.Name, component);
             var rootNamespace = ParentPackage.ParentPackage.RootNamespace;
-            component.UserUsings.Add("orm.Db");
-            component.UserUsings.Add("orm.Gui");
             component.UserUsings.Add(string.Format("{0}.Gui.Elements", rootNamespace));
             component.UserUsings.Add(string.Format("{0}.Gui.Lists", rootNamespace));
             component.UserUsings.Add(string.Format("{0}.Model.Storage", rootNamespace));
+            component.UserUsings.Add("VkRadio.LowCode.Libs.Gui.WinForms");
+            component.UserUsings.Add("VkRadio.LowCode.Libs.Orm");
 
             var cls = new CSClass
             {

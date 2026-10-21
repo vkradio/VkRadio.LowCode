@@ -65,4 +65,6 @@ public class LibsParamsLegacy : LibsParams
 
     public override IEnumerable<string> GenerateSolutionProjectsConfigBatchLines(Func<Guid, IEnumerable<string>> generateBatchForProject) =>
         generateBatchForProject(new Guid(C_ORMLIB_PROJECT_GUID_STRING));
+
+    public override IEnumerable<string> GenerateNestedProjectsPreSolutionLines() => Enumerable.Empty<string>();
 }

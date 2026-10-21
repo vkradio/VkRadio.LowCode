@@ -99,6 +99,7 @@ public class ProjectFileBase : ProjectFile
             // Components of UI resources (.resx)
             _predefinedCode.Add($"    <EmbeddedResource Include=\"Gui\\Elements\\DOP{baseClassName}.resx\">");
             _predefinedCode.Add($"      <DependentUpon>{component.Name}</DependentUpon>");
+            _predefinedCode.Add($"      <SubType>Designer</SubType>");
             _predefinedCode.Add($"    </EmbeddedResource>");
         }
         #endregion

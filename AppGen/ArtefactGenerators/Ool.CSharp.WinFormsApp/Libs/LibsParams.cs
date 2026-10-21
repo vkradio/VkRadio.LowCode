@@ -18,6 +18,8 @@ public abstract class LibsParams
 
     public abstract IEnumerable<string> GenerateSolutionProjectsConfigBatchLines(Func<Guid, IEnumerable<string>> generateBatchForProject);
 
+    public abstract IEnumerable<string> GenerateNestedProjectsPreSolutionLines();
+
     public static LibsParams Deserialize(XElement initFromTargetXElement, ArtefactGeneratorCSharpClassic generator)
     {
         LibsParams result;

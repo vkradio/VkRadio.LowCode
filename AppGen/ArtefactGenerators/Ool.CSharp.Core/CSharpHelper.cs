@@ -173,11 +173,11 @@ public static class CSharpHelper
 
         if (propWidgetName.IndexOf("SF_") == 0)
         {
-            widgetClassName = "orm.Gui.StringField";
+            widgetClassName = "VkRadio.LowCode.Libs.Gui.WinForms.StringField";
         }
         else if (propWidgetName.IndexOf("SEL_") == 0)
         {
-            widgetClassName = "orm.Gui.SelectorField";
+            widgetClassName = "VkRadio.LowCode.Libs.Gui.WinForms.SelectorField";
         }
         else if (propWidgetName.IndexOf("CHK_") == 0)
         {

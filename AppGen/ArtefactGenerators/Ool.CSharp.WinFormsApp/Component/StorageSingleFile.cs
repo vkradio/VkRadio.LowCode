@@ -14,8 +14,8 @@ public class StorageSingleFile : CSComponent
         SystemUsings.Add("System");
         SystemUsings.Add("System.Collections.Generic");
         SystemUsings.Add("System.Data.Common");
-        UserUsings.Add("orm.Db");
         UserUsings.Add($"{package.ParentPackage.RootNamespace}.Model.DOT");
+        UserUsings.Add("VkRadio.LowCode.Libs.Orm");
 
         var dbModel = package.ParentPackage.ParentPackage.DBbSchemaModel;
 

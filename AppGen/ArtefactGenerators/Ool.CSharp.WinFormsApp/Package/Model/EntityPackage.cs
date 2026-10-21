@@ -993,9 +993,8 @@ public class EntityPackage : PackNS.Package
             modelComponent.SystemUsings.Add("System.Collections.Generic");
             modelComponent.SystemUsings.Add("System.Data");
             modelComponent.SystemUsings.Add("System.Data.Common");
-            modelComponent.UserUsings.Add("orm.Db");
-            //modelComponent.UserUsings.Add("orm.Util");
             modelComponent.UserUsings.Add($"{ParentPackage.ParentPackage.RootNamespace}.Model.Storage");
+            modelComponent.UserUsings.Add("VkRadio.LowCode.Libs.Orm");
 
             var modelClass = CreateEntityClass(modelComponent, entityDef, preferNaturalLanguageForComments, uiLanguage);
             modelComponent.MainClass = modelClass;

@@ -111,9 +111,17 @@ public class Storage : CSComponentWMainClass
             Class = storageClass,
             DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Конструктор хранилища" : "Storage constructor"),
             HintSingleLineBody = false,
-            Visibility = ElementVisibilityClassic.Public
+            Visibility = ElementVisibilityClassic.Public,
+            BaseText = " : base(dbProviderFactory)"
         };
         storageClass.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
+
+        var ctorParam = new CSParameter
+        {
+            Type = "IDbProviderFactory",
+            Name = "dbProviderFactory"
+        };
+        ctor.Params.Add(ctorParam.Name, ctorParam);
 
         ctor.BodyStrings.Add(string.Format("_tableName = \"{0}\";", tableAndDotCorrespondence.Table.Name));
         ctor.BodyStrings.Add(string.Format("_tableNameQ = \"\\\"{0}\\\"\";", tableAndDotCorrespondence.Table.Name));
@@ -239,8 +247,6 @@ public class Storage : CSComponentWMainClass
         storageClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
         #endregion
 
-        method.BodyStrings.Add("orm.Db.DbProviderFactory factory = orm.Db.DbProviderFactory.Instance;");
-
         var entityDef = tableAndDotCorrespondence.EntityDefinition;
 
         for (var i = 1; i < tableAndDotCorrespondence.Table.AllFields.Count; i++)
@@ -259,27 +265,27 @@ public class Storage : CSComponentWMainClass
             {
                 if (corr.PropertyDefinition.FunctionalType is PFTBoolean)
                 {
-                    rightPart = $"factory.ReadBool{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
+                    rightPart = $"_dbProviderFactory.ReadBool{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
                 }
                 else if (corr.PropertyDefinition.FunctionalType is PFTDateTime)
                 {
-                    rightPart = $"factory.ReadDateTime{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
+                    rightPart = $"_dbProviderFactory.ReadDateTime{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
                 }
                 else if (corr.PropertyDefinition.FunctionalType is PFTDecimal)
                 {
-                    rightPart = $"factory.ReadDecimal{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
+                    rightPart = $"_dbProviderFactory.ReadDecimal{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
                 }
                 else if (corr.PropertyDefinition.FunctionalType is PFTInteger)
                 {
-                    rightPart = $"factory.ReadInt{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
+                    rightPart = $"_dbProviderFactory.ReadInt{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
                 }
                 else if (corr.PropertyDefinition.FunctionalType is PFTString)
                 {
-                    rightPart = $"factory.ReadStringFromReader(in_reader, {i}, {(isNullable ? "true" : "false")});";
+                    rightPart = $"_dbProviderFactory.ReadStringFromReader(in_reader, {i}, {(isNullable ? "true" : "false")});";
                 }
                 else if (corr.PropertyDefinition.FunctionalType is PFTUniqueCode)
                 {
-                    rightPart = $"factory.ReadGuid{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
+                    rightPart = $"_dbProviderFactory.ReadGuid{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
                 }
                 else
                 {
@@ -294,7 +300,7 @@ public class Storage : CSComponentWMainClass
                     corr.PropertyDefinition.FunctionalType is PFTTableOwner)
                 {
                     isId = true;
-                    rightPart = $"factory.ReadGuid{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
+                    rightPart = $"_dbProviderFactory.ReadGuid{(isNullable ? "Nullable" : string.Empty)}FromReader(in_reader, {i});";
                 }
                 else
                 {
@@ -345,8 +351,6 @@ public class Storage : CSComponentWMainClass
         storageClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
         #endregion
 
-        method.BodyStrings.Add("orm.Db.DbProviderFactory factory = orm.Db.DbProviderFactory.Instance;");
-
         var entityDef = tableAndEntityCorrespondence.EntityDefinition;
 
         for (var i = 1; i < tableAndEntityCorrespondence.Table.AllFields.Count; i++)
@@ -368,13 +372,13 @@ public class Storage : CSComponentWMainClass
                 var propNameWOId = propName;
                 propName += "Id";
                 method.BodyStrings.Add(string.Format("if (!in_o.{0}Id.HasValue && in_o.{0} != null)", propNameWOId));
-                method.BodyStrings.Add(CSharpHelper.C_TAB + string.Format("in_params.Add(factory.CreateParameter(_params[{1}], in_o.{0}.Id.Value, typeof(Guid?), true));", propNameWOId, i));
+                method.BodyStrings.Add(CSharpHelper.C_TAB + string.Format("in_params.Add(_dbProviderFactory.CreateParameter(_parameters[{1}], in_o.{0}.Id.Value, typeof(Guid?), true));", propNameWOId, i));
                 method.BodyStrings.Add("else");
-                method.BodyStrings.Add(CSharpHelper.C_TAB + string.Format("in_params.Add(factory.CreateParameter(_params[{0}], in_o.{1}, typeof({2}), {3}));", i, propName, typeName, isNullable ? "true" : "false"));
+                method.BodyStrings.Add(CSharpHelper.C_TAB + string.Format("in_params.Add(_dbProviderFactory.CreateParameter(_parameters[{0}], in_o.{1}, typeof({2}), {3}));", i, propName, typeName, isNullable ? "true" : "false"));
             }
             else
             {
-                method.BodyStrings.Add(string.Format("in_params.Add(factory.CreateParameter(_params[{0}], in_o.{1}, typeof({2}), {3}));", i, propName, typeName, isNullable ? "true" : "false"));
+                method.BodyStrings.Add(string.Format("in_params.Add(_dbProviderFactory.CreateParameter(_parameters[{0}], in_o.{1}, typeof({2}), {3}));", i, propName, typeName, isNullable ? "true" : "false"));
             }
         }
     }
@@ -449,7 +453,7 @@ public class Storage : CSComponentWMainClass
 
         method.BodyStrings.Add($"if (in_{propName} == null)");
         method.BodyStrings.Add($"    throw new ArgumentException(\"{propName}\");");
-        method.BodyStrings.Add($"DbParameter[] dbParams = new DbParameter[] {{ orm.Db.DbProviderFactory.Instance.CreateParameter(\"@in_{propName}\", in_{propName}, typeof(string), false) }};");
+        method.BodyStrings.Add($"DbParameter[] dbParams = new DbParameter[] {{ _dbProviderFactory.CreateParameter(\"@in_{propName}\", in_{propName}, typeof(string), false) }};");
         method.BodyStrings.Add($"List<{entityClassName}> result = ReadAsCollection(");
         method.BodyStrings.Add($"    in_where: {constName} + \" = @in_{propName}\",");
         method.BodyStrings.Add($"    in_params: dbParams,");
@@ -506,9 +510,8 @@ public class Storage : CSComponentWMainClass
         SystemUsings.Add("System");
         SystemUsings.Add("System.Collections.Generic");
         SystemUsings.Add("System.Data.Common");
-        UserUsings.Add("orm.Db");
-        //UserUsings.Add("orm.Util");
         UserUsings.Add($"{rootNamespace}.Model.DOT");
+        UserUsings.Add("VkRadio.LowCode.Libs.Orm");
 
         var storageClass = CreateStorageClass(this, entityDefinition, dbModel, preferNaturalLanguageForComments);
         MainClass = storageClass;

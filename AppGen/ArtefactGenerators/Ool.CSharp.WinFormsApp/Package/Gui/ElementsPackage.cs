@@ -272,7 +272,7 @@ public class ElementsPackage : PackNS.Package
             };
             cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
-            method.BodyStrings.Add(string.Format("{0} o = ({0})_o;", entityClassName));
+            method.BodyStrings.Add(string.Format("{0} o = ({0})_dataObject;", entityClassName));
             method.BodyStrings.Add(string.Format("o.{0} = null;", wDesc.PropertyName));
             method.BodyStrings.Add(string.Format("{0}.SetValue(o.{1});", wDesc.WidgetName, wDesc.PropertyName));
         }
@@ -300,9 +300,9 @@ public class ElementsPackage : PackNS.Package
             method.BodyStrings.Add("{");
             method.BodyStrings.Add("    if (frm.ShowDialog(this) == DialogResult.OK)");
             method.BodyStrings.Add("    {");
-            method.BodyStrings.Add(string.Format("        {0} o = ({0})_o;", entityClassName));
+            method.BodyStrings.Add(string.Format("        {0} o = ({0})_dataObject;", entityClassName));
             method.BodyStrings.Add(string.Empty);
-            method.BodyStrings.Add(string.Format("        o.{0} = ({1})((FRM_DOList)frm).SelectedValue;", wDesc.PropertyName, wDesc.PropertyClass));
+            method.BodyStrings.Add(string.Format("        o.{0} = ({1})((DOListForm)frm).SelectedValue;", wDesc.PropertyName, wDesc.PropertyClass));
             method.BodyStrings.Add(string.Format("        {0}.SetValue(o.{1});", wDesc.WidgetName, wDesc.PropertyName));
             method.BodyStrings.Add(string.Empty);
             method.BodyStrings.Add(string.Format("        List<QuickSelectStorage.SelectableRow> qSelectList = UiRegistry.Instance.QuickSelectStorage.GetRowsForDOT(\"{0}\");", wDesc.PropertyClass));
@@ -406,7 +406,7 @@ public class ElementsPackage : PackNS.Package
             method.BodyStrings.Add("    return;");
             method.BodyStrings.Add("}");
             method.BodyStrings.Add(string.Empty);
-            method.BodyStrings.Add(string.Format("{0} o = ({0})_o;", entityClassName));
+            method.BodyStrings.Add(string.Format("{0} o = ({0})_dataObject;", entityClassName));
             method.BodyStrings.Add(string.Format("o.{0} = selectedValue;", wDesc.PropertyName));
             method.BodyStrings.Add(string.Format("SEL_{0}.SetValue(o.{0});", wDesc.PropertyName));
             method.BodyStrings.Add(string.Empty);
@@ -458,7 +458,7 @@ public class ElementsPackage : PackNS.Package
             method.BodyStrings.Add(string.Empty);
             method.BodyStrings.Add(string.Format("using (Form frm = UiRegistry.Instance.Uil{0}.CreateList(false, fs))", wDesc.PropertyClass));
             method.BodyStrings.Add("    frm.ShowDialog(this);");
-            method.BodyStrings.Add(string.Format("{0} o = ({0})_o;", entityClassName));
+            method.BodyStrings.Add(string.Format("{0} o = ({0})_dataObject;", entityClassName));
             method.BodyStrings.Add(string.Format("{0}.SetValue(o.{1});", wDesc.WidgetName, PropertyNameToCountMethod(wDesc.PropertyName)));
         }
     }
@@ -481,7 +481,7 @@ public class ElementsPackage : PackNS.Package
             };
             cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
-            method.BodyStrings.Add(string.Format("{0} o = ({0})_o;", entityClassName));
+            method.BodyStrings.Add(string.Format("{0} o = ({0})_dataObject;", entityClassName));
             method.BodyStrings.Add(string.Empty);
             method.BodyStrings.Add(string.Format("if (o.{0} == null)", wDesc.PropertyName));
             method.BodyStrings.Add("{");
@@ -490,7 +490,7 @@ public class ElementsPackage : PackNS.Package
             method.BodyStrings.Add("}");
             method.BodyStrings.Add(string.Empty);
             method.BodyStrings.Add(string.Format("DbMappedDOT refObject = (DbMappedDOT)o.{0}.Clone();", wDesc.PropertyName));
-            method.BodyStrings.Add(string.Format("using (IFRM_Card frm = UiRegistry.Instance.Uil{0}.CreateCard(refObject))", wDesc.PropertyClass));
+            method.BodyStrings.Add(string.Format("using (ICardForm frm = UiRegistry.Instance.Uil{0}.CreateCard(refObject))", wDesc.PropertyClass));
             method.BodyStrings.Add("{");
             method.BodyStrings.Add("    ((Form)frm).ShowDialog(this);");
             method.BodyStrings.Add("    if (frm.Changed)");
@@ -624,10 +624,10 @@ public class ElementsPackage : PackNS.Package
             panComponent.SystemUsings.Add("System");
             panComponent.SystemUsings.Add("System.Collections.Generic");
             panComponent.SystemUsings.Add("System.Windows.Forms");
-            panComponent.UserUsings.Add("orm.Db");
-            panComponent.UserUsings.Add("orm.Gui");
             panComponent.UserUsings.Add(string.Format("{0}.Model.DOT", ParentPackage.ParentPackage.RootNamespace));
             panComponent.UserUsings.Add(string.Format("{0}.Model.Storage", ParentPackage.ParentPackage.RootNamespace));
+            panComponent.UserUsings.Add("VkRadio.LowCode.Libs.Gui.WinForms");
+            panComponent.UserUsings.Add("VkRadio.LowCode.Libs.Orm");
 
             var panClass = new CSClass
             {

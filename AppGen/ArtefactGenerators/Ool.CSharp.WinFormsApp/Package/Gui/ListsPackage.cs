@@ -47,7 +47,7 @@ public class ListsPackage : PackNS.Package
             };
             _components.Add(component.Name, component);
             component.SystemUsings.Add("System.Windows.Forms");
-            component.UserUsings.Add("orm.Gui");
+            component.UserUsings.Add("VkRadio.LowCode.Libs.Gui.WinForms");
 
             var cls = new CSClass
             {

@@ -54,7 +54,7 @@ public class Solution : ComponentWPredefinedCode
         _predefinedCode.Add($"# Visual Studio 14");
         _predefinedCode.Add($"VisualStudioVersion = 17.14.37806.7");
         _predefinedCode.Add($"MinimumVisualStudioVersion = 10.0.40219.1");
-        _predefinedCode.AddRange(generator.LibsParams.GenerateSolutionProjectEntryLines(rootPackage.FullPath));
+        _predefinedCode.AddRange(generator.LibsParams.GenerateSolutionProjectsEntryLines(rootPackage.FullPath));
         _predefinedCode.Add($"Project(\"{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}\") = \"{name}_base\", \"base\\{name}_base.csproj\", \"{{{rootPackage.BaseProject.ProjectGuid.ToString().ToUpper()}}}\"");
         _predefinedCode.Add($"EndProject");
         _predefinedCode.Add($"Project(\"{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}\") = \"{name}_extension\", \"extension\\{name}_extension.csproj\", \"{{{rootPackage.ExtensionProject.ProjectGuid.ToString().ToUpper()}}}\"");
@@ -75,6 +75,16 @@ public class Solution : ComponentWPredefinedCode
         _predefinedCode.Add($"\tGlobalSection(SolutionProperties) = preSolution");
         _predefinedCode.Add($"\t\tHideSolutionNode = FALSE");
         _predefinedCode.Add($"\tEndGlobalSection");
+
+        var nestedProjectsPreSolutionLines = generator.LibsParams.GenerateNestedProjectsPreSolutionLines().ToList();
+
+        if (nestedProjectsPreSolutionLines.Count != 0)
+        {
+            _predefinedCode.Add($"\tGlobalSection(NestedProjects) = preSolution");
+            _predefinedCode.AddRange(nestedProjectsPreSolutionLines);
+            _predefinedCode.Add($"\tEndGlobalSection");
+        }
+
         _predefinedCode.Add($"\tGlobalSection(ExtensibilityGlobals) = postSolution");
         _predefinedCode.Add($"\t\tVisualSVNWorkingCopyRoot = {svnRelPath}");
         _predefinedCode.Add($"\tEndGlobalSection");

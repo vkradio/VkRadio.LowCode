@@ -39,8 +39,13 @@ public class GuiPackage : PackNS.Package
             Name = "UiRegistry.cs",
             Namespace = string.Format("{0}.Gui", ParentPackage.RootNamespace),
         };
-        uiRegistryComp.UserUsings.Add("orm.Gui");
-        uiRegistryComp.UserUsings.Add(string.Format("{0}.Gui.Launchers", ParentPackage.RootNamespace));
+        var userUsings = new string[] { "orm.Gui", string.Format("{0}.Gui.Launchers", ParentPackage.RootNamespace) }.OrderBy(x => x);
+
+        foreach (var uu in userUsings)
+        {
+            uiRegistryComp.UserUsings.Add(uu);
+        }
+
         _components.Add(uiRegistryComp.Name, uiRegistryComp);
 
         var clsUiRegistry = new CSClass

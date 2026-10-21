@@ -23,4 +23,6 @@ public class LibsParamsModernNuGet : LibsParamsModern
     {
         throw new NotImplementedException();
     }
+
+    public override IEnumerable<string> GenerateNestedProjectsPreSolutionLines() => Enumerable.Empty<string>();
 }

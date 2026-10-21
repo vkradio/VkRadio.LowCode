@@ -37,6 +37,8 @@ public class StoragePackage: PackNS.Package
         storageRegistryComponent.Classes.Add(clsStorageRegistry.Name, clsStorageRegistry);
         storageRegistryComponent.MainClass = clsStorageRegistry;
 
+        storageRegistryComponent.UserUsings.Add("VkRadio.LowCode.Libs.Orm");
+
         var classDescriptors = new List<CSharpHelper.ClassNameEntityDefPair>();
 
         foreach (var component in package
@@ -66,28 +68,55 @@ public class StoragePackage: PackNS.Package
 
         var ctor = new CSConstructor(clsStorageRegistry)
         {
-            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Закрытый конструктор реестра хранилищ" : "Private constructor of storage registry"),
+            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Конструктор реестра хранилищ" : "Constructor of storage registry"),
             HintSingleLineBody = false,
-            Visibility = ElementVisibilityClassic.Private
+            Visibility = ElementVisibilityClassic.Public
         };
+
+        var ctorParam = new CSParameter
+        {
+            Type = "IDbProviderFactory",
+            Name = "dbProviderFactory"
+        };
+        ctor.Params.Add(ctorParam.Name, ctorParam);
+
         clsStorageRegistry.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
 
-        var ctorStatic = new CSConstructor(clsStorageRegistry)
+        //var ctorStatic = new CSConstructor(clsStorageRegistry)
+        //{
+        //    DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Статический конструктор реестра хранилищ" : "Static constructor of storage registry"),
+        //    HintSingleLineBody = true,
+        //    Visibility = ElementVisibilityClassic.Private,
+        //    IsStatic = true
+        //};
+        //ctorStatic.BodyStrings.Add("_instance = new StorageRegistry();");
+        //clsStorageRegistry.Constructors.Add(CSharpHelper.GenerateMethodKey(ctorStatic), ctorStatic);
+
+        var initMethod = new CSMethod
         {
-            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Статический конструктор реестра хранилищ" : "Static constructor of storage registry"),
+            Class = clsStorageRegistry,
+            Name = "SetSingletonInstance",
+            IsStatic = true,
             HintSingleLineBody = true,
-            Visibility = ElementVisibilityClassic.Private,
-            IsStatic = true
+            Visibility = ElementVisibilityClassic.Public,
         };
-        ctorStatic.BodyStrings.Add("_instance = new StorageRegistry();");
-        clsStorageRegistry.Constructors.Add(CSharpHelper.GenerateMethodKey(ctorStatic), ctorStatic);
+        clsStorageRegistry.Methods.Add(initMethod.Name, initMethod);
+
+        initMethod.BodyStrings.Add("_instance = instance;");
+
+        var initMethodParam = new CSParameter
+        {
+            Type = "StorageRegistry",
+            Name = "instance"
+        };
+        initMethod.Params.Add(initMethodParam.Name, initMethodParam);
 
         foreach (var cls in classDescriptors)
         {
             var fieldName = $"_{NameHelper.NamesToCamelCase(cls.EntityDefinition.Names)}Storage";
-            var dotLocalName = NameHelper.GetLocalNameUpperCase(cls.EntityDefinition.Names, preferNaturalLanguageForComments);
+            var entityLocalName = NameHelper.GetLocalNameUpperCase(cls.EntityDefinition.Names, preferNaturalLanguageForComments);
             var storageClassName = $"{NameHelper.NamesToPascalCase(cls.EntityDefinition.Names)}Storage";
-            var storageComment = preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? $"Хранилище {dotLocalName}" : $"{dotLocalName} Storage";
+            var storageComment = preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? $"Хранилище {entityLocalName}" : $"{entityLocalName} Storage";
 
             // 1. Storage field
             var field = new CSClassField
@@ -101,7 +130,7 @@ public class StoragePackage: PackNS.Package
             clsStorageRegistry.Fields.Add(field.Name, field);
 
             // 2. Create storage in a constructor
-            ctor.BodyStrings.Add($"{fieldName} = new {storageClassName}(); {fieldName}.Init();");
+            ctor.BodyStrings.Add($"{fieldName} = new {storageClassName}(dbProviderFactory); {fieldName}.Init();");
 
             // 3. Public property
             var prop = new CSProperty
