@@ -17,8 +17,8 @@
             {
                 if (components != null)
                     components.Dispose();
-                if (doList != null)
-                    doList.Dispose();
+                if (_doList != null)
+                    _doList.Dispose();
             }
             base.Dispose(disposing);
         }

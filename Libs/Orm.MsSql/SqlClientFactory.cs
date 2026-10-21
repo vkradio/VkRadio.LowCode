@@ -35,8 +35,8 @@ public class SqlClientFactory : DbProviderFactory
 
     public SqlClientFactory(string connectionString)
     {
-        this.connectionString = connectionString;
-        quoteSymbol = "\"";
+        _connectionString = connectionString;
+        _quoteSymbol = "\"";
         SelectTop = SelectTopStyle.AsMs;
         GuidStyle = GuidStyle.AsMs;
     }

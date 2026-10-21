@@ -31,7 +31,7 @@ public class Solution : ComponentWPredefinedCode
 
     public Solution(CSharpSolution rootPackage)
     {
-        var generator = (ArtefactGeneratorCSharpClassic)rootPackage.Generator;
+        var generator = rootPackage.Generator;
         var cSharpAppTarget = rootPackage.Generator.Target;
         Package = rootPackage;
         _emitUtf8Bom = true;
@@ -50,17 +50,11 @@ public class Solution : ComponentWPredefinedCode
         }
 
         _predefinedCode.Add(string.Empty);
-        _predefinedCode.Add($"Microsoft Visual Studio Solution File, Format Version 12.00");
+        _predefinedCode.Add($"Microsoft Visual Studio Solution File, Format Version 17.00");
         _predefinedCode.Add($"# Visual Studio 14");
-        _predefinedCode.Add($"VisualStudioVersion = 14.0.23107.0");
+        _predefinedCode.Add($"VisualStudioVersion = 17.14.37806.7");
         _predefinedCode.Add($"MinimumVisualStudioVersion = 10.0.40219.1");
-        _predefinedCode.Add($"Project(\"{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}\") = \"{generator.OrmLibProjectName}\", \"{FileHelper.GetRelativePath(rootPackage.FullPath + "\\", generator.OrmLibProjectDir)}\", \"{{{ArtefactGeneratorCSharpClassic.C_ORMLIB_PROJECT_GUID_STRING}}}\"");
-        _predefinedCode.Add($"EndProject");
-        //if (in_rootPackage.Generator.Target.IsDependantOnSQLite)
-        //{
-        //    _predefinedCode.Add($"Project(\"{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}\") = \"orm_sqlite\", \"{FileHelper.GetRelativePath(in_rootPackage.FullPath + "\\", csharpTarget.SQLiteProjectFullPath)}\", \"{{{TargetSQLite.C_SQLITE_PROJECT_GUID.ToString().ToUpper()}}}\"");
-        //    _predefinedCode.Add($"EndProject");
-        //}
+        _predefinedCode.AddRange(generator.LibsParams.GenerateSolutionProjectEntryLines(rootPackage.FullPath));
         _predefinedCode.Add($"Project(\"{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}\") = \"{name}_base\", \"base\\{name}_base.csproj\", \"{{{rootPackage.BaseProject.ProjectGuid.ToString().ToUpper()}}}\"");
         _predefinedCode.Add($"EndProject");
         _predefinedCode.Add($"Project(\"{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}\") = \"{name}_extension\", \"extension\\{name}_extension.csproj\", \"{{{rootPackage.ExtensionProject.ProjectGuid.ToString().ToUpper()}}}\"");
@@ -73,9 +67,7 @@ public class Solution : ComponentWPredefinedCode
         _predefinedCode.Add($"\t\tRelease|Any CPU = Release|Any CPU");
         _predefinedCode.Add($"\tEndGlobalSection");
         _predefinedCode.Add($"\tGlobalSection(ProjectConfigurationPlatforms) = postSolution");
-        _predefinedCode.AddRange(GetConfigBatch(new Guid(ArtefactGeneratorCSharpClassic.C_ORMLIB_PROJECT_GUID_STRING)));
-        //if (in_rootPackage.Generator.Target.IsDependantOnSQLite)
-        //    _predefinedCode.AddRange(GetConfigBatch(TargetSQLite.C_SQLITE_PROJECT_GUID));
+        _predefinedCode.AddRange(generator.LibsParams.GenerateSolutionProjectsConfigBatchLines(GetConfigBatch));
         _predefinedCode.AddRange(GetConfigBatch(rootPackage.BaseProject.ProjectGuid));
         _predefinedCode.AddRange(GetConfigBatch(rootPackage.ExtensionProject.ProjectGuid));
         _predefinedCode.AddRange(GetConfigBatch(rootPackage.LauncherProject.ProjectGuid));

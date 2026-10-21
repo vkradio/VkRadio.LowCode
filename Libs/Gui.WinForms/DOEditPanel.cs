@@ -11,7 +11,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
         protected string c_noWayNoObjectSelected = "Object not selected.";
         protected string c_captionFault = "Refusal";
 
-        protected DbMappedDOT? dataObject;
+        protected DbMappedDOT? _dataObject;
 
         public DOEditPanel() => InitializeComponent();
 
@@ -19,8 +19,8 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
         {
             Guard.Against.Null(dataObject, nameof(dataObject));
 
-            this.dataObject = dataObject;
-            SyncFromDOT(this.dataObject);
+            this._dataObject = dataObject;
+            SyncFromDOT(this._dataObject);
         }
 
         public virtual void SyncFromDOT(DbMappedDOT dataObject) { }

@@ -9,11 +9,11 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
     {
         protected const string c_captionFailure = "Refusal";
 
-        protected DbMappedDOT dataObject = default!;
-        protected IDOStorage storage = default!;
-        protected bool dataObjectWasChanged;
-        protected string dataObjectTypeName = default!;
-        protected bool controlsInitialized;
+        protected DbMappedDOT _dataObject = default!;
+        protected IDOStorage _storage = default!;
+        protected bool _dataObjectWasChanged;
+        protected string _dataObjectTypeName = default!;
+        protected bool _controlsInitialized;
 
         protected bool CommitRollbackButtonsEnabled { get { return B_Rollback.Enabled; } set { B_Commit.Enabled = value; B_Rollback.Enabled = value; } }
 
@@ -30,9 +30,9 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
             Guard.Against.Null(dataObjectTypeName, nameof(dataObjectTypeName));
             Guard.Against.Null(editPanel, nameof(editPanel));
 
-            this.dataObject = dataObject;
-            this.storage = storage;
-            this.dataObjectTypeName = dataObjectTypeName;
+            _dataObject = dataObject;
+            _storage = storage;
+            _dataObjectTypeName = dataObjectTypeName;
             
             PAN_Content.Controls.Add(editPanel);
             editPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
@@ -40,29 +40,29 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 
         public virtual void SyncFromDO()
         {
-            Text = dataObjectTypeName + " - " + (dataObject.Id.HasValue ?
+            Text = _dataObjectTypeName + " - " + (_dataObject.Id.HasValue ?
                 "Edit" :
                 "Create");
             if (Parent != null && Parent is DOCardForm card)
                 card.Text = Text;
 
-            if (controlsInitialized)
+            if (_controlsInitialized)
                 SyncFromDOConcrete();
 
-            ((DOEditPanel)PAN_Content.Controls[0]).SyncFromDOTBase(dataObject);
+            ((DOEditPanel)PAN_Content.Controls[0]).SyncFromDOTBase(_dataObject);
 
-            B_Commit.Enabled = !dataObject.Id.HasValue;
-            B_Rollback.Enabled = !dataObject.Id.HasValue;
+            B_Commit.Enabled = !_dataObject.Id.HasValue;
+            B_Rollback.Enabled = !_dataObject.Id.HasValue;
         }
 
         public virtual string? SyncToDO() =>
-            ((DOEditPanel)PAN_Content.Controls[0]).SyncToDOT(dataObject);
+            ((DOEditPanel)PAN_Content.Controls[0]).SyncToDOT(_dataObject);
 
         public virtual bool Commit()
         {
             var errMessage = SyncToDO();
             if (errMessage == null)
-                errMessage = dataObject.Validate();
+                errMessage = _dataObject.Validate();
             if (errMessage != null)
             {
                 MessageBox.Show(this, errMessage, c_captionFailure, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -70,7 +70,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
             }
             else
             {
-                errMessage = storage.Flush(dataObject);
+                errMessage = _storage.Flush(_dataObject);
                 if (errMessage != null)
                 {
                     MessageBox.Show(this, errMessage, c_captionFailure, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -78,9 +78,9 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
                 }
                 else
                 {
-                    dataObject = (DbMappedDOT)dataObject.Clone();
+                    _dataObject = (DbMappedDOT)_dataObject.Clone();
                     SyncFromDO();
-                    dataObjectWasChanged = true;
+                    _dataObjectWasChanged = true;
                     return true;
                 }
             }
@@ -90,17 +90,17 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
         {
             DbMappedDOT? tmpObj = null;
 
-            if (dataObject.Id.HasValue)
+            if (_dataObject.Id.HasValue)
             {
-                tmpObj = storage.Restore(dataObject.Id.Value);
+                tmpObj = _storage.Restore(_dataObject.Id.Value);
                 if (tmpObj == null)
                     MessageBox.Show(this, "The object was deleted in another window or application instance.", c_captionFailure, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             }
 
             if (tmpObj == null)
-                tmpObj = storage.CreateNew(); // Here we process both situation: 1) rolling back newly created object to blanc card; 2) clearing up deleted object (see above).
+                tmpObj = _storage.CreateNew(); // Here we process both situation: 1) rolling back newly created object to blanc card; 2) clearing up deleted object (see above).
 
-            dataObject = (DbMappedDOT)tmpObj!.Clone();
+            _dataObject = (DbMappedDOT)tmpObj!.Clone();
             SyncFromDO();
         }
 
@@ -108,14 +108,14 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
         /// Flag, indicating whether the editable object&apos;s state has been
         /// changed in the Database. Used in the calling form after closing this form.
         /// </summary>
-        public bool Changed => dataObjectWasChanged;
+        public bool Changed => _dataObjectWasChanged;
         /// <summary>
         /// Flag, indicating that changes of object state have not been saved in the
         /// Database. Used to decide whether there is a need to ask a user about save
         /// on closing the form.
         /// </summary>
-        public bool NotSaved => !dataObject.InSync || CommitRollbackButtonsEnabled;
-        public bool IsNewObject => !dataObject.Id.HasValue;
+        public bool NotSaved => !_dataObject.InSync || CommitRollbackButtonsEnabled;
+        public bool IsNewObject => !_dataObject.Id.HasValue;
 
         [SuppressMessage("Security", "CA2109:Review visible event handlers", Justification = "We have no dangerous security functionality here")]
         public virtual void AnyValueChanged(object? sender, System.EventArgs e) => CommitRollbackButtonsEnabled = true;
@@ -126,9 +126,9 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
         public virtual void Init()
         {
             InitializeComponentConcrete();
-            controlsInitialized = true;
+            _controlsInitialized = true;
         }
 
-        public string DOTName => dataObjectTypeName;
+        public string DOTName => _dataObjectTypeName;
     }
 }

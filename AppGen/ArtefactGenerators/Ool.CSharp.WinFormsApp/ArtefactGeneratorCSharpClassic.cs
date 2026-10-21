@@ -1,5 +1,6 @@
 ﻿using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Libs;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.Core;
 using VkRadio.LowCode.AppGen.Domain;
@@ -12,7 +13,7 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp;
 /// </summary>
 public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
 {
-    const string c_defaultDotNetVersion = "4.0";
+    const string c_defaultDotNetVersion = "4.8";
 
     private readonly NaturalLanguageEnum _uiLanguage;
 
@@ -26,12 +27,7 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
 
     public string DotNetVersion { get; private set; } = default!;
 
-    public string OrmLibProjectDir { get; private set; } = default!;
-
-    /// <summary>
-    /// Ormlib project name without any .csproj extension and path (as displayed in VS solution tree)
-    /// </summary>
-    public string OrmLibProjectName { get; private set; } = default!;
+    public LibsParams LibsParams { get; private set; } = default!;
 
     public bool PutSimilarArtefactsToSingleFile { get; private set; }
 
@@ -84,23 +80,7 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
         }
         #endregion
 
-        #region Initialize path to ormlib
-        OrmLibProjectName = $"orm_{DotNetVersion}";
-
-        var ormProjectFileName = OrmLibProjectName + ".csproj";
-
-        if (xelTarget.Element("OrmLibProjectDir") is null)
-        {
-            throw new GeneratorException("C# Target has no <OrmLibProjectDir> value");
-        }
-
-        OrmLibProjectDir = Path.Combine(Target.Project.ProjectRootPath, xelTarget.Element("OrmLibProjectDir")!.Value, ormProjectFileName);
-
-        if (!File.Exists(OrmLibProjectDir))
-        {
-            throw new GeneratorException($"File \"{OrmLibProjectDir}\" not exists");
-        }
-        #endregion
+        LibsParams = LibsParams.Deserialize(xelTarget, this);
 
         #region Demo App
         var xelDemoApp = xelTarget.Element("DemoApp");
@@ -144,9 +124,4 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
     public Target MsSqlTarget => Target
         .DependsOn
         .FirstOrDefault(x => x.Type == ArtefactTypeEnum.MsSql) ?? throw new GeneratorException("No MS SQL target in this target dependencies");
-
-    public string GetOrmLibProjectFilePath() => Path.Combine(OrmLibProjectDir, OrmLibProjectName + ".csproj");
-
-
-    public static readonly string C_ORMLIB_PROJECT_GUID_STRING = "BC2581BB-BC55-4E13-9AED-69CE482E092D";
 }

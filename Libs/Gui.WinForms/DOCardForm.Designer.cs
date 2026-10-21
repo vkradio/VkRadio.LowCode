@@ -17,8 +17,8 @@
             {
                 if (components != null)
                     components.Dispose();
-                if (doCard != null)
-                    doCard.Dispose();
+                if (_doCard != null)
+                    _doCard.Dispose();
             }
             base.Dispose(disposing);
         }

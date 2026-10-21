@@ -5,7 +5,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 {
     public partial class DOCardForm : Form, ICardForm
     {
-        protected DOCard doCard = default!;
+        protected DOCard _doCard = default!;
 
         public DOCardForm() => InitializeComponent();
 
@@ -13,28 +13,28 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
         {
             Guard.Against.Null(doCard, nameof(doCard));
 
-            this.doCard = doCard;
-            Controls.Add(this.doCard);
-            this.doCard.SyncFromDO();
-            this.doCard.Dock = DockStyle.Fill;
+            _doCard = doCard;
+            Controls.Add(_doCard);
+            _doCard.SyncFromDO();
+            _doCard.Dock = DockStyle.Fill;
         }
 
-        public virtual bool Changed => doCard?.Changed ?? false;
+        public virtual bool Changed => _doCard?.Changed ?? false;
 
         void FRM_DOCard_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (e.CloseReason == CloseReason.UserClosing)
             {
-                if (doCard.NotSaved)
+                if (_doCard.NotSaved)
                 {
-                    var question = doCard.IsNewObject ?
+                    var question = _doCard.IsNewObject ?
                         "Do you need to save the object?" :
                         "Do you need to save changes?";
                     var userReply = MessageBox.Show(this, question, "Сохранение", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
                     switch (userReply)
                     {
                         case DialogResult.Yes:
-                            var saved = doCard.Commit();
+                            var saved = _doCard.Commit();
                             // If the user answered "Cancel", canceling form closing.
                             if (!saved)
                                 e.Cancel = true;

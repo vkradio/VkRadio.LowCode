@@ -19,15 +19,15 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
         protected const string c_captionFault = "Refusal";
         protected const string c_captionQuestion = "Question";
 
-        protected IDOStorage? storage;
-        protected UILauncher? uiLauncher;
-        protected bool isSelectable;
-        protected FilterAbstract? filter;
-        protected DbParameter[]? dbParameters;
-        protected bool notSortedYet = true;
-        protected int defaultSortFieldIndex = -1;
-        protected bool defaultSortAscending = true;
-        protected int[] decimalIntPositions = default!;
+        protected IDOStorage? _storage;
+        protected UILauncher? _uiLauncher;
+        protected bool _isSelectable;
+        protected FilterAbstract? _filter;
+        protected DbParameter[]? _dbParameters;
+        protected bool _notSortedYet = true;
+        protected int _defaultSortFieldIndex = -1;
+        protected bool _defaultSortAscending = true;
+        protected int[] _decimalIntPositions = default!;
 
         protected void UpdateCount()
         {
@@ -38,7 +38,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 
         public virtual void RefreshTable(DataRow? rowToDelete = null)
         {
-            if (storage != null)
+            if (_storage != null)
             {
                 var oldCur = Cursor;
                 try
@@ -52,24 +52,24 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
                         // the list of objects. If in the future there will be a need to extend the functionality -
                         // to apply filters in the already created window, then probably it won't work, probably old
                         // rows won't be deleting on filter apply.
-                        DGV_List.DataSource = storage.ReadAsTable(filter, dbParameters);
+                        DGV_List.DataSource = _storage.ReadAsTable(_filter, _dbParameters);
                     }
                     else
                     {
-                        storage.RefreshTable(filter, (DataTable)DGV_List.DataSource);
+                        _storage.RefreshTable(_filter, (DataTable)DGV_List.DataSource);
 
                         if (rowToDelete != null)
                             ((DataTable)DGV_ListProtected.DataSource).Rows.Remove(rowToDelete);
                     }
 
-                    if (defaultSortFieldIndex != -1)
+                    if (_defaultSortFieldIndex != -1)
                     {
-                        if (notSortedYet ||
-                           (DGV_List.SortedColumn.Index == defaultSortFieldIndex && DGV_List.SortOrder == (defaultSortAscending ? SortOrder.Ascending : SortOrder.Descending)))
+                        if (_notSortedYet ||
+                           (DGV_List.SortedColumn.Index == _defaultSortFieldIndex && DGV_List.SortOrder == (_defaultSortAscending ? SortOrder.Ascending : SortOrder.Descending)))
                         {
-                            DGV_List.Sort(DGV_List.Columns[defaultSortFieldIndex], defaultSortAscending ? System.ComponentModel.ListSortDirection.Ascending : System.ComponentModel.ListSortDirection.Descending);
-                            DGV_List.Columns[defaultSortFieldIndex].HeaderCell.SortGlyphDirection = defaultSortAscending ? SortOrder.Ascending : SortOrder.Descending;
-                            notSortedYet = false;
+                            DGV_List.Sort(DGV_List.Columns[_defaultSortFieldIndex], _defaultSortAscending ? System.ComponentModel.ListSortDirection.Ascending : System.ComponentModel.ListSortDirection.Descending);
+                            DGV_List.Columns[_defaultSortFieldIndex].HeaderCell.SortGlyphDirection = _defaultSortAscending ? SortOrder.Ascending : SortOrder.Descending;
+                            _notSortedYet = false;
                         }
                     }
 
@@ -100,7 +100,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
                 return null;
             }
 
-            var o = storage!.Restore(id.Value);
+            var o = _storage!.Restore(id.Value);
             if (o == null)
                 MessageBox.Show(this, "Object no longer exists.", c_captionFault, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             return o;
@@ -113,7 +113,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
             {
                 o = (DbMappedDOT)o.Clone();
 
-                using var frm = uiLauncher!.CreateCard(o);
+                using var frm = _uiLauncher!.CreateCard(o);
                 ((Form)frm).ShowDialog(this);
                 return frm.Changed;
             }
@@ -145,7 +145,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 
         void DGV_List_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (isSelectable)
+            if (_isSelectable)
             {
                 B_Pick_Click(sender, e);
             }
@@ -158,8 +158,8 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 
         void B_Create_Click(object sender, EventArgs e)
         {
-            var o = SetupNewObject(storage!.CreateNew());
-            using var frm = uiLauncher!.CreateCard(o);
+            var o = SetupNewObject(_storage!.CreateNew());
+            using var frm = _uiLauncher!.CreateCard(o);
             ((Form)frm).ShowDialog(this);
             if (frm.Changed)
                 RefreshTable();
@@ -176,9 +176,9 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
                 return;
             }
 
-            if (storage!.PredefinedObjects.ContainsKey(id.Value))
+            if (_storage!.PredefinedObjects.ContainsKey(id.Value))
             {
-                MessageBox.Show(this, storage.GetMessageCannotDeletePredefinedObject(), c_captionFault, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show(this, _storage.GetMessageCannotDeletePredefinedObject(), c_captionFault, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
 
@@ -187,7 +187,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
                 string? error;
                 try
                 {
-                    error = storage.Delete(id.Value, true);
+                    error = _storage.Delete(id.Value, true);
                 }
                 catch (ZeroRowsAffectedException)
                 {
@@ -219,7 +219,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 
         void B_Pick_Click(object sender, EventArgs e)
         {
-            if (isSelectable)
+            if (_isSelectable)
             {
                 var selObj = GetSelectedObject(true);
                 if (selObj != null)
@@ -232,7 +232,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 
         void B_Filter_Click(object sender, EventArgs e)
         {
-            var filterFrm = uiLauncher!.CreateFilterForm();
+            var filterFrm = _uiLauncher!.CreateFilterForm();
             if (filterFrm == null)
             {
                 MessageBox.Show(this, "Filter for this type of objects is not provided.", "Refusal", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -289,7 +289,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
             dlg.OverwritePrompt = true;
             dlg.Title = "Saving the table";
             dlg.ValidateNames = true;
-            dlg.FileName = uiLauncher!.DotName;
+            dlg.FileName = _uiLauncher!.DotName;
             if (dlg.ShowDialog(this) == DialogResult.OK)
             {
                 if (File.Exists(dlg.FileName))
@@ -308,25 +308,25 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
             Guard.Against.Null(storage, nameof(storage));
             Guard.Against.Null(uiLauncher, nameof(uiLauncher));
 
-            this.storage = storage;
-            this.uiLauncher = uiLauncher;
-            this.filter = filter;
-            this.dbParameters = dbParameters;
+            this._storage = storage;
+            this._uiLauncher = uiLauncher;
+            this._filter = filter;
+            this._dbParameters = dbParameters;
             if (defaultSortFieldIndex.HasValue)
-                this.defaultSortFieldIndex = defaultSortFieldIndex.Value;
+                this._defaultSortFieldIndex = defaultSortFieldIndex.Value;
             if (defaultSortAscending.HasValue)
-                this.defaultSortAscending = defaultSortAscending.Value;
+                this._defaultSortAscending = defaultSortAscending.Value;
             RefreshTable();
         }
 
         public bool Selectable
         {
-            get => isSelectable;
+            get => _isSelectable;
             set
             {
-                isSelectable = value;
-                B_Pick.Enabled = isSelectable;
-                B_Pick.Visible = isSelectable;
+                _isSelectable = value;
+                B_Pick.Enabled = _isSelectable;
+                B_Pick.Visible = _isSelectable;
             }
         }
 

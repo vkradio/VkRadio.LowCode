@@ -6,14 +6,14 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 {
     public class SelectedObjectEventArgs: EventArgs
     {
-        readonly DbMappedDOT selectedObject;
+        readonly DbMappedDOT _selectedObject;
 
         public SelectedObjectEventArgs(DbMappedDOT selectedObject)
         {
             Guard.Against.Null(selectedObject, nameof(selectedObject));
-            this.selectedObject = selectedObject;
+            _selectedObject = selectedObject;
         }
 
-        public DbMappedDOT SelectedObject => selectedObject;
+        public DbMappedDOT SelectedObject => _selectedObject;
     }
 }

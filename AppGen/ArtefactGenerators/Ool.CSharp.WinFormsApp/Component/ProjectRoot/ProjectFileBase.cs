@@ -118,17 +118,7 @@ public class ProjectFileBase : ProjectFile
         _predefinedCode.Add($"    </Compile>");
         _predefinedCode.Add($"  </ItemGroup>");
         _predefinedCode.Add($"  <ItemGroup>");
-        _predefinedCode.Add($"    <ProjectReference Include=\"{FileHelper.GetRelativePath(projectPackage.FullPath + "\\", generator.OrmLibProjectDir)}\">");
-        _predefinedCode.Add($"      <Project>{{{ArtefactGeneratorCSharpClassic.C_ORMLIB_PROJECT_GUID_STRING.ToLower()}}}</Project>");
-        _predefinedCode.Add($"      <Name>{generator.OrmLibProjectName}</Name>");
-        _predefinedCode.Add("    </ProjectReference>");
-        //if (generator.Target.IsDependantOnSQLite)
-        //{
-        //    _predefinedCode.Add($"    <ProjectReference Include=\"{FileHelper.GetRelativePath(in_projectPackage.FullPath + "\\", generator.Target.SQLiteProjectFullPath)}\">");
-        //    _predefinedCode.Add($"      <Project>{{{TargetSQLite.C_SQLITE_PROJECT_GUID.ToString()}}}</Project>");
-        //    _predefinedCode.Add($"      <Name>orm_sqlite</Name>");
-        //    _predefinedCode.Add("    </ProjectReference>");
-        //}
+        _predefinedCode.AddRange(generator.LibsParams.GenerateProjectReferenceLines(projectPackage.FullPath));
         _predefinedCode.Add($"  </ItemGroup>");
         _predefinedCode.Add($"  <ItemGroup />");
         _predefinedCode.Add($"  <Import Project=\"$(MSBuildToolsPath)\\Microsoft.CSharp.targets\" />");

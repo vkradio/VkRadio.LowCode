@@ -7,21 +7,22 @@ namespace VkRadio.LowCode.Libs.Orm
 {
     public abstract class DbProviderFactory : IDbProviderFactory
     {
-        protected string connectionString = default!;
-        protected string quoteSymbol = string.Empty;
+        protected string _connectionString = default!;
+
+        protected string _quoteSymbol = string.Empty;
 
         protected virtual void InitConnection(DbConnection connection)
         {
             Guard.Against.Null(connection, nameof(connection));
 
-            connection.ConnectionString = connectionString;
+            connection.ConnectionString = _connectionString;
             connection.Open();
         }
 
         public abstract DbConnection CreateOpenConnection();
         public abstract DbCommand CreateCommand(DbConnection connection);
         public abstract DbDataAdapter CreateDataAdapter();
-        public virtual string GetQuoteSymbol() => quoteSymbol;
+        public virtual string GetQuoteSymbol() => _quoteSymbol;
         public abstract DbParameter CreateParameter(string paramName, object? value, Type type, bool isNullable);
         public abstract DbParameter CreateParameter(DbParameter proto);
         public SelectTopStyle SelectTop { get; protected set; }
@@ -49,9 +50,9 @@ namespace VkRadio.LowCode.Libs.Orm
 
 
         #region Workaround for legacy cases when we cannot substitute IDbProviderFactory via DI/IoC
-        static IDbProviderFactory? defaultValue;
+        static IDbProviderFactory? _defaultValue;
         
-        public static IDbProviderFactory Default { get => defaultValue ?? throw new InvalidOperationException("Default static property of DbProviderFactory is not set."); set { defaultValue = value; } }
+        public static IDbProviderFactory Default { get => _defaultValue ?? throw new InvalidOperationException("Default static property of DbProviderFactory is not set."); set { _defaultValue = value; } }
         #endregion
     }
 }

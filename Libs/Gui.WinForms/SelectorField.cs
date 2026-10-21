@@ -8,8 +8,8 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 {
     public partial class SelectorField : UserControl
     {
-        protected string caption = "Caption";
-        protected DbMappedDOT? refObject;
+        protected string _caption = "Caption";
+        protected DbMappedDOT? _refObject;
 
         void B_Clear_Click(object? sender, EventArgs e) => ClearClick?.Invoke(sender, e);
         void B_Select_Click(object? sender, EventArgs e) => SelectClick?.Invoke(sender, e);
@@ -28,8 +28,8 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
         }
 
         public string Value { get => T_Value.Text; set => T_Value.Text = value; }
-        public string Caption { get => caption; set { caption = value; L_Caption.Text = caption + ":"; } }
-        public DbMappedDOT? RefObject { get => refObject; set => SetValue(value); }
+        public string Caption { get => _caption; set { _caption = value; L_Caption.Text = _caption + ":"; } }
+        public DbMappedDOT? RefObject { get => _refObject; set => SetValue(value); }
         public bool EnabledClear { get => CTRL_Buttons.EnabledClear; set => CTRL_Buttons.EnabledClear = value; }
         public bool EnabledSelect { get => CTRL_Buttons.EnabledSelect; set => CTRL_Buttons.EnabledSelect = value; }
         public bool EnabledQuickSelect { get => CTRL_Buttons.EnabledQuickSelect; set => CTRL_Buttons.EnabledQuickSelect = value; }
@@ -47,7 +47,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 
         public void SetValue(DbMappedDOT? refObject)
         {
-            this.refObject = refObject;
+            _refObject = refObject;
             Value = refObject?.ToString() ?? string.Empty;
             OnValueChange();
         }
@@ -60,7 +60,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
         {
             Guard.Against.Null(refObject, nameof(refObject));
 
-            this.refObject = refObject;
+            _refObject = refObject;
             Value = refObject.ToString()!;
         }
     }

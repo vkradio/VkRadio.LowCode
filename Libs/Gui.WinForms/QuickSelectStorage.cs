@@ -15,7 +15,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
     /// </summary>
     public class QuickSelectStorage
     {
-        const int maxRowCount = 20;
+        const int c_maxRowCount = 20;
 
         /// <summary>
         /// Application folder name, located in AppData, that contains QuickSelect.xml cache.
@@ -29,32 +29,32 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
             public string? Name { get; set; }
         };
 
-        string? filePath;
-        XElement? rootXElement;
+        string? _filePath;
+        XElement? _rootXElement;
 
         string GetFilePath()
         {
-            if (filePath == null)
+            if (_filePath == null)
             {
                 var dirPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), !string.IsNullOrEmpty(ProgramFolder) ? ProgramFolder : typeof(QuickSelectStorage).Namespace!);
                 if (!Directory.Exists(dirPath))
                     Directory.CreateDirectory(dirPath);
-                filePath = Path.Combine(dirPath, "QuickSelect.xml");
+                _filePath = Path.Combine(dirPath, "QuickSelect.xml");
             }
-            return filePath;
+            return _filePath;
         }
 
         XElement GetRootXElement()
         {
-            if (rootXElement == null)
+            if (_rootXElement == null)
             {
                 var filePath = GetFilePath();
                 if (!File.Exists(filePath))
-                    rootXElement = new XElement("QuickSelect");
+                    _rootXElement = new XElement("QuickSelect");
                 else
-                    rootXElement = XElement.Load(filePath);
+                    _rootXElement = XElement.Load(filePath);
             }
-            return rootXElement;
+            return _rootXElement;
         }
 
         public IList<SelectableRow> GetRowsForDOT(string dataObjectType)
@@ -90,8 +90,8 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
                 list.Remove(rowToRemove);
 
             list.Insert(0, firstRow);
-            if (list.Count > maxRowCount)
-                list.RemoveAt(maxRowCount);
+            if (list.Count > c_maxRowCount)
+                list.RemoveAt(c_maxRowCount);
         }
 
         public static void RemoveRow(IList<SelectableRow> list, Guid id)

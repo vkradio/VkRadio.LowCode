@@ -7,46 +7,46 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 {
     public partial class DOListForm : Form
     {
-        protected string dotName = default!;
-        protected IDOStorage storage = default!;
-        protected DOList doList = default!;
-        protected bool selectMode;
-        protected DbMappedDOT? selectedValue;
+        protected string _dotName = default!;
+        protected IDOStorage _storage = default!;
+        protected DOList _doList = default!;
+        protected bool _selectMode;
+        protected DbMappedDOT? _selectedValue;
 
         protected void ValueSelected(SelectedObjectEventArgs eventArgs)
         {
             Guard.Against.Null(eventArgs, nameof(eventArgs));
 
             Pick?.Invoke(this, eventArgs);
-            selectedValue = eventArgs.SelectedObject;
+            _selectedValue = eventArgs.SelectedObject;
             DialogResult = DialogResult.OK;
         }
 
         public DOListForm() => InitializeComponent();
         public DOListForm(string dotName, IDOStorage storage, bool selectMode) : this()
         {
-            this.dotName = dotName;
-            this.storage = storage;
-            this.selectMode = selectMode;
+            _dotName = dotName;
+            _storage = storage;
+            _selectMode = selectMode;
 
-            base.Text = "List of objects " + this.dotName;
+            base.Text = "List of objects " + this._dotName;
         }
 
         public virtual void InitByDOList(DOList doList)
         {
-            this.doList = doList;
-            this.doList.Dock = DockStyle.Fill;
-            Controls.Add(this.doList);
+            _doList = doList;
+            _doList.Dock = DockStyle.Fill;
+            Controls.Add(this._doList);
 
-            if (selectMode)
+            if (_selectMode)
             {
-                this.doList.Selectable = true;
-                this.doList.Pick += (s, e) => ValueSelected(e);
+                _doList.Selectable = true;
+                _doList.Pick += (s, e) => ValueSelected(e);
             }
         }
 
-        public bool Selectable { get => doList?.Selectable ?? false; set { if (doList != null) doList.Selectable = value; } }
-        public DbMappedDOT? SelectedValue { get { return selectedValue; } }
+        public bool Selectable { get => _doList?.Selectable ?? false; set { if (_doList != null) _doList.Selectable = value; } }
+        public DbMappedDOT? SelectedValue { get { return _selectedValue; } }
 
         public event EventHandler<SelectedObjectEventArgs>? Pick;
 
@@ -60,11 +60,11 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
                     break;
                 case Keys.F5:
                     e.SuppressKeyPress = true;
-                    doList.RefreshTable();
+                    _doList.RefreshTable();
                     break;
                 case Keys.Delete:
                     e.SuppressKeyPress = true;
-                    doList.B_Delete_Click(sender, e);
+                    _doList.B_Delete_Click(sender, e);
                     break;
             }
         }

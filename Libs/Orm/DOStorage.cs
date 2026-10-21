@@ -17,47 +17,47 @@ namespace VkRadio.LowCode.Libs.Orm
     {
         protected const string c_fieldId = "id";
         protected const string c_fieldIdQ = "\"id\"";
-        protected const string paramPrefix = "@in_";
-        protected const string paramId = paramPrefix + c_fieldId;
-        protected const string commaSeparator = ", ";
+        protected const string c_paramPrefix = "@in_";
+        protected const string c_paramId = c_paramPrefix + c_fieldId;
+        protected const string c_commaSeparator = ", ";
 
         public const string ERR_CANNOT_DELETE_PREDEFINED_OBJECT = "Unable to delete the predefined object. It is an integral part of the program.";
 
-        protected string tableName = default!;
-        protected string tableNameQ = default!;
-        protected string quoteSymbol = default!;
-        protected string fieldsAll = default!;
-        protected string fieldsAllDecimalAware = default!;
-        protected string paramsAll = default!;
-        protected string updateFieldValuePairs = default!;
-        protected string[] fields = default!;
-        protected string[] fieldsHuman = default!;
-        protected readonly IList<int> decimalFields = new List<int>();
-        protected string[] parameters = default!;
-        protected string sqlSelectOne = default!;
-        protected string sqlSelectTable = default!;
-        protected string sqlSelectCollection = default!;
-        protected string sqlSelectCount = default!;
-        protected string sqlInsert = default!;
-        protected string sqlUpdate = default!;
-        protected string sqlDelete = default!;
-        protected string? defaultOrderBy;
+        protected string _tableName = default!;
+        protected string _tableNameQ = default!;
+        protected string _quoteSymbol = default!;
+        protected string _fieldsAll = default!;
+        protected string _fieldsAllDecimalAware = default!;
+        protected string _paramsAll = default!;
+        protected string _updateFieldValuePairs = default!;
+        protected string[] _fields = default!;
+        protected string[] _fieldsHuman = default!;
+        protected readonly IList<int> _decimalFields = new List<int>();
+        protected string[] _parameters = default!;
+        protected string _sqlSelectOne = default!;
+        protected string _sqlSelectTable = default!;
+        protected string _sqlSelectCollection = default!;
+        protected string _sqlSelectCount = default!;
+        protected string _sqlInsert = default!;
+        protected string _sqlUpdate = default!;
+        protected string _sqlDelete = default!;
+        protected string? _defaultOrderBy;
 
-        public DOTOverrider? dotOverrider;
+        public DOTOverrider? _dotOverrider;
 
-        protected readonly Dictionary<Guid, DbMappedDOT> predefinedObjects = new();
-        protected readonly IDbProviderFactory dbProviderFactory;
+        protected readonly Dictionary<Guid, DbMappedDOT> _predefinedObjects = new();
+        protected readonly IDbProviderFactory _dbProviderFactory;
 
         protected DOStorage(IDbProviderFactory dbProviderFactory)
         {
-            this.dbProviderFactory = dbProviderFactory;
-            quoteSymbol = this.dbProviderFactory.GetQuoteSymbol();
+            _dbProviderFactory = dbProviderFactory;
+            _quoteSymbol = _dbProviderFactory.GetQuoteSymbol();
         }
 
         #region CREATE
         protected virtual string GenerateSqlInsert() =>
-            $"insert into {tableNameQ} ({fieldsAll})" + Environment.NewLine +
-            $"values ({paramsAll});";
+            $"insert into {_tableNameQ} ({_fieldsAll})" + Environment.NewLine +
+            $"values ({_paramsAll});";
 
         /// <summary>
         /// Create and initialize new object
@@ -66,11 +66,11 @@ namespace VkRadio.LowCode.Libs.Orm
         public virtual DbMappedDOT CreateNew()
         {
             DbMappedDOT result = new TDOT();
-            result.SetDbProviderFactory(dbProviderFactory);
+            result.SetDbProviderFactory(_dbProviderFactory);
             result.InitNew();
-            if (dotOverrider != null)
+            if (_dotOverrider != null)
             {
-                result.Overrider = (DOTOverrider)dotOverrider.Clone();
+                result.Overrider = (DOTOverrider)_dotOverrider.Clone();
                 result.Overrider.DOT = result;
             }
             return result;
@@ -79,17 +79,17 @@ namespace VkRadio.LowCode.Libs.Orm
 
         #region READ
         protected virtual string GenerateSqlSelectOne() =>
-            $"select {fieldsAll}" + Environment.NewLine +
-            $"from {tableNameQ}" + Environment.NewLine +
-            $"where {c_fieldIdQ} = {paramId};";
+            $"select {_fieldsAll}" + Environment.NewLine +
+            $"from {_tableNameQ}" + Environment.NewLine +
+            $"where {c_fieldIdQ} = {c_paramId};";
 
         protected virtual string GenerateSqlSelectTable() =>
             string.Format(
                 CultureInfo.InvariantCulture,
                 "select {0}{1}from {2}{3};",
-                fieldsAllDecimalAware,
+                _fieldsAllDecimalAware,
                 Environment.NewLine,
-                tableNameQ,
+                _tableNameQ,
                 "{0}");
 
         protected virtual string GenerateSqlSelectCollection() =>
@@ -103,8 +103,8 @@ namespace VkRadio.LowCode.Libs.Orm
 
                 // Values:
                 "{0}", // placeholder: opt top
-                fieldsAll,
-                tableNameQ,
+                _fieldsAll,
+                _tableNameQ,
                 "{1}", // placeholder: opt where
                 "{2}", // placeholder: opt order by
                 "{3}"  // placeholder: opt limit
@@ -118,7 +118,7 @@ namespace VkRadio.LowCode.Libs.Orm
                "{1}", // opt where
 
                // Values:
-               tableNameQ,
+               _tableNameQ,
                "{0}" // placeholder: opt where
             );
 
@@ -129,22 +129,22 @@ namespace VkRadio.LowCode.Libs.Orm
             Guard.Against.Null(command, nameof(command));
 
             command.CommandType = CommandType.Text;
-            command.CommandText = sqlSelectOne;
-            command.Parameters.Add(dbProviderFactory.CreateParameter(paramId, id, typeof(Guid), false));
+            command.CommandText = _sqlSelectOne;
+            command.Parameters.Add(_dbProviderFactory.CreateParameter(c_paramId, id, typeof(Guid), false));
 
             using DbDataReader reader = command.ExecuteReader();
             if (reader.HasRows && reader.Read())
             {
                 var dataObject = new TDOT
                 {
-                    Id = dbProviderFactory.GuidStyle == GuidStyle.AsMs ? (Guid)reader[0] : new Guid((byte[])reader[0])
+                    Id = _dbProviderFactory.GuidStyle == GuidStyle.AsMs ? (Guid)reader[0] : new Guid((byte[])reader[0])
                 };
-                dataObject.SetDbProviderFactory(dbProviderFactory);
+                dataObject.SetDbProviderFactory(_dbProviderFactory);
                 FillDOFromReader(reader, dataObject);
                 dataObject.SetStorageConsistency();
-                if (dotOverrider != null)
+                if (_dotOverrider != null)
                 {
-                    dataObject.Overrider = (DOTOverrider)dotOverrider.Clone();
+                    dataObject.Overrider = (DOTOverrider)_dotOverrider.Clone();
                     dataObject.Overrider.DOT = dataObject;
                 }
                 Cache.TryAdd(id, dataObject);
@@ -164,11 +164,11 @@ namespace VkRadio.LowCode.Libs.Orm
             DbConnection? conn = null;
             if (transaction == null)
             {
-                conn = dbProviderFactory.CreateOpenConnection();
+                conn = _dbProviderFactory.CreateOpenConnection();
             }
             try
             {
-                using var cmd = dbProviderFactory.CreateCommand(conn ?? transaction?.Connection!);
+                using var cmd = _dbProviderFactory.CreateCommand(conn ?? transaction?.Connection!);
                 if (transaction != null)
                     cmd.Transaction = transaction;
                 return Restore(cmd, id);
@@ -193,21 +193,21 @@ namespace VkRadio.LowCode.Libs.Orm
                     additionalSql += Environment.NewLine + "order by " + orderBy;
             }
 
-            if ((filter == null || string.IsNullOrEmpty(filter.ToOrderBy())) && defaultOrderBy != null)
-                additionalSql += Environment.NewLine + "order by " + defaultOrderBy;
+            if ((filter == null || string.IsNullOrEmpty(filter.ToOrderBy())) && _defaultOrderBy != null)
+                additionalSql += Environment.NewLine + "order by " + _defaultOrderBy;
 
-            using var conn = dbProviderFactory.CreateOpenConnection();
-            using var cmd = dbProviderFactory.CreateCommand(conn);
+            using var conn = _dbProviderFactory.CreateOpenConnection();
+            using var cmd = _dbProviderFactory.CreateCommand(conn);
             cmd.CommandType = CommandType.Text;
-            cmd.CommandText = string.Format(CultureInfo.InvariantCulture, sqlSelectTable, additionalSql);
+            cmd.CommandText = string.Format(CultureInfo.InvariantCulture, _sqlSelectTable, additionalSql);
 
             if ((parameters?.Length ?? 0) > 0)
             {
                 foreach (var dbPar in parameters!)
-                    cmd.Parameters.Add(dbProviderFactory.CreateParameter(dbPar));
+                    cmd.Parameters.Add(_dbProviderFactory.CreateParameter(dbPar));
             }
 
-            using var adapter = dbProviderFactory.CreateDataAdapter();
+            using var adapter = _dbProviderFactory.CreateDataAdapter();
             adapter.SelectCommand = cmd;
             adapter.Fill(table);
         }
@@ -220,7 +220,7 @@ namespace VkRadio.LowCode.Libs.Orm
                 ColumnName = "id",
                 Unique = true,
                 AllowDBNull = false,
-                DataType = dbProviderFactory.GuidStyle == GuidStyle.AsMs ? typeof(Guid) : typeof(byte[])
+                DataType = _dbProviderFactory.GuidStyle == GuidStyle.AsMs ? typeof(Guid) : typeof(byte[])
             };
             table.Columns.Add(keyColumn);
             table.PrimaryKey = new DataColumn[] { keyColumn };
@@ -241,21 +241,21 @@ namespace VkRadio.LowCode.Libs.Orm
             try
             {
                 if (transaction == null)
-                    conn = dbProviderFactory.CreateOpenConnection();
-                using var cmd = dbProviderFactory.CreateCommand(transaction == null ? conn! : transaction.Connection!);
+                    conn = _dbProviderFactory.CreateOpenConnection();
+                using var cmd = _dbProviderFactory.CreateCommand(transaction == null ? conn! : transaction.Connection!);
                 if (transaction != null)
                     cmd.Transaction = transaction;
 
                 var internalOrderBy = string.Empty;
                 if (!string.IsNullOrEmpty(orderBy))
                     internalOrderBy = " order by " + orderBy;
-                else if (!doNotUseDefaultOrder && !string.IsNullOrEmpty(defaultOrderBy))
-                    internalOrderBy = " order by " + defaultOrderBy;
+                else if (!doNotUseDefaultOrder && !string.IsNullOrEmpty(_defaultOrderBy))
+                    internalOrderBy = " order by " + _defaultOrderBy;
 
                 var internalWhere = string.Empty;
                 if (!string.IsNullOrEmpty(where))
                     internalWhere = where;
-                if (selectTop > 0 && dbProviderFactory.SelectTop == SelectTopStyle.AsOracle)
+                if (selectTop > 0 && _dbProviderFactory.SelectTop == SelectTopStyle.AsOracle)
                 {
 #pragma warning disable CA1508 // Avoid dead conditional code
                     // TODO: This is a false-positive according to https://github.com/dotnet/roslyn-analyzers/issues/3685#issuecomment-702153431
@@ -269,13 +269,13 @@ namespace VkRadio.LowCode.Libs.Orm
                     internalWhere = " where " + internalWhere;
 
                 var limit = string.Empty;
-                if (selectTop > 0 && dbProviderFactory.SelectTop == SelectTopStyle.AsLimit)
+                if (selectTop > 0 && _dbProviderFactory.SelectTop == SelectTopStyle.AsLimit)
                     limit = $" limit {selectTop}";
 
                 cmd.CommandText = string.Format(
                     CultureInfo.InvariantCulture,
-                    sqlSelectCollection,
-                    selectTop > 0 && dbProviderFactory.SelectTop == SelectTopStyle.AsMs ? $"top {selectTop} " : string.Empty,
+                    _sqlSelectCollection,
+                    selectTop > 0 && _dbProviderFactory.SelectTop == SelectTopStyle.AsMs ? $"top {selectTop} " : string.Empty,
                     internalWhere,
                     internalOrderBy,
                     limit
@@ -283,7 +283,7 @@ namespace VkRadio.LowCode.Libs.Orm
                 if ((parameters?.Length ?? 0) > 0)
                 {
                     foreach (var dbPar in parameters!)
-                        cmd.Parameters.Add(dbProviderFactory.CreateParameter(dbPar));
+                        cmd.Parameters.Add(_dbProviderFactory.CreateParameter(dbPar));
                 }
 
                 using var reader = cmd.ExecuteReader();
@@ -292,12 +292,12 @@ namespace VkRadio.LowCode.Libs.Orm
                     while (reader.Read())
                     {
                         TDOT o = new() { Id = reader.GetGuid(0) };
-                        o.SetDbProviderFactory(dbProviderFactory);
+                        o.SetDbProviderFactory(_dbProviderFactory);
                         FillDOFromReader(reader, o);
                         o.SetStorageConsistency();
-                        if (dotOverrider != null)
+                        if (_dotOverrider != null)
                         {
-                            o.Overrider = (DOTOverrider)dotOverrider.Clone();
+                            o.Overrider = (DOTOverrider)_dotOverrider.Clone();
                             o.Overrider.DOT = o;
                         }
                         Cache.AddOrUpdate(o.Id.Value, o, (key, oldValue) => o);
@@ -339,20 +339,20 @@ namespace VkRadio.LowCode.Libs.Orm
             try
             {
                 if (transaction == null)
-                    conn = dbProviderFactory.CreateOpenConnection();
-                using var cmd = dbProviderFactory.CreateCommand(transaction == null ? conn! : transaction.Connection!);
+                    conn = _dbProviderFactory.CreateOpenConnection();
+                using var cmd = _dbProviderFactory.CreateCommand(transaction == null ? conn! : transaction.Connection!);
                 if (transaction != null)
                     cmd.Transaction = transaction;
 
                 cmd.CommandText = string.Format(
                     CultureInfo.InvariantCulture,
-                    sqlSelectCount,
+                    _sqlSelectCount,
                     !string.IsNullOrEmpty(where) ? $" where {where}" : string.Empty
                 );
                 if ((parameters?.Length ?? 0) > 0)
                 {
                     foreach (var dbPar in parameters!)
-                        cmd.Parameters.Add(dbProviderFactory.CreateParameter(dbPar));
+                        cmd.Parameters.Add(_dbProviderFactory.CreateParameter(dbPar));
                 }
 
                 using var reader = cmd.ExecuteReader();
@@ -383,14 +383,14 @@ namespace VkRadio.LowCode.Libs.Orm
             Cache.Clear();
         }
 
-        public IDictionary<Guid, DbMappedDOT> PredefinedObjects => predefinedObjects;
+        public IDictionary<Guid, DbMappedDOT> PredefinedObjects => _predefinedObjects;
         #endregion
 
         #region UPDATE
         protected virtual string GenerateSqlUpdate() =>
-            $"update {tableNameQ}" + Environment.NewLine +
-            $"set {updateFieldValuePairs}" + Environment.NewLine +
-            $"where {c_fieldIdQ} = {paramId};";
+            $"update {_tableNameQ}" + Environment.NewLine +
+            $"set {_updateFieldValuePairs}" + Environment.NewLine +
+            $"where {c_fieldIdQ} = {c_paramId};";
 
         // Also used in CREATE
         [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "Our design is to convert any errors (including exceptions) to the returned error message of string type")]
@@ -402,17 +402,17 @@ namespace VkRadio.LowCode.Libs.Orm
             if (idNotSet)
             {
                 dataObject.Id = Guid.NewGuid();
-                command.CommandText = sqlInsert;
+                command.CommandText = _sqlInsert;
             }
             else
             {
                 // If Id is set, we conclude that it is an update of an existing object,
                 // but that can be actually not true, pls read the comment below, near
                 // "rowsAffected".
-                command.CommandText = sqlUpdate;
+                command.CommandText = _sqlUpdate;
             }
 
-            command.Parameters.Add(dbProviderFactory.CreateParameter(paramId, dataObject.Id!.Value, typeof(Guid), false));
+            command.Parameters.Add(_dbProviderFactory.CreateParameter(c_paramId, dataObject.Id!.Value, typeof(Guid), false));
             FillParameters(command.Parameters, (TDOT)dataObject);
 
             try
@@ -427,7 +427,7 @@ namespace VkRadio.LowCode.Libs.Orm
                     // type from UPDATE to INSERT and repeat the action.
                     if (!idNotSet)
                     {
-                        command.CommandText = sqlInsert;
+                        command.CommandText = _sqlInsert;
                         rowsAffected = command.ExecuteNonQuery();
                         failed = rowsAffected < 1;
                     }
@@ -446,7 +446,7 @@ namespace VkRadio.LowCode.Libs.Orm
 
                 if (idNotSet)
                     dataObject.Id = null;
-                var uniqueConstraintField = dbProviderFactory.CheckForUniqueConstraintException(ex, tableName, fields, fieldsHuman);
+                var uniqueConstraintField = _dbProviderFactory.CheckForUniqueConstraintException(ex, _tableName, _fields, _fieldsHuman);
                 return uniqueConstraintField != null ?
                     $"The field \"{uniqueConstraintField}\" should contain a unique value. The value you entered already exists in the database." :
                     string.Format(CultureInfo.CurrentCulture, msgDbException, Environment.NewLine, ex.ToString());
@@ -477,7 +477,7 @@ namespace VkRadio.LowCode.Libs.Orm
 
             var conn = transaction != null ?
                 transaction.Connection! :
-                dbProviderFactory.CreateOpenConnection();
+                _dbProviderFactory.CreateOpenConnection();
             try
             {
                 using var cmd = conn.CreateCommand();
@@ -495,17 +495,17 @@ namespace VkRadio.LowCode.Libs.Orm
 
         #region DELETE
         protected virtual string GenerateSqlDelete() =>
-            $"delete from {tableNameQ}" + Environment.NewLine +
-            $"where {c_fieldIdQ} = {paramId};";
+            $"delete from {_tableNameQ}" + Environment.NewLine +
+            $"where {c_fieldIdQ} = {c_paramId};";
 
         protected string? ProtectedDelete(DbCommand command, Guid id, bool throwZeroRowsAffectedException)
         {
             Guard.Against.Null(command, nameof(command));
 
             command.CommandType = CommandType.Text;
-            command.CommandText = sqlDelete;
+            command.CommandText = _sqlDelete;
 
-            command.Parameters.Add(dbProviderFactory.CreateParameter(paramId, id, typeof(Guid), false));
+            command.Parameters.Add(_dbProviderFactory.CreateParameter(c_paramId, id, typeof(Guid), false));
 
             try
             {
@@ -534,12 +534,12 @@ namespace VkRadio.LowCode.Libs.Orm
 
         protected virtual string? ProtectedDelete(Guid id, DbTransaction? transaction, bool throwZeroRowsAffectedException)
         {
-            if (predefinedObjects.ContainsKey(id))
+            if (_predefinedObjects.ContainsKey(id))
                 return ERR_CANNOT_DELETE_PREDEFINED_OBJECT;
 
             DbConnection conn = transaction != null ?
                 transaction.Connection! :
-                dbProviderFactory.CreateOpenConnection();
+                _dbProviderFactory.CreateOpenConnection();
             try
             {
                 using DbCommand cmd = conn.CreateCommand();
@@ -568,49 +568,49 @@ namespace VkRadio.LowCode.Libs.Orm
 
         public virtual string? Delete(Guid id, bool throwZeroRowsAffectedException)
         {
-            if (predefinedObjects.ContainsKey(id))
+            if (_predefinedObjects.ContainsKey(id))
                 return ERR_CANNOT_DELETE_PREDEFINED_OBJECT;
 
-            using var conn = dbProviderFactory.CreateOpenConnection();
-            using var cmd = dbProviderFactory.CreateCommand(conn);
+            using var conn = _dbProviderFactory.CreateOpenConnection();
+            using var cmd = _dbProviderFactory.CreateCommand(conn);
             return ProtectedDelete(cmd, id, throwZeroRowsAffectedException);
         }
 
         public string GetMessageCannotDeletePredefinedObject() => ERR_CANNOT_DELETE_PREDEFINED_OBJECT;
         #endregion
 
-        protected void InitParams() => parameters = Enumerable
-            .Range(0, fields.Length)
-            .Select(i => paramPrefix + fields[i])
+        protected void InitParams() => _parameters = Enumerable
+            .Range(0, _fields.Length)
+            .Select(i => c_paramPrefix + _fields[i])
             .ToArray();
 
         public virtual void Init()
         {
-            fieldsAll = string.Format(CultureInfo.InvariantCulture, "{0}{1}{0}", quoteSymbol, fields[0]);
-            fieldsAllDecimalAware = fieldsAll;
-            paramsAll = paramPrefix + "id";
-            updateFieldValuePairs = string.Empty;
-            for (var i = 1; i < fields.Length; i++)
+            _fieldsAll = string.Format(CultureInfo.InvariantCulture, "{0}{1}{0}", _quoteSymbol, _fields[0]);
+            _fieldsAllDecimalAware = _fieldsAll;
+            _paramsAll = c_paramPrefix + "id";
+            _updateFieldValuePairs = string.Empty;
+            for (var i = 1; i < _fields.Length; i++)
             {
-                var quotedField = string.Format(CultureInfo.InvariantCulture, "{0}{1}{0}", quoteSymbol, fields[i]);
-                var param = paramPrefix + fields[i];
-                fieldsAll += commaSeparator + quotedField;
-                paramsAll += commaSeparator + param;
+                var quotedField = string.Format(CultureInfo.InvariantCulture, "{0}{1}{0}", _quoteSymbol, _fields[i]);
+                var param = c_paramPrefix + _fields[i];
+                _fieldsAll += c_commaSeparator + quotedField;
+                _paramsAll += c_commaSeparator + param;
 
-                fieldsAllDecimalAware += commaSeparator + quotedField;
+                _fieldsAllDecimalAware += c_commaSeparator + quotedField;
 
-                if (!string.IsNullOrEmpty(updateFieldValuePairs))
-                    updateFieldValuePairs += commaSeparator;
-                updateFieldValuePairs += $"{quotedField} = {param}";
+                if (!string.IsNullOrEmpty(_updateFieldValuePairs))
+                    _updateFieldValuePairs += c_commaSeparator;
+                _updateFieldValuePairs += $"{quotedField} = {param}";
             }
 
-            sqlSelectOne = GenerateSqlSelectOne();
-            sqlSelectTable = GenerateSqlSelectTable();
-            sqlSelectCollection = GenerateSqlSelectCollection();
-            sqlSelectCount = GenerateSqlSelectCount();
-            sqlInsert = GenerateSqlInsert();
-            sqlUpdate = GenerateSqlUpdate();
-            sqlDelete = GenerateSqlDelete();
+            _sqlSelectOne = GenerateSqlSelectOne();
+            _sqlSelectTable = GenerateSqlSelectTable();
+            _sqlSelectCollection = GenerateSqlSelectCollection();
+            _sqlSelectCount = GenerateSqlSelectCount();
+            _sqlInsert = GenerateSqlInsert();
+            _sqlUpdate = GenerateSqlUpdate();
+            _sqlDelete = GenerateSqlDelete();
         }
 
         public ConcurrentDictionary<Guid, DbMappedDOT> Cache = new();
@@ -620,16 +620,16 @@ namespace VkRadio.LowCode.Libs.Orm
         /// <summary>
         /// Table name (without quotes)
         /// </summary>
-        public string TableName => tableName;
+        public string TableName => _tableName;
         /// <summary>
         /// Table name (with quotes)
         /// </summary>
-        public string TableNameQ => tableNameQ;
+        public string TableNameQ => _tableNameQ;
         /// <summary>
         /// Table field names
         /// </summary>
-        public IEnumerable<string> Fields => fields;
+        public IEnumerable<string> Fields => _fields;
 
-        public DOTOverrider? DOTOverrider { get => dotOverrider; set => dotOverrider = value; }
+        public DOTOverrider? DOTOverrider { get => _dotOverrider; set => _dotOverrider = value; }
     }
 }

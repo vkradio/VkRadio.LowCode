@@ -5,22 +5,22 @@ namespace VkRadio.LowCode.Libs.Orm
 {
     public class FilterSimple : FilterAbstract
     {
-        protected string? where;
-        protected string? orderBy;
+        protected string? _where;
+        protected string? _orderBy;
 
         public FilterSimple(string? where, string? orderBy)
         {
-            this.where = where;
-            this.orderBy = orderBy;
+            _where = where;
+            _orderBy = orderBy;
         }
 
-        public string? Where { get => where; set => where = value; }
+        public string? Where { get => _where; set => _where = value; }
 
-        public string? OrderBy { get => orderBy; set => orderBy = value; }
+        public string? OrderBy { get => _orderBy; set => _orderBy = value; }
 
-        public override string? ToWhere() => where;
+        public override string? ToWhere() => _where;
 
-        public override string? ToOrderBy() => orderBy;
+        public override string? ToOrderBy() => _orderBy;
 
         public static FilterSimple CreateTableFilter(Guid? id, string fieldName, IDbProviderFactory dbProviderFactory, bool fieldIsNullable = true)
         {
