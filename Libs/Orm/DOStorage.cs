@@ -176,7 +176,14 @@ namespace VkRadio.LowCode.Libs.Orm
             finally
             {
                 if (conn != null)
-                    conn.Close();
+                {
+                    if (conn.State == ConnectionState.Open)
+                    {
+                        conn.Close();
+                    }
+
+                    conn.Dispose();
+                }
             }
         }
 

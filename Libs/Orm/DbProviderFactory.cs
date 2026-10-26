@@ -45,7 +45,7 @@ namespace VkRadio.LowCode.Libs.Orm
         public abstract Guid? ReadGuidNullableFromReader(DbDataReader reader, int index);
         #endregion
 
-        public static DbParameter[] CloneParams(DbParameter[] proto, DbProviderFactory dbProviderFactory) =>
+        public static DbParameter[] CloneParams(DbParameter[] proto, IDbProviderFactory dbProviderFactory) =>
             proto.Select(par => dbProviderFactory.CreateParameter(par)).ToArray();
 
 

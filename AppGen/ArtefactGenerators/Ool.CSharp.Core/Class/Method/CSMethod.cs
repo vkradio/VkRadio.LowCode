@@ -43,7 +43,7 @@ public class CSMethod : AbstClassNS.Method
             "    {0}{1}{2} {3}({4})",
             _visibility.Value != ElementVisibilityEnum.Private ? _visibility.ToString() + " " : string.Empty,
             addKeywords,
-            ReturnType,
+            string.IsNullOrEmpty(ReturnType) ? "void" : ReturnType,
             _name,
             methodParams
         );

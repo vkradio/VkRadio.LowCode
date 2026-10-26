@@ -455,9 +455,9 @@ public class Storage : CSComponentWMainClass
         method.BodyStrings.Add($"    throw new ArgumentException(\"{propName}\");");
         method.BodyStrings.Add($"DbParameter[] dbParams = new DbParameter[] {{ _dbProviderFactory.CreateParameter(\"@in_{propName}\", in_{propName}, typeof(string), false) }};");
         method.BodyStrings.Add($"List<{entityClassName}> result = ReadAsCollection(");
-        method.BodyStrings.Add($"    in_where: {constName} + \" = @in_{propName}\",");
-        method.BodyStrings.Add($"    in_params: dbParams,");
-        method.BodyStrings.Add($"    in_transaction: in_transaction");
+        method.BodyStrings.Add($"    where: {constName} + \" = @in_{propName}\",");
+        method.BodyStrings.Add($"    parameters: dbParams,");
+        method.BodyStrings.Add($"    transaction: in_transaction");
         method.BodyStrings.Add($");");
         method.BodyStrings.Add($"return result{(isSingle ? ".Count != 0 ? result[0] : null" : string.Empty)};");
     }

@@ -39,7 +39,7 @@ public class GuiPackage : PackNS.Package
             Name = "UiRegistry.cs",
             Namespace = string.Format("{0}.Gui", ParentPackage.RootNamespace),
         };
-        var userUsings = new string[] { "orm.Gui", string.Format("{0}.Gui.Launchers", ParentPackage.RootNamespace) }.OrderBy(x => x);
+        var userUsings = new string[] { "VkRadio.LowCode.Libs.Gui.WinForms", string.Format("{0}.Gui.Launchers", ParentPackage.RootNamespace) }.OrderBy(x => x);
 
         foreach (var uu in userUsings)
         {

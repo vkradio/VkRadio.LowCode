@@ -13,7 +13,7 @@ class Program
     private static void WriteExceptionToConsole(Exception ex)
     {
         var unEx = ex as UniquinessException;
-        Console.Write(unEx != null ? unEx.Message + " " + unEx.Id.ToString() : ex.ToString());
+        Console.Write(unEx != null ? (unEx.Message + " " + unEx.Id.ToString()) : (ex.ToString() + Environment.NewLine + ex.StackTrace));
     }
 
     private static int Main(string[] args)
@@ -84,7 +84,7 @@ class Program
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"General exception: [{ex.GetType().Name}] {ex.Message}");
+                Console.WriteLine($"General exception: [{ex.GetType().Name}] {ex}");
             }
 
             Console.WriteLine(success ? $"{project.Name} - Done. Press Enter to quit." : "Generation failed.");

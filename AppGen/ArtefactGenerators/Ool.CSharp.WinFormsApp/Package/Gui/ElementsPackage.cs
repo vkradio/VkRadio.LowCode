@@ -305,13 +305,13 @@ public class ElementsPackage : PackNS.Package
             method.BodyStrings.Add(string.Format("        o.{0} = ({1})((DOListForm)frm).SelectedValue;", wDesc.PropertyName, wDesc.PropertyClass));
             method.BodyStrings.Add(string.Format("        {0}.SetValue(o.{1});", wDesc.WidgetName, wDesc.PropertyName));
             method.BodyStrings.Add(string.Empty);
-            method.BodyStrings.Add(string.Format("        List<QuickSelectStorage.SelectableRow> qSelectList = UiRegistry.Instance.QuickSelectStorage.GetRowsForDOT(\"{0}\");", wDesc.PropertyClass));
-            method.BodyStrings.Add(string.Format("        QuickSelectStorage.SelectableRow row = UiRegistry.Instance.QuickSelectStorage.GetRowById(qSelectList, o.{0}.Id.Value);", wDesc.PropertyName));
+            method.BodyStrings.Add(string.Format("        var qSelectList = UiRegistry.Instance.QuickSelectStorage.GetRowsForDOT(\"{0}\");", wDesc.PropertyClass));
+            method.BodyStrings.Add(string.Format("        QuickSelectStorage.SelectableRow row = QuickSelectStorage.GetRowById(qSelectList, o.{0}.Id.Value);", wDesc.PropertyName));
             method.BodyStrings.Add("        if (row == null)");
             method.BodyStrings.Add(string.Format("            row = new QuickSelectStorage.SelectableRow() {{ Id = o.{0}.Id.Value, Name = o.{0}.ToString() }};", wDesc.PropertyName));
             method.BodyStrings.Add("        else");
             method.BodyStrings.Add(string.Format("            row.Name = o.{0}.ToString();", wDesc.PropertyName));
-            method.BodyStrings.Add("        UiRegistry.Instance.QuickSelectStorage.SetFirstRow(qSelectList, row);");
+            method.BodyStrings.Add("        QuickSelectStorage.SetFirstRow(qSelectList, row);");
             method.BodyStrings.Add(string.Format("        UiRegistry.Instance.QuickSelectStorage.SaveList(\"{0}\", qSelectList);", wDesc.PropertyClass));
             method.BodyStrings.Add("    }");
             method.BodyStrings.Add("}");
@@ -336,7 +336,7 @@ public class ElementsPackage : PackNS.Package
             };
             cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
-            method.BodyStrings.Add(string.Format("List<QuickSelectStorage.SelectableRow> qSelectList = UiRegistry.Instance.QuickSelectStorage.GetRowsForDOT(\"{0}\");", wDesc.PropertyClass));
+            method.BodyStrings.Add(string.Format("var qSelectList = UiRegistry.Instance.QuickSelectStorage.GetRowsForDOT(\"{0}\");", wDesc.PropertyClass));
             method.BodyStrings.Add("ContextMenuStrip cmnu = new ContextMenuStrip();");
             method.BodyStrings.Add("ToolStripMenuItem mi;");
             method.BodyStrings.Add("if (qSelectList.Count == 0)");
@@ -392,7 +392,7 @@ public class ElementsPackage : PackNS.Package
             method.Params.Add(param.Name, param);
             cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
-            method.BodyStrings.Add(string.Format("List<QuickSelectStorage.SelectableRow> qSelectList = UiRegistry.Instance.QuickSelectStorage.GetRowsForDOT(\"{0}\");", wDesc.PropertyClass));
+            method.BodyStrings.Add(string.Format("var qSelectList = UiRegistry.Instance.QuickSelectStorage.GetRowsForDOT(\"{0}\");", wDesc.PropertyClass));
             method.BodyStrings.Add(string.Empty);
             method.BodyStrings.Add("ToolStripMenuItem mi = (ToolStripMenuItem)sender;");
             method.BodyStrings.Add("QuickSelectStorage.SelectableRow row = (QuickSelectStorage.SelectableRow)mi.Tag;");
@@ -401,7 +401,7 @@ public class ElementsPackage : PackNS.Package
             method.BodyStrings.Add("if (selectedValue == null)");
             method.BodyStrings.Add("{");
             method.BodyStrings.Add("    MessageBox.Show(this, \"" + objDoesNotExistsText + "\", \"" + messageCaption + "\", MessageBoxButtons.OK, MessageBoxIcon.Information);");
-            method.BodyStrings.Add("    UiRegistry.Instance.QuickSelectStorage.RemoveRow(qSelectList, id);");
+            method.BodyStrings.Add("    QuickSelectStorage.RemoveRow(qSelectList, id);");
             method.BodyStrings.Add(string.Format("    UiRegistry.Instance.QuickSelectStorage.SaveList(\"{0}\", qSelectList);", wDesc.PropertyClass));
             method.BodyStrings.Add("    return;");
             method.BodyStrings.Add("}");
@@ -410,7 +410,7 @@ public class ElementsPackage : PackNS.Package
             method.BodyStrings.Add(string.Format("o.{0} = selectedValue;", wDesc.PropertyName));
             method.BodyStrings.Add(string.Format("SEL_{0}.SetValue(o.{0});", wDesc.PropertyName));
             method.BodyStrings.Add(string.Empty);
-            method.BodyStrings.Add("UiRegistry.Instance.QuickSelectStorage.SetFirstRow(qSelectList, row);");
+            method.BodyStrings.Add("QuickSelectStorage.SetFirstRow(qSelectList, row);");
             method.BodyStrings.Add(string.Format("UiRegistry.Instance.QuickSelectStorage.SaveList(\"{0}\", qSelectList);", wDesc.PropertyClass));
         }
     }
@@ -454,7 +454,7 @@ public class ElementsPackage : PackNS.Package
             }
 
             fieldName += "_id";
-            method.BodyStrings.Add(string.Format("FilterSimple fs = new FilterSimple(\"COALESCE(\\\"{0}\\\", '\" + Guid.NewGuid().ToString() + \"') = '\" + (_o.Id.HasValue ? _o.Id.Value : Guid.Empty).ToString() + \"'\", null);", fieldName));
+            method.BodyStrings.Add(string.Format("FilterSimple fs = new FilterSimple(\"COALESCE(\\\"{0}\\\", '\" + Guid.NewGuid().ToString() + \"') = '\" + (_dataObject.Id.HasValue ? _dataObject.Id.Value : Guid.Empty).ToString() + \"'\", null);", fieldName));
             method.BodyStrings.Add(string.Empty);
             method.BodyStrings.Add(string.Format("using (Form frm = UiRegistry.Instance.Uil{0}.CreateList(false, fs))", wDesc.PropertyClass));
             method.BodyStrings.Add("    frm.ShowDialog(this);");

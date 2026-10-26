@@ -37,11 +37,11 @@ public abstract class LibsParams
             if (xelUseNuGet is null ||
                 !bool.Parse(xelUseNuGet.Value))
             {
-                result = new LibsParamsModernNuGet(initFromTargetXElement, generator);
+                result = new LibsParamsModernLocal(xelLibs, generator);
             }
             else
             {
-                result = new LibsParamsModernLocal(initFromTargetXElement, generator);
+                result = new LibsParamsModernNuGet(xelLibs, generator);
             }
         }
 

@@ -4,8 +4,8 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Libs;
 
 public class LibsParamsModernNuGet : LibsParamsModern
 {
-    public LibsParamsModernNuGet(XElement initFromTargetXElement, ArtefactGeneratorCSharpClassic generator)
-        : base(initFromTargetXElement, generator)
+    public LibsParamsModernNuGet(XElement xelLibs, ArtefactGeneratorCSharpClassic generator)
+        : base(xelLibs.Parent!, generator)
     {
     }
 

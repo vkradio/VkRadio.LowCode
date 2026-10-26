@@ -121,7 +121,6 @@ public class ProjectFileBase : ProjectFile
         _predefinedCode.Add($"  <ItemGroup>");
         _predefinedCode.AddRange(generator.LibsParams.GenerateProjectReferenceLines(projectPackage.FullPath));
         _predefinedCode.Add($"  </ItemGroup>");
-        _predefinedCode.Add($"  <ItemGroup />");
         _predefinedCode.Add($"  <Import Project=\"$(MSBuildToolsPath)\\Microsoft.CSharp.targets\" />");
         _predefinedCode.Add($"  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. ");
         _predefinedCode.Add($"       Other similar extension points exist, see Microsoft.Common.targets.");

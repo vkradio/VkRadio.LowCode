@@ -19,10 +19,10 @@ public class LibsParamsModernLocal : LibsParamsModern
 
     private IEnumerable<string> GenerateProjectReference(string projectPackageFullPath, string projectName, Guid projectGuid) => new List<string>
     {
-        $"  <ProjectReference Include=\"{GetRelativePathToProject(projectPackageFullPath, projectName)}\">",
-        $"    <Project>{{{projectGuid.ToString().ToLower()}}}</Project>",
-        $"    <Name>{projectName}</Name>",
-        $"  </ProjectReference>"
+        $"    <ProjectReference Include=\"{GetRelativePathToProject(projectPackageFullPath, projectName)}\">",
+        $"      <Project>{{{projectGuid.ToString().ToLower()}}}</Project>",
+        $"      <Name>{projectName}</Name>",
+        $"    </ProjectReference>"
     };
 
     private IEnumerable<string> GenerateSolutionProjectEntryLines(Guid type, string name, string path, Guid projectId) => new List<string>

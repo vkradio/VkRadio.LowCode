@@ -146,7 +146,7 @@ public class CSProperty
             Class = cSharpClass,
             DocComment = new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Фильтр для свойства " : "Filter for the property ") + NameHelper.GetLocalNameLowerCase(propDef.Names, preferNaturalLanguageForComments)),
             Name = filterPropName,
-            PredefinedValue = $"public virtual FilterSimple {filterPropName} {{ get {{ return FilterSimple.CreateTableFilter(_id, \"{fieldName}\"); }} }}"
+            PredefinedValue = $"public virtual FilterSimple {filterPropName} {{ get {{ return FilterSimple.CreateTableFilter(_id, \"{fieldName}\", VkRadio.LowCode.Libs.Orm.DbProviderFactory.Default); }} }}"
         };
         cSharpClass.Properties.Add(filterProp.Name, filterProp);
 
