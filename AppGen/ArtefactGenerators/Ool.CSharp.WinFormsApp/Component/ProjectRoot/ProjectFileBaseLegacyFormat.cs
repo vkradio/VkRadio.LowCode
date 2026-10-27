@@ -1,11 +1,10 @@
 ﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
-using VkRadio.LowCode.Libs.Utils;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component.ProjectRoot;
 
-public class ProjectFileBase : ProjectFile
+public class ProjectFileBaseLegacyFormat : ProjectFile
 {
-    public ProjectFileBase(CSharpProjectBase projectPackage)
+    public ProjectFileBaseLegacyFormat(CSharpProjectBase projectPackage)
         : base(projectPackage)
     {
         _lastLineWNewLine = false;

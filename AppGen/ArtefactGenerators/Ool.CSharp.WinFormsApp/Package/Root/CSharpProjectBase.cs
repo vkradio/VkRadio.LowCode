@@ -10,8 +10,11 @@ public class CSharpProjectBase : CSharpProjectAbstract
     public CSharpProjectBase(CSharpSolution solution, Guid projectGuid, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage, bool supportHiDpi)
         : base(solution, "base", projectGuid)
     {
-        PropertiesPackage = new PropertiesPackageBase(this);
-        _subpackages.Add(PropertiesPackage.Name, PropertiesPackage);
+        if (!solution.Generator.ProjectFileInModernSdkStyle)
+        {
+            PropertiesPackage = new PropertiesPackageBase(this);
+            _subpackages.Add(PropertiesPackage.Name, PropertiesPackage);
+        }
 
         ModelPackage = new ModelPackage(this, preferNaturalLanguageForComments, uiLanguage);
         _subpackages.Add(ModelPackage.Name, ModelPackage);
@@ -19,7 +22,9 @@ public class CSharpProjectBase : CSharpProjectAbstract
         GuiPackage = new GuiPackage(this, preferNaturalLanguageForComments, uiLanguage, supportHiDpi);
         _subpackages.Add(GuiPackage.Name, GuiPackage);
 
-        ProjectFile = new ProjectFileBase(this);
+        ProjectFile = solution.Generator.ProjectFileInModernSdkStyle
+            ? new ProjectFileBaseSdkStyleFormat(this)
+            : new ProjectFileBaseLegacyFormat(this);
         _components.Add(ProjectFile.Name, ProjectFile);
     }
 

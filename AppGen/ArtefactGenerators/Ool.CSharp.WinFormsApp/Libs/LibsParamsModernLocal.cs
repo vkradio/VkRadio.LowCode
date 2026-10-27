@@ -17,13 +17,18 @@ public class LibsParamsModernLocal : LibsParamsModern
         return relPathToProject;
     }
 
-    private IEnumerable<string> GenerateProjectReference(string projectPackageFullPath, string projectName, Guid projectGuid) => new List<string>
-    {
-        $"    <ProjectReference Include=\"{GetRelativePathToProject(projectPackageFullPath, projectName)}\">",
-        $"      <Project>{{{projectGuid.ToString().ToLower()}}}</Project>",
-        $"      <Name>{projectName}</Name>",
-        $"    </ProjectReference>"
-    };
+    private IEnumerable<string> GenerateProjectReference(string projectPackageFullPath, string projectName, Guid projectGuid, bool legacyProjectFileFormat) => legacyProjectFileFormat
+        ? new List<string>
+        {
+            $"    <ProjectReference Include=\"{GetRelativePathToProject(projectPackageFullPath, projectName)}\">",
+            $"      <Project>{{{projectGuid.ToString().ToLower()}}}</Project>",
+            $"      <Name>{projectName}</Name>",
+            $"    </ProjectReference>"
+        }
+        : new List<string>
+        {
+            $"    <ProjectReference Include=\"{GetRelativePathToProject(projectPackageFullPath, projectName)}\" />"
+        };
 
     private IEnumerable<string> GenerateSolutionProjectEntryLines(Guid type, string name, string path, Guid projectId) => new List<string>
     {
@@ -89,11 +94,11 @@ public class LibsParamsModernLocal : LibsParamsModern
 
     public string LibsPath { get; private set; }
 
-    public override IEnumerable<string> GenerateProjectReferenceLines(string projectPackageFullPath) => 
-        GenerateProjectReference(projectPackageFullPath, C_PROJ_NAME_WIN_FORMS, C_PROJ_GUID_WIN_FORMS)
-        .Concat(GenerateProjectReference(projectPackageFullPath, C_PROJ_NAME_ORM_MS_SQL, C_PROJ_GUID_ORM_MS_SQL))
-        .Concat(GenerateProjectReference(projectPackageFullPath, C_PROJ_NAME_ORM, C_PROJ_GUID_ORM))
-        .Concat(GenerateProjectReference(projectPackageFullPath, C_PROJ_NAME_UTILS, C_PROJ_GUID_UTILS));
+    public override IEnumerable<string> GenerateProjectReferenceLines(string projectPackageFullPath, bool legacyProjectFileFormat = false) => 
+        GenerateProjectReference(projectPackageFullPath, C_PROJ_NAME_WIN_FORMS, C_PROJ_GUID_WIN_FORMS, legacyProjectFileFormat)
+        .Concat(GenerateProjectReference(projectPackageFullPath, C_PROJ_NAME_ORM_MS_SQL, C_PROJ_GUID_ORM_MS_SQL, legacyProjectFileFormat))
+        .Concat(GenerateProjectReference(projectPackageFullPath, C_PROJ_NAME_ORM, C_PROJ_GUID_ORM, legacyProjectFileFormat))
+        .Concat(GenerateProjectReference(projectPackageFullPath, C_PROJ_NAME_UTILS, C_PROJ_GUID_UTILS, legacyProjectFileFormat));
 
     public override IEnumerable<string> GenerateSolutionProjectsEntryLines(string solutionPackageFullPath) =>
         GenerateSolutionProjectEntryLines(C_PROJECT_TYPE_FOLDER, C_FOLDER_NAME_LIBS, C_FOLDER_NAME_LIBS, C_PROJ_GUID_LIBS)

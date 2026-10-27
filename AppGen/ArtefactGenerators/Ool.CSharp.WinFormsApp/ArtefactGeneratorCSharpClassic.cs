@@ -37,6 +37,8 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
 
     public bool SupportHiDpi { get; private set; }
 
+    public bool ProjectFileInModernSdkStyle { get; private set; } = true;
+
     public override string? Generate()
     {
         // Create model of package of C# source code, based on database schema model.
@@ -118,6 +120,14 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
         if (xelPutSimilarArtefactsToSingleFile is not null && bool.TryParse(xelPutSimilarArtefactsToSingleFile.Value ?? string.Empty, out var parsedSingleFile))
         {
             PutSimilarArtefactsToSingleFile = parsedSingleFile;
+        }
+
+        var xelProjectFileStyle = xelTarget.Element("ProjectFileInModernSdkStyle");
+
+        if (xelProjectFileStyle is not null &&
+            bool.TryParse(xelProjectFileStyle.Value, out var projectFileInModernSdkStyle))
+        {
+            ProjectFileInModernSdkStyle = projectFileInModernSdkStyle;
         }
     }
 

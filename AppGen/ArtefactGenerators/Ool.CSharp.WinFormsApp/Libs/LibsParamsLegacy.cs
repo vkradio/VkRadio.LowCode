@@ -39,15 +39,20 @@ public class LibsParamsLegacy : LibsParams
 
     public static readonly string C_ORMLIB_PROJECT_GUID_STRING = "BC2581BB-BC55-4E13-9AED-69CE482E092D";
 
-    public override IEnumerable<string> GenerateProjectReferenceLines(string projectPackageFullPath)
+    public override IEnumerable<string> GenerateProjectReferenceLines(string projectPackageFullPath, bool legacyProjectFileFormat = false)
     {
-        var result = new List<string>
-        {
-            $"    <ProjectReference Include=\"{FileHelper.GetRelativePath(projectPackageFullPath + "\\", OrmLibProjectDir)}\">",
-            $"      <Project>{{{C_ORMLIB_PROJECT_GUID_STRING.ToLower()}}}</Project>",
-            $"      <Name>{OrmLibProjectName}</Name>",
-            "    </ProjectReference>"
-        };
+        var result = legacyProjectFileFormat
+            ? new List<string>
+            {
+                $"    <ProjectReference Include=\"{FileHelper.GetRelativePath(projectPackageFullPath + "\\", OrmLibProjectDir)}\">",
+                $"      <Project>{{{C_ORMLIB_PROJECT_GUID_STRING.ToLower()}}}</Project>",
+                $"      <Name>{OrmLibProjectName}</Name>",
+                "    </ProjectReference>"
+            }
+            : new List<string>
+            {
+                $"    <ProjectReference Include=\"{FileHelper.GetRelativePath(projectPackageFullPath + "\\", OrmLibProjectDir)}\" />"
+            };
 
         return result;
     }

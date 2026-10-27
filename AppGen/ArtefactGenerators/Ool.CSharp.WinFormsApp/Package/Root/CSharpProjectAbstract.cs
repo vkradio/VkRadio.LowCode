@@ -17,7 +17,7 @@ public abstract class CSharpProjectAbstract : PackNS.Package
 
     public ProjectFile ProjectFile { get; protected set; }
 
-    public PropertiesPackageAbstract PropertiesPackage { get; protected set; }
+    public PropertiesPackageAbstract? PropertiesPackage { get; protected set; }
 
     public string RootNamespace { get; private set; }
 }

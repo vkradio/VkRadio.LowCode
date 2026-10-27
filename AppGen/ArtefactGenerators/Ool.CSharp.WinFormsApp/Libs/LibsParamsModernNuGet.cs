@@ -9,7 +9,7 @@ public class LibsParamsModernNuGet : LibsParamsModern
     {
     }
 
-    public override IEnumerable<string> GenerateProjectReferenceLines(string projectPackageFullPath)
+    public override IEnumerable<string> GenerateProjectReferenceLines(string projectPackageFullPath, bool legacyProjectFileFormat = false)
     {
         throw new NotImplementedException();
     }
