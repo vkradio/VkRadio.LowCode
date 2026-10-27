@@ -5,6 +5,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+    <CLSCompliant>false</CLSCompliant>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -88,10 +89,6 @@
     <EmbeddedResource Update="StringField.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>
