@@ -60,8 +60,5 @@ public abstract class PFTString : PropertyFunctionalType
 
     public override object ParseValueFromXmlString(string xmlString) => xmlString;
 
-    public override IPropertyValue CreatePropertyValue() => new PropertyValue<string>
-    {
-        Definition = (PropertyDefinition)_propertyDefinition
-    };
+    public override IPropertyValue CreatePropertyValue() => new PropertyValue<string>(_propertyDefinition);
 }

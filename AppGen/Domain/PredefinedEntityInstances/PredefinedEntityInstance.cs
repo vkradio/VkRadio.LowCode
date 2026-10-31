@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using Ardalis.GuardClauses;
+using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.Names.Translit.RU;
 
@@ -9,60 +10,58 @@ namespace VkRadio.LowCode.AppGen.Domain.PredefinedEntityInstances;
 /// </summary>
 public class PredefinedEntityInstance : IUniqueNamed
 {
-    Guid _id;
-    DomainModel _domainModel;
-    EntityDefinition _entityDefinition;
-    Dictionary<Guid, IPropertyValue> _propertyValues;
-    Dictionary<NaturalLanguageEnum, string> _names;
-
     /// <summary>
     /// Unique identifier of a predefined object
     /// </summary>
-    public Guid Id { get => _id; set => _id = value; }
+    public Guid Id { get; private set; }
 
     /// <summary>
     /// DomainModel
     /// </summary>
-    public DomainModel MetaModel => _domainModel;
+    public DomainModel DomainModel { get; private set; }
+
     /// <summary>
-    /// Data objec type definition
+    /// Data object type (Entity) definition
     /// </summary>
-    public EntityDefinition EntityDefinition => _entityDefinition;
+    public EntityDefinition EntityDefinition { get; private set; }
 
     /// <summary>
     /// Values of properties
     /// </summary>
-    public IDictionary<Guid, IPropertyValue> PropertyValues => _propertyValues;
+    public IDictionary<Guid, IPropertyValue> PropertyValues { get; private set; }
 
     /// <summary>
     /// Name dictionary of a predefined data object
     /// </summary>
-    public IDictionary<NaturalLanguageEnum, string> Names => _names;
+    public IDictionary<NaturalLanguageEnum, string> Names { get; private set; }
 
     /// <summary>
     /// Loading of a predefined data object from an XML node
     /// </summary>
     /// <param name="domainModel">MetaModel</param>
     /// <param name="xelSource">XML node</param>
-    /// <returns>Predefined object</returns>
-    public static PredefinedEntityInstance LoadFromXElement(DomainModel domainModel, XElement xelSource)
+    public PredefinedEntityInstance(DomainModel domainModel, XElement xelSource)
     {
+        Guard.Against.Null(xelSource, nameof(xelSource));
+
+        DomainModel = Guard.Against.Null(domainModel, nameof(domainModel));
+
         // 1. Read an Id of a predefined object
-        var id = new Guid(xelSource.Element("Id")!.Value);
+        Id = new Guid(xelSource.Element("Id")!.Value);
 
         // 2. Wire with a definition of data object type
-        var dotDefinitionId = new Guid(xelSource.Element("DOTDefinitionId")!.Value);
-        EntityDefinition dotDefinition = domainModel.AllEntityDefinitions[dotDefinitionId];
+        var entityDefinitionId = new Guid(xelSource.Element("DOTDefinitionId")!.Value);
+        EntityDefinition = domainModel.AllEntityDefinitions[entityDefinitionId];
 
         // 3. Load predefined names, if they are set (othewise get them from properties)
-        var names = NameDictionary.LoadNamesFromContainingXElement(xelSource);
-        var searchNameProp = names.Count == 0;
+        Names = NameDictionary.LoadNamesFromContainingXElement(xelSource);
+        var searchNameProp = Names.Count == 0;
 
         // 4. Load values of properties, and set default values
-        var propertyValues = new Dictionary<Guid, IPropertyValue>();
+        PropertyValues = new Dictionary<Guid, IPropertyValue>();
         var xelValues = xelSource.Element("PropertyValues")!;
 
-        foreach (var propDef in dotDefinition.PropertyDefinitions.Values)
+        foreach (var propDef in EntityDefinition.PropertyDefinitions.Values)
         {
             // Search for XML node that contain a value of a property
             var xelPropValue = xelValues
@@ -86,27 +85,28 @@ public class PredefinedEntityInstance : IUniqueNamed
 
                 if (xat is not null && bool.Parse(xat.Value))
                 {
-                    if (names.Count == 0)
+                    if (Names.Count == 0)
                     {
-                        throw new ApplicationException(string.Format("UseName=\"True\" is set for PredefinedDO Id {0}, but no Name element exists.", id));
+                        throw new ApplicationException(string.Format("UseName=\"True\" is set for PredefinedDO Id {0}, but no Name element exists.", Id));
                     }
 
                     // TODO: Here we need a more general and flexible mechanism for switching between localized and English texts
-                    propertyValue.ValueObject = names.ContainsKey(NaturalLanguageEnum.Ru)
-                        ? names[NaturalLanguageEnum.Ru]
-                        : names[NaturalLanguageEnum.En];
+                    propertyValue.SetValueObject(Names.ContainsKey(NaturalLanguageEnum.Ru)
+                        ? Names[NaturalLanguageEnum.Ru]
+                        : Names[NaturalLanguageEnum.En]
+                    );
                 }
                 else
                 {
-                    propertyValue.ValueObject = propDef.FunctionalType.ParseValueFromXmlString(xelValue.Value);
+                    propertyValue.SetValueObject(propDef.FunctionalType.ParseValueFromXmlString(xelValue.Value));
                 }
             }
             else
             {
-                propertyValue.ValueObject = propDef.DefaultValue;
+                propertyValue.SetValueObject(propDef.DefaultValue);
             }
 
-            propertyValues.Add(propertyValue.Definition.Id, propertyValue);
+            PropertyValues.Add(propertyValue.Definition.Id, propertyValue);
 
             // If names of a predefined object are not explicitly set with a tag Name, search for a matching name among properties
             if (searchNameProp && propDef.Names[NaturalLanguageEnum.En] == "name")
@@ -116,11 +116,11 @@ public class PredefinedEntityInstance : IUniqueNamed
 
                 if (lang == NaturalLanguageEnum.Ru)
                 {
-                    names.Add(NaturalLanguageEnum.Ru, nameValue);
+                    Names.Add(NaturalLanguageEnum.Ru, nameValue);
                     nameValue = Transliteration.Front(nameValue);
                 }
 
-                names.Add(NaturalLanguageEnum.En, nameValue);
+                Names.Add(NaturalLanguageEnum.En, nameValue);
 
                 searchNameProp = false;
             }
@@ -129,7 +129,7 @@ public class PredefinedEntityInstance : IUniqueNamed
         // 5. If a name of a predefined object still not found, extract it from a first met property value
         if (searchNameProp)
         {
-            foreach (var pval in propertyValues.Values)
+            foreach (var pval in PropertyValues.Values)
             {
                 var nameValue = pval.ValueObject?.ToString();
 
@@ -145,22 +145,10 @@ public class PredefinedEntityInstance : IUniqueNamed
                     nameValue = Transliteration.Front(nameValue);
                 }
 
-                names.Add(NaturalLanguageEnum.En, nameValue);
+                Names.Add(NaturalLanguageEnum.En, nameValue);
 
                 break;
             }
         }
-
-        // 6. Create a predefined object using all those params
-        var pdo = new PredefinedEntityInstance()
-        {
-            _id = id,
-            _entityDefinition = dotDefinition,
-            _domainModel = domainModel,
-            _propertyValues = propertyValues,
-            _names = names
-        };
-
-        return pdo;
     }
 }

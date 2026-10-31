@@ -9,6 +9,7 @@ public enum NaturalLanguageEnum
     /// English
     /// </summary>
     En = 0,
+
     /// <summary>
     /// Russian
     /// </summary>

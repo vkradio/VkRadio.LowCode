@@ -30,13 +30,7 @@ public class PFTUniqueCode : PropertyFunctionalType
             : new SGuid(Guid.Parse(xmlString));
     }
 
-    public override IPropertyValue CreatePropertyValue()
-    {
-        return new PropertyValue<SGuid>
-        {
-            Definition = (PropertyDefinition)_propertyDefinition
-        };
-    }
+    public override IPropertyValue CreatePropertyValue() => new PropertyValue<SGuid>(_propertyDefinition);
 
     public const string C_STRING_CODE = "unique code";
 }

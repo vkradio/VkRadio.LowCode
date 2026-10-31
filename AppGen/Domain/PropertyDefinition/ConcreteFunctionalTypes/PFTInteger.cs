@@ -25,8 +25,5 @@ public class PFTInteger : PropertyFunctionalType
 
     public override object ParseValueFromXmlString(string xmlString) => int.Parse(xmlString);
 
-    public override IPropertyValue CreatePropertyValue() => new PropertyValue<int?>
-    {
-        Definition = (PropertyDefinition)_propertyDefinition
-    };
+    public override IPropertyValue CreatePropertyValue() => new PropertyValue<int?>(_propertyDefinition);
 }

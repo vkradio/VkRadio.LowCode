@@ -1,34 +1,31 @@
-﻿using System.Xml.Linq;
+﻿using Ardalis.GuardClauses;
+using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PredefinedEntityInstances;
 
 namespace VkRadio.LowCode.AppGen.Domain;
 
 /// <summary>
-/// Data object type definition (DOT)
+/// Data object type (DOT, or Entity) definition
 /// </summary>
 public class EntityDefinition : IUniqueNamed
 {
-    Guid _id;
-    Dictionary<NaturalLanguageEnum, string> _names;
-    DomainModel _domainModel;
-    Dictionary<Guid, PropertyDefinition.PropertyDefinition> _propertyDefinitions;
-    List<PredefinedEntityInstance> _predefinedEntities;
+    private List<PredefinedEntityInstance>? _predefinedEntities;
 
     /// <summary>
     /// Unique identifier of DOT
     /// </summary>
-    public Guid Id { get => _id; set => _id = value; }
+    public Guid Id { get; private set; }
 
     /// <summary>
     /// Dictionary of names of DOT
     /// </summary>
-    public IDictionary<NaturalLanguageEnum, string> Names => _names;
+    public IDictionary<NaturalLanguageEnum, string> Names { get; private set; }
 
     /// <summary>
     /// DomainModel
     /// </summary>
-    public DomainModel MetaModel => _domainModel;
+    public DomainModel DomainModel { get; private set; }
 
     /// <summary>
     /// Predefined objects of Entity type
@@ -37,18 +34,11 @@ public class EntityDefinition : IUniqueNamed
     {
         get
         {
-            if (_predefinedEntities is null)
-            {
-                _predefinedEntities = [];
-
-                foreach (var pdo in _domainModel.AllPredefinedEntities.Values)
-                {
-                    if (pdo.EntityDefinition.Id == _id)
-                    {
-                        _predefinedEntities.Add(pdo);
-                    }
-                }
-            }
+            _predefinedEntities ??= DomainModel
+                .AllPredefinedEntities
+                .Values
+                .Where(x => x.EntityDefinition.Id == Id)
+                .ToList();
 
             return _predefinedEntities;
         }
@@ -57,51 +47,34 @@ public class EntityDefinition : IUniqueNamed
     /// <summary>
     /// Definitions of properties
     /// </summary>
-    public IDictionary<Guid, PropertyDefinition.PropertyDefinition> PropertyDefinitions => _propertyDefinitions;
+    public IDictionary<Guid, PropertyDefinition.PropertyDefinition> PropertyDefinitions { get; private set; }
 
     /// <summary>
     /// Loading Entity type from XML node
     /// </summary>
     /// <param name="domainModel">MetaModel</param>
     /// <param name="xel">XML node containing DOT definition</param>
-    /// <returns>Entity definition</returns>
-    public static EntityDefinition LoadFromXElement(DomainModel domainModel, XElement xel)
+    public EntityDefinition(DomainModel domainModel, XElement xel)
     {
+        DomainModel = Guard.Against.Null(domainModel, nameof(domainModel));
+
         // 1. Load IUniqueNamed properties
-        var id = new Guid(xel.Element("Id")!.Value);
-        var names = NameDictionary.LoadNamesFromContainingXElement(xel);
+        Id = new Guid(xel.Element("Id")!.Value);
+        Names = NameDictionary.LoadNamesFromContainingXElement(xel);
 
         // 2. Load definitions of DOT properties
-        var xelPropDefs = xel.Element("PropertyDefinitions");
+        var xelPropDefs = xel.Element("PropertyDefinitions")
+            ?? throw new ApplicationException(string.Format("PropertyDefinitions element not found for DOTDefinition {0}.", Id));
 
-        if (xelPropDefs is null)
+        PropertyDefinitions = xelPropDefs
+            .Elements("PropertyDefinition")
+            .Select(x => PropertyDefinition.PropertyDefinition.LoadFromXElement(x, domainModel))
+            .ToDictionary(x => x.Id);
+
+        // 3. Wire property definitions to their owner
+        foreach (var pd in PropertyDefinitions.Values)
         {
-            throw new ApplicationException(string.Format("PropertyDefinitions element not found for DOTDefinition {0}.", id));
+            pd.OwnerDefinition = this;
         }
-
-        var propDefs = new Dictionary<Guid, PropertyDefinition.PropertyDefinition>();
-
-        foreach (var xelPropDef in xelPropDefs.Elements("PropertyDefinition"))
-        {
-            var pd = PropertyDefinition.PropertyDefinition.LoadFromXElement(xelPropDef, domainModel);
-            propDefs.Add(pd.Id, pd);
-        }
-
-        // 3. Create DOT from loaded properties
-        var entDef = new EntityDefinition()
-        {
-            _id = id,
-            _names = names,
-            _domainModel = domainModel,
-            _propertyDefinitions = propDefs
-        };
-
-        // 4. Wire property definitions to their owner
-        foreach (var pd in propDefs.Values)
-        {
-            pd.OwnerDefinition = entDef;
-        }
-
-        return entDef;
     }
 }

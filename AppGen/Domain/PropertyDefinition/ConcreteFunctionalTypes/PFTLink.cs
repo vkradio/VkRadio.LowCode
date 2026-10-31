@@ -18,8 +18,5 @@ public abstract class PFTLink : PropertyFunctionalType
 
     public override object ParseValueFromXmlString(string xmlString) => new SRefObject(new Guid(xmlString));
 
-    public override IPropertyValue CreatePropertyValue() => new PropertyValue<SRefObject>
-    {
-        Definition = (PropertyDefinition)_propertyDefinition
-    };
+    public override IPropertyValue CreatePropertyValue() => new PropertyValue<SRefObject>(_propertyDefinition);
 }

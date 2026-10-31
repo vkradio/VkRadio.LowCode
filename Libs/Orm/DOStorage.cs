@@ -158,8 +158,8 @@ namespace VkRadio.LowCode.Libs.Orm
 
         public virtual DbMappedDOT? Restore(Guid id, DbTransaction? transaction = null)
         {
-            if (transaction == null && Cache.ContainsKey(id))
-                return Cache[id];
+            if (transaction == null && Cache.TryGetValue(id, out var cachedValue))
+                return cachedValue;
 
             DbConnection? conn = null;
             if (transaction == null)

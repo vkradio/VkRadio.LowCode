@@ -37,8 +37,5 @@ public class PFTBoolean : PropertyFunctionalType
     /// Creating of a typed prefab for storing a value
     /// </summary>
     /// <returns>Prefab for a property value</returns>
-    public override IPropertyValue CreatePropertyValue() => new PropertyValue<bool?>
-    {
-        Definition = (PropertyDefinition)_propertyDefinition
-    };
+    public override IPropertyValue CreatePropertyValue() => new PropertyValue<bool?>(_propertyDefinition);
 }

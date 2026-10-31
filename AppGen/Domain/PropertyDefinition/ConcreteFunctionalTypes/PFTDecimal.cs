@@ -29,8 +29,5 @@ public class PFTDecimal : PropertyFunctionalType
 
     public override object ParseValueFromXmlString(string in_xmlString) => decimal.Parse(in_xmlString, CultureInfo.InvariantCulture);
 
-    public override IPropertyValue CreatePropertyValue() => new PropertyValue<decimal?>()
-    {
-        Definition = (PropertyDefinition)_propertyDefinition
-    };
-};
+    public override IPropertyValue CreatePropertyValue() => new PropertyValue<decimal?>(_propertyDefinition);
+}

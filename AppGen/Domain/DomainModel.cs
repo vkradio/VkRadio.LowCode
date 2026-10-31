@@ -136,7 +136,7 @@ public class DomainModel : INamed
 
         foreach (var xelEntDefinition in xelEntDefinitions.Elements("DOTDefinition"))
         {
-            var entDef = EntityDefinition.LoadFromXElement(this, xelEntDefinition);
+            var entDef = new EntityDefinition(this, xelEntDefinition);
             _allEntityDefinitions.Add(entDef.Id, entDef);
         }
     }
@@ -168,7 +168,7 @@ public class DomainModel : INamed
 
         foreach (var xelPredefEnt in xelPredefEnts.Elements("PredefinedDO"))
         {
-            var pde = PredefinedEntityInstance.LoadFromXElement(this, xelPredefEnt);
+            var pde = new PredefinedEntityInstance(this, xelPredefEnt);
 
             try
             {
@@ -241,7 +241,7 @@ public class DomainModel : INamed
                 {
                     if (pftConnector.RelationshipConnector is null)
                     {
-                        throw new ApplicationException(string.Format("Property {0} have no RelationshipConnector object specified.", propDef.Id));
+                        throw new ApplicationException(string.Format("Property {0} has no RelationshipConnector object specified.", propDef.Id));
                     }
 
                     continue;
@@ -253,7 +253,7 @@ public class DomainModel : INamed
                 {
                     if (pftReferenceValue.RelationshipReference is null)
                     {
-                        throw new ApplicationException(string.Format("Property {0} have no RelationshipReference object specified.", propDef.Id));
+                        throw new ApplicationException(string.Format("Property {0} has no RelationshipReference object specified.", propDef.Id));
                     }
 
                     continue;
@@ -265,7 +265,7 @@ public class DomainModel : INamed
                 {
                     if (pftTableOwner.RelationshipTable is null)
                     {
-                        throw new ApplicationException(string.Format("Property {0} have no RelationshipTable object specified.", propDef.Id));
+                        throw new ApplicationException(string.Format("Property {0} has no RelationshipTable object specified.", propDef.Id));
                     }
 
                     continue;
@@ -277,7 +277,7 @@ public class DomainModel : INamed
                 {
                     if (pftTablePart.RelationshipTable is null)
                     {
-                        throw new ApplicationException(string.Format("Property {0} have no RelationshipTable object specified.", propDef.Id));
+                        throw new ApplicationException(string.Format("Property {0} has no RelationshipTable object specified.", propDef.Id));
                     }
 
                     continue;
@@ -289,13 +289,13 @@ public class DomainModel : INamed
                 {
                     if (pftBackRefTable.RelationshipReference is null)
                     {
-                        throw new ApplicationException(string.Format("Property {0} have no RelationshipReference object specified.", propDef.Id));
+                        throw new ApplicationException(string.Format("Property {0} has no RelationshipReference object specified.", propDef.Id));
                     }
 
                     continue;
                 }
 
-                throw new ApplicationException(string.Format("Property {0} have unknown PFTLink type FunctionalType ({1}).", propDef.Id, propDef.FunctionalType.GetType().Name));
+                throw new ApplicationException(string.Format("Property {0} has unknown PFTLink type FunctionalType ({1}).", propDef.Id, propDef.FunctionalType.GetType().Name));
             }
         }
     }
@@ -330,18 +330,10 @@ public class DomainModel : INamed
     {
         get
         {
-            if (_allPropertyDefinitions is null)
-            {
-                _allPropertyDefinitions = [];
-
-                foreach (var entDef in _allEntityDefinitions.Values)
-                {
-                    foreach (var propDef in entDef.PropertyDefinitions.Values)
-                    {
-                        _allPropertyDefinitions.Add(propDef.Id, propDef);
-                    }
-                }
-            }
+            _allPropertyDefinitions ??= _allEntityDefinitions
+                .Values
+                .SelectMany(x => x.PropertyDefinitions.Values)
+                .ToDictionary(x => x.Id);
 
             return _allPropertyDefinitions;
         }
@@ -354,10 +346,10 @@ public class DomainModel : INamed
     /// <returns>Loaded DomainModel</returns>
     public static DomainModel Load(string filePath)
     {
-        var metaModel = new DomainModel();
+        var domainModel = new DomainModel();
 
-        metaModel.PrivateLoad(filePath);
+        domainModel.PrivateLoad(filePath);
 
-        return metaModel;
+        return domainModel;
     }
 }

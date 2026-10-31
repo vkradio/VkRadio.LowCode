@@ -5,21 +5,21 @@
 /// </summary>
 public class PFTBackReferencedTable : PFTLink
 {
-    Relationship.RelationshipReference _relationshipReference;
-
     /// <summary>
     /// Collection constructor
     /// </summary>
-    public PFTBackReferencedTable()
+    public PFTBackReferencedTable(/*Relationship.RelationshipReference relationshipReference*/)
     {
         _stringCode = C_STRING_CODE;
+
+        //RelationshipReference = Guard.Against.Null(relationshipReference, nameof(relationshipReference));
     }
 
     /// <summary>
     /// Reference
     /// </summary>
-    public Relationship.RelationshipReference RelationshipReference
-    {
+    public Relationship.RelationshipReference RelationshipReference { get; set; }
+    /*{
         get { return _relationshipReference; }
 
         set
@@ -38,7 +38,7 @@ public class PFTBackReferencedTable : PFTLink
             //    }
             //}
         }
-    }
+    }*/
 
     /// <summary>
     /// String code of a functional property type (used in a MetaModel file)

@@ -9,12 +9,12 @@ public static class TimeHelper
     const int c_hourOffsetFromServerToLocal = 12;
     public const int C_LOCAL_TO_UTC_OFFSET = -5;
 
-    static string _hostName;
+    static string? _hostName;
 
     /// <summary>
     /// Host name
     /// </summary>
-    public static string HostName
+    public static string? HostName
     {
         get => _hostName;
 
@@ -40,7 +40,7 @@ public static class TimeHelper
     /// Check whether server is running locally
     /// </summary>
     /// <returns></returns>
-    public static bool GetIsLocalHost() => HostName == "::1" || HostName.Contains("localhost");
+    public static bool GetIsLocalHost() => HostName == "::1" || (HostName?.Contains("localhost") ?? false);
 
     /// <summary>
     /// Calculate a local time

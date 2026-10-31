@@ -361,7 +361,7 @@ public class EntityPackage : PackNS.Package
         }
         else
         {
-            var pdo = propDef.OwnerDefinition.MetaModel.AllPredefinedEntities[defaultValue.Key];
+            var pdo = propDef.OwnerDefinition.DomainModel.AllPredefinedEntities[defaultValue.Key];
             var constName = NameHelper.NameToConstantId(pdo.Names);
             var className = CSharpHelper.GenerateEntityClassName(pdo.EntityDefinition);
             result = string.Format("{0}.Predefined.{1}", className, constName);

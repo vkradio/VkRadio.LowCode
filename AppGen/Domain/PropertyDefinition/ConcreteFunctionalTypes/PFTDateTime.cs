@@ -36,13 +36,7 @@ public abstract class PFTDateTime : PropertyFunctionalType
     /// Creating a typed prefab for storing a value
     /// </summary>
     /// <returns>Prefab of a property value</returns>
-    public override IPropertyValue CreatePropertyValue()
-    {
-        return new PropertyValue<SDateTime>
-        {
-            Definition = (PropertyDefinition)_propertyDefinition
-        };
-    }
+    public override IPropertyValue CreatePropertyValue() => new PropertyValue<SDateTime>(_propertyDefinition);
 
     /// <summary>
     /// String code defining a usage of a current runtime value
