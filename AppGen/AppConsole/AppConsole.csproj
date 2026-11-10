@@ -8,12 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Repositories\**" />
-    <EmbeddedResource Remove="Repositories\**" />
-    <None Remove="Repositories\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\ArtefactGenerators\Core\Core.csproj" />
     <ProjectReference Include="..\ArtefactGenerators\Ool.CSharp.Core\Ool.CSharp.Core.csproj" />
     <ProjectReference Include="..\ArtefactGenerators\Ool.CSharp.WinFormsApp\Ool.CSharp.WinFormsApp.csproj" />

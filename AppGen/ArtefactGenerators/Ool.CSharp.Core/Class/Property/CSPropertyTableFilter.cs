@@ -8,6 +8,8 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Proper
 
 public class CSPropertyTableFilter : CSPropertyPredefined, IPropertyOrField
 {
+    private CSharpReferenceType _type = new CSharpReferenceType(false, "FilterSimple", false);
+
     private static string PropertyName(PropertyDefinition propDef) => $"{NameHelper.NamesToPascalCase(propDef.Names, true)}Filter";
 
     private static string NameOfTableField(PropertyDefinition propDef)
@@ -41,5 +43,5 @@ public class CSPropertyTableFilter : CSPropertyPredefined, IPropertyOrField
     {
     }
 
-    public CSharpTypeBase Type => throw new InvalidOperationException($"Call to {nameof(Type)} should not be performed for {nameof(CSPropertyTableFilter)} because that property is predefined (hard-coded).");
+    public CSharpTypeBase Type => _type;
 }

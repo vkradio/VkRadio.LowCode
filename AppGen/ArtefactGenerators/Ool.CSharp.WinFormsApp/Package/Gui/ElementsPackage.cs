@@ -117,7 +117,7 @@ public class ElementsPackage : PackNS.Package
             new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Синхронизация виджета из данных объекта" : "Synchronize widget content from object data"),
             ElementVisibilityClassic.Public,
             null,
-            null,
+            "override",
             null,
             null,
             false,
@@ -172,7 +172,7 @@ public class ElementsPackage : PackNS.Package
             new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Синхронизация виджета из данных объекта" : "Synchronize widget content from object data"),
             ElementVisibilityClassic.Public,
             new CSharpReferenceType(supportNullableRefTypes, TypeConstants.Reference.C_STRING, true),
-            null,
+            "override",
             new List<string>
             {
                 string.Format("{0} o = ({1})in_o;", className, className),
