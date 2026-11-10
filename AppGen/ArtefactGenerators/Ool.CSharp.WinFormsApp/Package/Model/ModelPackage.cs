@@ -14,10 +14,10 @@ public class ModelPackage : PackNS.Package
 
         if (generator.PutSimilarArtefactsToSingleFile)
         {
-            EntitySingleFile = new EntitySingleFile(this, preferNaturalLanguageForComments, uiLanguage);
+            EntitySingleFile = new EntitySingleFile(this, preferNaturalLanguageForComments, uiLanguage, parentPackage.ParentPackage.Generator.SupportNullableReferenceTypes);
             _components.Add(EntitySingleFile.Name, EntitySingleFile);
 
-            StorageSingleFile = new StorageSingleFile(this, preferNaturalLanguageForComments);
+            StorageSingleFile = new StorageSingleFile(this, preferNaturalLanguageForComments, parentPackage.ParentPackage.Generator.SupportNullableReferenceTypes);
             _components.Add(StorageSingleFile.Name, StorageSingleFile);
 
             StoragePackage.CreateStorageRegistryComponent(parentPackage.ParentPackage.DomainModel, this, StorageSingleFile.Namespace, preferNaturalLanguageForComments);
@@ -27,7 +27,7 @@ public class ModelPackage : PackNS.Package
             EntityPackage = new EntityPackage(this, preferNaturalLanguageForComments, uiLanguage);
             _subpackages.Add(EntityPackage.Name, EntityPackage);
 
-            StoragePackage = new StoragePackage(this, preferNaturalLanguageForComments);
+            StoragePackage = new StoragePackage(this, preferNaturalLanguageForComments, parentPackage.ParentPackage.Generator.SupportNullableReferenceTypes);
             _subpackages.Add(StoragePackage.Name, StoragePackage);
         }
     }

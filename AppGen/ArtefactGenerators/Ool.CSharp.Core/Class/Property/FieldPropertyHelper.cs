@@ -14,47 +14,62 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Proper
 /// </summary>
 public class FieldPropertyHelper
 {
-    private static void GetFieldNamesFromPropDef(PropertyDefinition propDef, out string out_fieldName, out string out_fieldIdName)
+    private static (string FieldName, string FieldIdName) GetFieldNamesFromPropDef(PropertyDefinition propDef)
     {
-        out_fieldName = "_" + NameHelper.NamesToCamelCase(propDef.Names);
-        out_fieldIdName = out_fieldName + "Id";
+        var fieldName = "_" + NameHelper.NamesToCamelCase(propDef.Names);
+        return (fieldName, fieldName + "Id");
     }
 
-    public static void GenerateFieldPropertyAndGetter(
+    public static (
+        CSClassField? MainField,
+        CSProperty MainProperty,
+        CSClassField? FieldForId,
+        CSProperty? PropertyForId,
+        ICSProperty? PropertyForFilter,
+        CSCollectionReadMethod? CollectionReadMethod,
+        CSCollectionCountMethod? CollectionCountMethod
+    ) GenerateFieldPropertyAndGetter(
         PropertyDefinition propDef,
         CSClass cSharpClass,
         NaturalLanguageEnum preferNaturalLanguageForComments,
-        out CSClassField? outField,
-        out CSClassField? outFieldId,
-        out CSProperty? outProperty,
-        out CSProperty? outPropertyId,
-        out CSCollectionGetter? outCollectionGetter,
-        out CSCollectionCounter? outCollectionCounter
+        bool supportNullableRefTypes //,
+        //out CSClassField? outField,
+        //out CSClassField? outFieldId,
+        //out CSProperty? outProperty,
+        //out CSProperty? outPropertyId,
+        //out CSCollectionGetter? outCollectionGetter,
+        //out CSCollectionCounter? outCollectionCounter
     )
     {
-        outField = null;
-        outFieldId = null;
-        outProperty = null;
-        outPropertyId = null;
-        outCollectionGetter = null;
-        outCollectionCounter = null;
+        //outField = null;
+        //outFieldId = null;
+        //outProperty = null;
+        //outPropertyId = null;
+        //outCollectionGetter = null;
+        //outCollectionCounter = null;
 
-        string fieldName, fieldIdName;
-        GetFieldNamesFromPropDef(propDef, out fieldName, out fieldIdName);
+        CSClassField? mainField = null;
+        CSProperty mainProperty;
+        CSClassField? fieldForId = null;
+        CSProperty? propertyForId = null;
+        ICSProperty? propertyForFilter = null;
+        CSCollectionReadMethod? collectionReadMethod = null;
+        CSCollectionCountMethod? collectionCountMethod = null;
+
+        var (fieldName, fieldIdName) = GetFieldNamesFromPropDef(propDef);
 
         #region 1.1. Fields and properties for explicit (non-reference) values
         if (!(propDef.FunctionalType is PFTLink))
         {
-            outField = new CSClassField()
-            {
-                Class = cSharpClass,
-                Visibility = ElementVisibilityClassic.Protected,
-                Name = fieldName,
-                DocComment = new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments)),
-                TypeKeyword = TypeHelper.PropertyDefinitionToCSType(propDef)
-            };
+            mainField = new CSClassField(
+                CSharpTypeBase.DeriveFromPropertyFunctionalType(propDef, supportNullableRefTypes),
+                fieldName,
+                cSharpClass,
+                new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments)),
+                ElementVisibilityClassic.Protected
+            );
 
-            outProperty = CSProperty.GenerateProperty(cSharpClass, propDef, outField, outField.DocComment as XmlComment);
+            mainProperty = new CSProperty(propDef, mainField, mainField.DocComment, false);
         }
         #endregion
         else
@@ -64,48 +79,33 @@ public class FieldPropertyHelper
                 propDef.FunctionalType is PFTConnector      ||
                 propDef.FunctionalType is PFTTableOwner)
             {
-                // Search for corresponding definitions of data object types and tables
-                //DOTDefinition dotRef = null;
-                //PFTReferenceValue   ftRef       = in_propDef.FunctionalType as PFTReferenceValue;
-                //PFTConnector        ftConn      = in_propDef.FunctionalType as PFTConnector;
-                //PFTTableOwner       ftTblOwner  = in_propDef.FunctionalType as PFTTableOwner;
-                //if (ftRef != null)
-                //    dotRef = ftRef.RelationshipReference.ReferenceDefinition;
-                //else if (ftConn != null)
-                //    dotRef = ftConn.RelationshipConnector.End1.PropertyDefinition.Id == in_propDef.Id ? ftConn.RelationshipConnector.End2.PropertyDefinition.OwnerDefinition : ftConn.RelationshipConnector.End1.PropertyDefinition.OwnerDefinition;
-                //else if (ftTblOwner != null)
-                //    dotRef = ftTblOwner.RelationshipTable.PropertyDefinitionInOwner.OwnerDefinition;
-                //else
-                //    throw new ApplicationException(string.Format("Invalid PropertyDefinition reference FunctionalType: {0}.", in_propDef.FunctionalType.GetType().Name));
+                mainField = new CSClassField(
+                    CSharpTypeBase.DeriveFromPropertyFunctionalType(propDef, supportNullableRefTypes),
+                    fieldName,
+                    cSharpClass,
+                    new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments)),
+                    ElementVisibilityClassic.Protected
+                );
 
-                outField = new CSClassField
-                {
-                    Class = cSharpClass,
-                    Visibility = ElementVisibilityClassic.Protected,
-                    Name = fieldName,
-                    DocComment = new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments)),
-                    TypeKeyword = TypeHelper.PropertyDefinitionToCSType(propDef)
-                };
+                fieldForId = new CSClassField(
+                    new CSharpValueType(TypeConstants.Value.C_GUID, true),
+                    fieldIdName,
+                    cSharpClass,
+                    new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Внешний ключ на " : "Foreign Key to ") + NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments)),
+                    ElementVisibilityClassic.Protected
+                );
 
-                outFieldId = new CSClassField()
-                {
-                    Class = cSharpClass,
-                    Visibility = ElementVisibilityClassic.Protected,
-                    Name = fieldIdName,
-                    DocComment = new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Внешний ключ на " : "Foreign Key to ") + NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments)),
-                    TypeKeyword = "Guid?"
-                };
-
-                outProperty = CSProperty.GenerateProperty(cSharpClass, propDef, outField, outField.DocComment as XmlComment);
-                outPropertyId = CSProperty.GeneratePropertyId(cSharpClass, propDef, outFieldId, outFieldId.DocComment as XmlComment);
+                mainProperty = new CSProperty(propDef, mainField, mainField.DocComment, false);
+                propertyForId = new CSProperty(propDef, fieldForId, fieldForId.DocComment, true);
             }
             #endregion
             else if (propDef.FunctionalType is PFTTablePart || propDef.FunctionalType is PFTBackReferencedTable)
             #region 1.3. Fields for collections (no tables)
             {
-                outProperty = CSProperty.GeneratePropertyCollection(cSharpClass, propDef, preferNaturalLanguageForComments);
-                outCollectionGetter = CSCollectionGetter.Instantiate(cSharpClass, propDef, preferNaturalLanguageForComments);
-                outCollectionCounter = CSCollectionCounter.Instantiate(cSharpClass, propDef, preferNaturalLanguageForComments);
+                propertyForFilter = new CSPropertyTableFilter(propDef, preferNaturalLanguageForComments);
+                mainProperty = new CSProperty(propDef, (IPropertyOrField)propertyForFilter, null, false);
+                collectionReadMethod = new CSCollectionReadMethod(cSharpClass, propDef, preferNaturalLanguageForComments, supportNullableRefTypes);
+                collectionCountMethod = new CSCollectionCountMethod(cSharpClass, propDef, preferNaturalLanguageForComments, supportNullableRefTypes);
             }
             #endregion
             else
@@ -113,5 +113,7 @@ public class FieldPropertyHelper
                 throw new GeneratorException($"Not recognized FunctionalType of PropertyDefinition {propDef.Id} {propDef.Names[NaturalLanguageEnum.En]}: {propDef.FunctionalType.GetType().Name}.");
             }
         }
+
+        return (mainField, mainProperty, fieldForId, propertyForId, propertyForFilter, collectionReadMethod, collectionCountMethod);
     }
 }

@@ -11,8 +11,8 @@ public class CSPropertySetterCachedObject : CSPropertySetter
     {
         var text = new List<string>
         {
-            $"{Property.NameFieldCorresponding} = value;",
-            string.Format("{0}Id = {0} != null ? (Guid?){0}.Id : null;", Property.NameFieldCorresponding)
+            $"{GetCorrespondingName()} = value;",
+            string.Format("{0}Id = {0} != null ? (Guid?){0}.Id : null;", GetCorrespondingName())
         };
 
         return [.. text];

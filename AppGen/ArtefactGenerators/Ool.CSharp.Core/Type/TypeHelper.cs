@@ -9,14 +9,14 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 /// <summary>
 /// Work with C# data types
 /// </summary>
-public class TypeHelper
+public static class TypeHelper
 {
     /// <summary>
     /// Get a C# type keyword or name of user defined type from a DomainModel definition
     /// </summary>
     /// <param name="propDef">Property definition</param>
     /// <returns></returns>
-    public static string PropertyDefinitionToCSType(PropertyDefinition propDef)
+    /*public static string PropertyDefinitionToCSType(PropertyDefinition propDef, bool supportNullableRefTypes = false)
     {
         string result;
 
@@ -51,7 +51,8 @@ public class TypeHelper
                 throw new GeneratorException($"Unknown value type for property Id {propDef.Id}: {propDef.FunctionalType.GetType().Name}.");
             }
 
-            if (propDef.FunctionalType.Nullable && !(propDef.FunctionalType is PFTString))
+            if (propDef.FunctionalType.Nullable &&
+                (supportNullableRefTypes || !(propDef.FunctionalType is PFTString)))
             {
                 result += "?";
             }
@@ -111,11 +112,19 @@ public class TypeHelper
                     }
                 }
             }
+
+            if (propDef.FunctionalType.Nullable && supportNullableRefTypes)
+            {
+                result += "?";
+            }
         }
 
         return result;
-    }
+    }*/
 
+    public static CSharpTypeBase TypeOrDefault(this CSharpTypeBase? type) => type ?? new CSharpTypeHardCoded("void");
+
+    /*
     /// <summary>
     /// Get a C# name for a user class of Entity, that corresponds for metadata property of reference type
     /// </summary>
@@ -153,7 +162,7 @@ public class TypeHelper
         }
 
         return result;
-    }
+    }*/
 
     /// <summary>
     /// Get XmlComment for a property definition of table type (collection)
@@ -202,4 +211,49 @@ public class TypeHelper
     /// <param name="entityDef">Entity type definition</param>
     /// <returns>Class name for Entity</returns>
     public static string GetClassNameForEntity(EntityDefinition entityDef) => NameHelper.NamesToPascalCase(entityDef.Names);
+
+    public static string? GetClassNameForEntity(PropertyDefinition propDef, bool returnNullIfNotApplicable = false)
+    {
+        EntityDefinition entityDefinition;
+
+        if (propDef.FunctionalType is PFTBackReferencedTable pftBackRefTable)
+        {
+            entityDefinition = ((PropertyDefinition)pftBackRefTable.RelationshipReference.OwnerPropertyDefinition).OwnerDefinition;
+        }
+        else if (propDef.FunctionalType is PFTTablePart pftTable)
+        {
+            entityDefinition = pftTable!.RelationshipTable.PropertyDefinitionInTable.OwnerDefinition;
+        }
+        else if (propDef.FunctionalType is PFTConnector pftConn)
+        {
+            var end = pftConn.RelationshipConnector.End1.PropertyDefinition.Id == propDef.Id
+                ? pftConn.RelationshipConnector.End2
+                : pftConn.RelationshipConnector.End1;
+
+            entityDefinition = end.PropertyDefinition.OwnerDefinition;
+        }
+        else if (propDef.FunctionalType is PFTReferenceValue pftRefVal)
+        {
+            entityDefinition = pftRefVal.RelationshipReference.ReferenceDefinition;
+        }
+        else if (propDef.FunctionalType is PFTTableOwner pftTableOwner)
+        {
+            entityDefinition = pftTableOwner.RelationshipTable.PropertyDefinitionInOwner.OwnerDefinition;
+        }
+        else
+        {
+            if (returnNullIfNotApplicable)
+            {
+                return null;
+            }
+            else
+            {
+                throw new GeneratorException($"Unknown reference type for property Id {propDef.Id}: {propDef.FunctionalType.GetType().Name}.");
+            }
+        }
+
+        var result = GetClassNameForEntity(entityDefinition);
+
+        return result;
+    }
 }

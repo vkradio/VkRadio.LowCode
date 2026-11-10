@@ -3,7 +3,7 @@
 /// <summary>
 /// Subclass of data object type class for fast retrieving of predefined objects
 /// </summary>
-public class CSClassPredefined : CSClass
+public class CSClassPredefinedDataObject : CSClass
 {
-    public CSClass ParentClass { get; set; }
+    //public CSClass ParentClass { get; set; }
 }

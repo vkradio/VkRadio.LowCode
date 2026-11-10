@@ -3,6 +3,7 @@ using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.Core;
 using VkRadio.LowCode.AppGen.Domain.Names;
@@ -62,11 +63,11 @@ public class ListsPackage : PackNS.Package
 
             var correspondence = (TableAndEntityCorrespondence)dbModel.TableAndSourceCorrespondence[entityDef.Id];
 
-            var ctor = new CSConstructor(cls)
-            {
-                DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Конструктор списка" : "List constructor"),
-                Visibility = ElementVisibilityClassic.Public
-            };
+            var ctor = new CSConstructor(
+                cls,
+                new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Конструктор списка" : "List constructor"),
+                ElementVisibilityClassic.Public
+            );
             cls.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
             ctor.BodyStrings.Add("InitializeComponent();");
             ctor.BodyStrings.Add(string.Empty);
@@ -225,51 +226,62 @@ public class ListsPackage : PackNS.Package
             ctor.BodyStrings.Add(string.Empty);
             ctor.BodyStrings.Add("DGV_ListProtected.CellFormatting += new DataGridViewCellFormattingEventHandler(DGV_ListProtected_CellFormatting);");
 
-            var methodFormatter = new CSMethod
+            var intType = "int"; // ((ArtefactGeneratorCSharpClassic)in_parentPackage.ParentPackage.ParentPackage.ArtefactGenerationTarget.Generator).Target.IsDependantOnSQLite ? "long" : "int";
+            string yesText, noText;
+
+            if (uiLanguage == NaturalLanguageEnum.Ru)
             {
-                Class = cls,
-                DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Обработчик форматирования некоторых значений" : "Formatter for some values"),
-                Name = "DGV_ListProtected_CellFormatting",
-                ReturnType = "void",
-                Visibility = ElementVisibilityClassic.Private
-            };
-            var param1 = new CSParameter
+                yesText = "да";
+                noText = "нет";
+            }
+            else
             {
-                Name = "sender",
-                Type = "object"
-            };
-            var param2 = new CSParameter
-            {
-                Name = "e",
-                Type = "DataGridViewCellFormattingEventArgs"
-            };
+                yesText = "yes";
+                noText = "no";
+            }
+
+            var methodFormatter = new CSMethod(
+                cls,
+                "DGV_ListProtected_CellFormatting",
+                new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Обработчик форматирования некоторых значений" : "Formatter for some values"),
+                ElementVisibilityClassic.Private,
+                null,
+                null,
+                new List<string>
+                {
+                    "if (e.ColumnIndex == 0)",
+                    "    return;",
+                    "int intPositions = _decimalIntPositions[e.ColumnIndex - 1];",
+                    "if (intPositions != 0)",
+                    "{",
+                    $"    {intType}? eValue = e.Value as {intType}?;",
+                    "    if (eValue.HasValue)",
+                    "    {",
+                    "        e.Value = (eValue.Value / 100m).ToString($\"N{intPositions}\");",
+                    //"        e.CellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;",
+                    "        e.FormattingApplied = true;",
+                    "    }",
+                    "}",
+                    "else",
+                    "{",
+                    "    bool? boolValue = e.Value as bool?;",
+                    "    if (boolValue.HasValue)",
+                    "    {",
+                    $"        e.Value = boolValue.Value ? \"{yesText}\" : \"{noText}\";",
+                    //"        e.CellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;",
+                    "        e.FormattingApplied = true;",
+                    "    }",
+                    "}"
+                },
+                null,
+                false,
+                false
+            );
+            var param1 = new CSParameter("sender", new CSharpReferenceType(false, TypeConstants.Reference.C_OBJECT, false));
+            var param2 = new CSParameter("e", new CSharpReferenceType(false, "DataGridViewCellFormattingEventArgs", false));
             methodFormatter.Params.Add(param1.Name, param1);
             methodFormatter.Params.Add(param2.Name, param2);
             cls.Methods.Add(CSharpHelper.GenerateMethodKey(methodFormatter), methodFormatter);
-            var intType = "int"; // ((ArtefactGeneratorCSharpClassic)in_parentPackage.ParentPackage.ParentPackage.ArtefactGenerationTarget.Generator).Target.IsDependantOnSQLite ? "long" : "int";
-            methodFormatter.BodyStrings.Add("if (e.ColumnIndex == 0)");
-            methodFormatter.BodyStrings.Add("    return;");
-            methodFormatter.BodyStrings.Add("int intPositions = _decimalIntPositions[e.ColumnIndex - 1];");
-            methodFormatter.BodyStrings.Add("if (intPositions != 0)");
-            methodFormatter.BodyStrings.Add("{");
-            methodFormatter.BodyStrings.Add($"    {intType}? eValue = e.Value as {intType}?;");
-            methodFormatter.BodyStrings.Add("    if (eValue.HasValue)");
-            methodFormatter.BodyStrings.Add("    {");
-            methodFormatter.BodyStrings.Add("        e.Value = (eValue.Value / 100m).ToString($\"N{intPositions}\");");
-            //methodFormatter.BodyStrings.Add("        e.CellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;");
-            methodFormatter.BodyStrings.Add("        e.FormattingApplied = true;");
-            methodFormatter.BodyStrings.Add("    }");
-            methodFormatter.BodyStrings.Add("}");
-            methodFormatter.BodyStrings.Add("else");
-            methodFormatter.BodyStrings.Add("{");
-            methodFormatter.BodyStrings.Add("    bool? boolValue = e.Value as bool?;");
-            methodFormatter.BodyStrings.Add("    if (boolValue.HasValue)");
-            methodFormatter.BodyStrings.Add("    {");
-            methodFormatter.BodyStrings.Add("        e.Value = boolValue.Value ? \"да\" : \"нет\";");
-            //methodFormatter.BodyStrings.Add("        e.CellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;");
-            methodFormatter.BodyStrings.Add("        e.FormattingApplied = true;");
-            methodFormatter.BodyStrings.Add("    }");
-            methodFormatter.BodyStrings.Add("}");
             #endregion
             #endregion
 

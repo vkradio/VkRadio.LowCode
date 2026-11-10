@@ -2,22 +2,34 @@
 
 public class ElementVisibilityClassic : ElementVisibilityAbstract
 {
+    public static ElementVisibilityClassic Private;
+
+    public static ElementVisibilityClassic Protected;
+
+    public static ElementVisibilityClassic Public;
+
+    static ElementVisibilityClassic()
+    {
+        Private = new() { Value = ElementVisibilityEnum.Private };
+
+        Protected = new() { Value = ElementVisibilityEnum.Protected };
+
+        Public = new() { Value = ElementVisibilityEnum.Public };
+    }
+
     public override string ToString()
     {
         var result = _value switch
         {
             ElementVisibilityEnum.Private => "private",
+
             ElementVisibilityEnum.Protected => "protected",
+
             ElementVisibilityEnum.Public => "public",
-            _ => throw new ApplicationException($"ElementVisibilityEnum value not supported: {_value}.")
+
+            _ => throw new ApplicationException($"{nameof(ElementVisibilityEnum)} value not supported: {_value}.")
         };
 
         return result;
     }
-    
-    public static ElementVisibilityClassic Private => new() { Value = ElementVisibilityEnum.Private };
-
-    public static ElementVisibilityClassic Protected => new() { Value = ElementVisibilityEnum.Protected };
-
-    public static ElementVisibilityClassic Public => new() { Value = ElementVisibilityEnum.Public };
 }

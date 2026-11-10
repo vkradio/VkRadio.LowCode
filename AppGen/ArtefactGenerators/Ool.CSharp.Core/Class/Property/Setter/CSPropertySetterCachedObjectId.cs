@@ -11,10 +11,10 @@ public class CSPropertySetterCachedObjectId : CSPropertySetter
     {
         var text = new List<string>
         {
-            $"{Property.NameFieldCorresponding} = value;"
+            $"{GetCorrespondingName()} = value;"
         };
 
-        var objectFieldName = Property.NameFieldCorresponding.Substring(0, Property.NameFieldCorresponding.Length - 2);
+        var objectFieldName = GetCorrespondingName().Substring(0, GetCorrespondingName().Length - 2);
 
         text.Add($"{objectFieldName} = null;");
 

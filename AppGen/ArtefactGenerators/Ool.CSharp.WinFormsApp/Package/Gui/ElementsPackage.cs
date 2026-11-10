@@ -4,6 +4,7 @@ using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Component;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
 using VkRadio.LowCode.AppGen.Domain;
 using VkRadio.LowCode.AppGen.Domain.Names;
@@ -44,11 +45,16 @@ public class ElementsPackage : PackNS.Package
     {
         var wDescs = new List<CSharpHelper.PropertyWidgetDescriptor>();
 
-        var ctor = new CSConstructor(cSharpClass)
-        {
-            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Конструктор панели редактирования/просмотра объекта данных" : "Constructor of a view/edit card of a data object"),
-            Visibility = ElementVisibilityClassic.Public
-        };
+        var ctor = new CSConstructor(
+            cSharpClass,
+            new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Конструктор панели редактирования/просмотра объекта данных" : "Constructor of a view/edit card of a data object"),
+            ElementVisibilityClassic.Public,
+            null,
+            null,
+            null,
+            false,
+            false
+        );
         cSharpClass.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
 
         ctor.BodyStrings.Add("InitializeComponent();");
@@ -105,21 +111,20 @@ public class ElementsPackage : PackNS.Package
 
     private static void GenerateMethodSyncFromEntity(CSClass cSharpClass, EntityDefinition entityDef, List<CSharpHelper.PropertyWidgetDescriptor> widgetDescs, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
-        var method = new CSMethod
-        {
-            AdditionalKeywords = "override",
-            Class = cSharpClass,
-            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Синхронизация виджета из данных объекта" : "Synchronize widget content from object data"),
-            Name = "SyncFromDOT",
-            ReturnType = "void",
-            Visibility = ElementVisibilityClassic.Public
-        };
+        var method = new CSMethod(
+            cSharpClass,
+            "SyncFromDOT",
+            new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Синхронизация виджета из данных объекта" : "Synchronize widget content from object data"),
+            ElementVisibilityClassic.Public,
+            null,
+            null,
+            null,
+            null,
+            false,
+            false
+        );
 
-        var param = new CSParameter
-        {
-            Name = "in_o",
-            Type = "DbMappedDOT"
-        };
+        var param = new CSParameter("in_o", new CSharpReferenceType(false, "DbMappedDOT", false));
         method.Params.Add(param.Name, param);
         cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
@@ -157,30 +162,30 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    private static void GenerateMethodSyncToEntity(CSClass cSharpClass, EntityDefinition entityDef, List<CSharpHelper.PropertyWidgetDescriptor> widgetDescs, NaturalLanguageEnum preferNaturalLanguageForComments)
+    private static void GenerateMethodSyncToEntity(CSClass cSharpClass, EntityDefinition entityDef, List<CSharpHelper.PropertyWidgetDescriptor> widgetDescs, NaturalLanguageEnum preferNaturalLanguageForComments, bool supportNullableRefTypes)
     {
-        var method = new CSMethod
-        {
-            AdditionalKeywords = "override",
-            Class = cSharpClass,
-            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Синхронизация виджета из данных объекта" : "Synchronize widget content from object data"),
-            Name = "SyncToDOT",
-            ReturnType = "string",
-            Visibility = ElementVisibilityClassic.Public
-        };
-
-        var param = new CSParameter
-        {
-            Name = "in_o",
-            Type = "DbMappedDOT"
-        };
-        method.Params.Add(param.Name, param);
-        cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
-
         var className = NameHelper.NamesToPascalCase(entityDef.Names);
 
-        method.BodyStrings.Add(string.Format("{0} o = ({1})in_o;", className, className));
-        method.BodyStrings.Add(string.Empty);
+        var method = new CSMethod(
+            cSharpClass,
+            "SyncToDOT",
+            new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Синхронизация виджета из данных объекта" : "Synchronize widget content from object data"),
+            ElementVisibilityClassic.Public,
+            new CSharpReferenceType(supportNullableRefTypes, TypeConstants.Reference.C_STRING, true),
+            null,
+            new List<string>
+            {
+                string.Format("{0} o = ({1})in_o;", className, className),
+                string.Empty
+            },
+            null,
+            false,
+            false
+        );
+
+        var param = new CSParameter("in_o", new CSharpReferenceType(false, "DbMappedDOT", false));
+        method.Params.Add(param.Name, param);
+        cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
         var propSetted = false;
 
@@ -262,19 +267,24 @@ public class ElementsPackage : PackNS.Package
 
         foreach (var wDesc in clearProps)
         {
-            var method = new CSMethod
-            {
-                Class = cSharpClass,
-                DocComment = new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Очистка свойства {0}" : "Clear properties of {0}", wDesc.WidgetCaption)),
-                Name = string.Format(string.Format("ClearValue{0}", wDesc.PropertyName)),
-                ReturnType = "void",
-                Visibility = ElementVisibilityClassic.Private
-            };
+            var method = new CSMethod(
+                cSharpClass,
+                string.Format(string.Format("ClearValue{0}", wDesc.PropertyName)),
+                new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Очистка свойства {0}" : "Clear properties of {0}", wDesc.WidgetCaption)),
+                ElementVisibilityClassic.Private,
+                null,
+                null,
+                new List<string>
+                {
+                    string.Format("{0} o = ({0})_dataObject;", entityClassName),
+                    string.Format("o.{0} = null;", wDesc.PropertyName),
+                    string.Format("{0}.SetValue(o.{1});", wDesc.WidgetName, wDesc.PropertyName)
+                },
+                null,
+                false,
+                false
+            );
             cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
-
-            method.BodyStrings.Add(string.Format("{0} o = ({0})_dataObject;", entityClassName));
-            method.BodyStrings.Add(string.Format("o.{0} = null;", wDesc.PropertyName));
-            method.BodyStrings.Add(string.Format("{0}.SetValue(o.{1});", wDesc.WidgetName, wDesc.PropertyName));
         }
     }
 
@@ -286,35 +296,40 @@ public class ElementsPackage : PackNS.Package
 
         foreach (var wDesc in selectProps)
         {
-            var method = new CSMethod
-            {
-                Class = cSharpClass,
-                DocComment = new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Выбор значения свойства {0}" : "Select value of {0}", wDesc.WidgetCaption)),
-                Name = string.Format(string.Format("SelectValue{0}", wDesc.PropertyName)),
-                ReturnType = "void",
-                Visibility = ElementVisibilityClassic.Private
-            };
+            var method = new CSMethod(
+                cSharpClass,
+                string.Format(string.Format("SelectValue{0}", wDesc.PropertyName)),
+                new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Выбор значения свойства {0}" : "Select value of {0}", wDesc.WidgetCaption)),
+                ElementVisibilityClassic.Private,
+                null,
+                null,
+                new List<string>
+                {
+                    string.Format("using (Form frm = UiRegistry.Instance.Uil{0}.CreateList(true, null))", wDesc.PropertyClass),
+                    "{",
+                    "    if (frm.ShowDialog(this) == DialogResult.OK)",
+                    "    {",
+                    string.Format("        {0} o = ({0})_dataObject;", entityClassName),
+                    string.Empty,
+                    string.Format("        o.{0} = ({1})((DOListForm)frm).SelectedValue;", wDesc.PropertyName, wDesc.PropertyClass),
+                    string.Format("        {0}.SetValue(o.{1});", wDesc.WidgetName, wDesc.PropertyName),
+                    string.Empty,
+                    string.Format("        var qSelectList = UiRegistry.Instance.QuickSelectStorage.GetRowsForDOT(\"{0}\");", wDesc.PropertyClass),
+                    string.Format("        QuickSelectStorage.SelectableRow row = QuickSelectStorage.GetRowById(qSelectList, o.{0}.Id.Value);", wDesc.PropertyName),
+                    "        if (row == null)",
+                    string.Format("            row = new QuickSelectStorage.SelectableRow() {{ Id = o.{0}.Id.Value, Name = o.{0}.ToString() }};", wDesc.PropertyName),
+                    "        else",
+                    string.Format("            row.Name = o.{0}.ToString();", wDesc.PropertyName),
+                    "        QuickSelectStorage.SetFirstRow(qSelectList, row);",
+                    string.Format("        UiRegistry.Instance.QuickSelectStorage.SaveList(\"{0}\", qSelectList);", wDesc.PropertyClass),
+                    "    }",
+                    "}"
+                },
+                null,
+                false,
+                false
+            );
             cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
-
-            method.BodyStrings.Add(string.Format("using (Form frm = UiRegistry.Instance.Uil{0}.CreateList(true, null))", wDesc.PropertyClass));
-            method.BodyStrings.Add("{");
-            method.BodyStrings.Add("    if (frm.ShowDialog(this) == DialogResult.OK)");
-            method.BodyStrings.Add("    {");
-            method.BodyStrings.Add(string.Format("        {0} o = ({0})_dataObject;", entityClassName));
-            method.BodyStrings.Add(string.Empty);
-            method.BodyStrings.Add(string.Format("        o.{0} = ({1})((DOListForm)frm).SelectedValue;", wDesc.PropertyName, wDesc.PropertyClass));
-            method.BodyStrings.Add(string.Format("        {0}.SetValue(o.{1});", wDesc.WidgetName, wDesc.PropertyName));
-            method.BodyStrings.Add(string.Empty);
-            method.BodyStrings.Add(string.Format("        var qSelectList = UiRegistry.Instance.QuickSelectStorage.GetRowsForDOT(\"{0}\");", wDesc.PropertyClass));
-            method.BodyStrings.Add(string.Format("        QuickSelectStorage.SelectableRow row = QuickSelectStorage.GetRowById(qSelectList, o.{0}.Id.Value);", wDesc.PropertyName));
-            method.BodyStrings.Add("        if (row == null)");
-            method.BodyStrings.Add(string.Format("            row = new QuickSelectStorage.SelectableRow() {{ Id = o.{0}.Id.Value, Name = o.{0}.ToString() }};", wDesc.PropertyName));
-            method.BodyStrings.Add("        else");
-            method.BodyStrings.Add(string.Format("            row.Name = o.{0}.ToString();", wDesc.PropertyName));
-            method.BodyStrings.Add("        QuickSelectStorage.SetFirstRow(qSelectList, row);");
-            method.BodyStrings.Add(string.Format("        UiRegistry.Instance.QuickSelectStorage.SaveList(\"{0}\", qSelectList);", wDesc.PropertyClass));
-            method.BodyStrings.Add("    }");
-            method.BodyStrings.Add("}");
         }
     }
 
@@ -324,37 +339,45 @@ public class ElementsPackage : PackNS.Package
             ? NameHelper.NamesToPascalCase(selectProps[0].PropertyDefinition.OwnerDefinition.Names)
             : string.Empty;
 
+        var emptyCaption = uiLanguage == NaturalLanguageEnum.Ru
+            ? "пусто"
+            : "empty";
+
         foreach (var wDesc in selectProps)
         {
-            var method = new CSMethod
-            {
-                Class = cSharpClass,
-                DocComment = new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Быстрый выбор значения свойства {0}" : "Quick select values of property {0}", wDesc.WidgetCaption)),
-                Name = string.Format(string.Format("QuickSelectValue{0}", wDesc.PropertyName)),
-                ReturnType = "void",
-                Visibility = ElementVisibilityClassic.Private
-            };
+            var method = new CSMethod(
+                cSharpClass,
+                string.Format(string.Format("QuickSelectValue{0}", wDesc.PropertyName)),
+                new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Быстрый выбор значения свойства {0}" : "Quick select values of property {0}", wDesc.WidgetCaption)),
+                ElementVisibilityClassic.Private,
+                null,
+                null,
+                new List<string>
+                {
+                    string.Format("var qSelectList = UiRegistry.Instance.QuickSelectStorage.GetRowsForDOT(\"{0}\");", wDesc.PropertyClass),
+                    "ContextMenuStrip cmnu = new ContextMenuStrip();",
+                    "ToolStripMenuItem mi;",
+                    "if (qSelectList.Count == 0)",
+                    "{",
+                    "    mi = new ToolStripMenuItem() { Text = \"" + emptyCaption + "\", Enabled = false };",
+                    "    cmnu.Items.Add(mi);",
+                    "}",
+                    "else",
+                    "{",
+                    "    foreach (QuickSelectStorage.SelectableRow row in qSelectList)",
+                    "    {",
+                    "        mi = new ToolStripMenuItem() { Text = row.Name, Tag = row };",
+                    string.Format("        mi.Click += MI_QuickSelectValue{0}_Click;", wDesc.PropertyName),
+                    "        cmnu.Items.Add(mi);",
+                    "    }",
+                    "}",
+                    "cmnu.Show(Control.MousePosition.X, Control.MousePosition.Y);"
+                },
+                null,
+                false,
+                false
+            );
             cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
-
-            method.BodyStrings.Add(string.Format("var qSelectList = UiRegistry.Instance.QuickSelectStorage.GetRowsForDOT(\"{0}\");", wDesc.PropertyClass));
-            method.BodyStrings.Add("ContextMenuStrip cmnu = new ContextMenuStrip();");
-            method.BodyStrings.Add("ToolStripMenuItem mi;");
-            method.BodyStrings.Add("if (qSelectList.Count == 0)");
-            method.BodyStrings.Add("{");
-            var emptyCaption = uiLanguage == NaturalLanguageEnum.Ru ? "пусто" : "empty";
-            method.BodyStrings.Add("    mi = new ToolStripMenuItem() { Text = \"" + emptyCaption + "\", Enabled = false };");
-            method.BodyStrings.Add("    cmnu.Items.Add(mi);");
-            method.BodyStrings.Add("}");
-            method.BodyStrings.Add("else");
-            method.BodyStrings.Add("{");
-            method.BodyStrings.Add("    foreach (QuickSelectStorage.SelectableRow row in qSelectList)");
-            method.BodyStrings.Add("    {");
-            method.BodyStrings.Add("        mi = new ToolStripMenuItem() { Text = row.Name, Tag = row };");
-            method.BodyStrings.Add(string.Format("        mi.Click += MI_QuickSelectValue{0}_Click;", wDesc.PropertyName));
-            method.BodyStrings.Add("        cmnu.Items.Add(mi);");
-            method.BodyStrings.Add("    }");
-            method.BodyStrings.Add("}");
-            method.BodyStrings.Add("cmnu.Show(Control.MousePosition.X, Control.MousePosition.Y);");
         }
     }
 
@@ -369,49 +392,46 @@ public class ElementsPackage : PackNS.Package
 
         foreach (var wDesc in selectProps)
         {
-            var method = new CSMethod
-            {
-                Class = cSharpClass,
-                DocComment = new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Быстрый выбор значения свойства {0} - нажатие пункта меню" : "Quick select values of property {0} - click a menu item", wDesc.WidgetCaption)),
-                Name = string.Format(string.Format("MI_QuickSelectValue{0}_Click", wDesc.PropertyName)),
-                ReturnType = "void",
-                Visibility = ElementVisibilityClassic.Private
-            };
+            var method = new CSMethod(
+                cSharpClass,
+                string.Format(string.Format("MI_QuickSelectValue{0}_Click", wDesc.PropertyName)),
+                new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Быстрый выбор значения свойства {0} - нажатие пункта меню" : "Quick select values of property {0} - click a menu item", wDesc.WidgetCaption)),
+                ElementVisibilityClassic.Private,
+                null,
+                null,
+                new List<string>
+                {
+                    string.Format("var qSelectList = UiRegistry.Instance.QuickSelectStorage.GetRowsForDOT(\"{0}\");", wDesc.PropertyClass),
+                    string.Empty,
+                    "ToolStripMenuItem mi = (ToolStripMenuItem)sender;",
+                    "QuickSelectStorage.SelectableRow row = (QuickSelectStorage.SelectableRow)mi.Tag;",
+                    "Guid id = row.Id;",
+                    string.Format("{0} selectedValue = StorageRegistry.Instance.{0}Storage.Restore(id) as {0};", wDesc.PropertyClass),
+                    "if (selectedValue == null)",
+                    "{",
+                    "    MessageBox.Show(this, \"" + objDoesNotExistsText + "\", \"" + messageCaption + "\", MessageBoxButtons.OK, MessageBoxIcon.Information);",
+                    "    QuickSelectStorage.RemoveRow(qSelectList, id);",
+                    string.Format("    UiRegistry.Instance.QuickSelectStorage.SaveList(\"{0}\", qSelectList);", wDesc.PropertyClass),
+                    "    return;",
+                    "}",
+                    string.Empty,
+                    string.Format("{0} o = ({0})_dataObject;", entityClassName),
+                    string.Format("o.{0} = selectedValue;", wDesc.PropertyName),
+                    string.Format("SEL_{0}.SetValue(o.{0});", wDesc.PropertyName),
+                    string.Empty,
+                    "QuickSelectStorage.SetFirstRow(qSelectList, row);",
+                    string.Format("UiRegistry.Instance.QuickSelectStorage.SaveList(\"{0}\", qSelectList);", wDesc.PropertyClass)
+                },
+                null,
+                false,
+                false
+            );
 
-            var param = new CSParameter
-            {
-                Type = "object",
-                Name = "sender"
-            };
+            var param = new CSParameter("sender", new CSharpReferenceType(false, "object", false));
             method.Params.Add(param.Name, param);
-            param = new CSParameter
-            {
-                Type = "EventArgs",
-                Name = "e"
-            };
+            param = new CSParameter("e", new CSharpReferenceType(false, "EventArgs", false));
             method.Params.Add(param.Name, param);
             cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
-
-            method.BodyStrings.Add(string.Format("var qSelectList = UiRegistry.Instance.QuickSelectStorage.GetRowsForDOT(\"{0}\");", wDesc.PropertyClass));
-            method.BodyStrings.Add(string.Empty);
-            method.BodyStrings.Add("ToolStripMenuItem mi = (ToolStripMenuItem)sender;");
-            method.BodyStrings.Add("QuickSelectStorage.SelectableRow row = (QuickSelectStorage.SelectableRow)mi.Tag;");
-            method.BodyStrings.Add("Guid id = row.Id;");
-            method.BodyStrings.Add(string.Format("{0} selectedValue = StorageRegistry.Instance.{0}Storage.Restore(id) as {0};", wDesc.PropertyClass));
-            method.BodyStrings.Add("if (selectedValue == null)");
-            method.BodyStrings.Add("{");
-            method.BodyStrings.Add("    MessageBox.Show(this, \"" + objDoesNotExistsText + "\", \"" + messageCaption + "\", MessageBoxButtons.OK, MessageBoxIcon.Information);");
-            method.BodyStrings.Add("    QuickSelectStorage.RemoveRow(qSelectList, id);");
-            method.BodyStrings.Add(string.Format("    UiRegistry.Instance.QuickSelectStorage.SaveList(\"{0}\", qSelectList);", wDesc.PropertyClass));
-            method.BodyStrings.Add("    return;");
-            method.BodyStrings.Add("}");
-            method.BodyStrings.Add(string.Empty);
-            method.BodyStrings.Add(string.Format("{0} o = ({0})_dataObject;", entityClassName));
-            method.BodyStrings.Add(string.Format("o.{0} = selectedValue;", wDesc.PropertyName));
-            method.BodyStrings.Add(string.Format("SEL_{0}.SetValue(o.{0});", wDesc.PropertyName));
-            method.BodyStrings.Add(string.Empty);
-            method.BodyStrings.Add("QuickSelectStorage.SetFirstRow(qSelectList, row);");
-            method.BodyStrings.Add(string.Format("UiRegistry.Instance.QuickSelectStorage.SaveList(\"{0}\", qSelectList);", wDesc.PropertyClass));
         }
     }
 
@@ -423,14 +443,18 @@ public class ElementsPackage : PackNS.Package
 
         foreach (var wDesc in listProps)
         {
-            var method = new CSMethod
-            {
-                Class = cSharpClass,
-                DocComment = new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Просмотр табличной части свойства {0}" : "View a table part of a property {0}", wDesc.WidgetCaption)),
-                Name = string.Format(string.Format("ListValue{0}", wDesc.PropertyName)),
-                ReturnType = "void",
-                Visibility = ElementVisibilityClassic.Private
-            };
+            var method = new CSMethod(
+                cSharpClass,
+                string.Format(string.Format("ListValue{0}", wDesc.PropertyName)),
+                new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Просмотр табличной части свойства {0}" : "View a table part of a property {0}", wDesc.WidgetCaption)),
+                ElementVisibilityClassic.Private,
+                null,
+                null,
+                null,
+                null,
+                false,
+                false
+            );
             cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
             string? fieldName = null; // NameHelper.NameToUnderscoreSeparatedName(wDesc.PropertyDefinition.Names) + "_id";
@@ -471,35 +495,40 @@ public class ElementsPackage : PackNS.Package
 
         foreach (var wDesc in cardProps)
         {
-            var method = new CSMethod
-            {
-                Class = cSharpClass,
-                DocComment = new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Просмотр подробностей свойства {0}" : "View details of a property {0}", wDesc.WidgetCaption)),
-                Name = string.Format(string.Format("Card{0}", wDesc.PropertyName)),
-                ReturnType = "void",
-                Visibility = ElementVisibilityClassic.Private
-            };
+            var method = new CSMethod(
+                cSharpClass,
+                string.Format(string.Format("Card{0}", wDesc.PropertyName)),
+                new XmlComment(string.Format(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Просмотр подробностей свойства {0}" : "View details of a property {0}", wDesc.WidgetCaption)),
+                ElementVisibilityClassic.Private,
+                null,
+                null,
+                new List<string>
+                {
+                    string.Format("{0} o = ({0})_dataObject;", entityClassName),
+                    string.Empty,
+                    string.Format("if (o.{0} == null)", wDesc.PropertyName),
+                    "{",
+                    "    MessageBox.Show(this, c_noWayNoObjectSelected, c_captionFault, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);",
+                    "    return;",
+                    "}",
+                    string.Empty,
+                    string.Format("DbMappedDOT refObject = (DbMappedDOT)o.{0}.Clone();", wDesc.PropertyName),
+                    string.Format("using (ICardForm frm = UiRegistry.Instance.Uil{0}.CreateCard(refObject))", wDesc.PropertyClass),
+                    "{",
+                    "    ((Form)frm).ShowDialog(this);",
+                    "    if (frm.Changed)",
+                    "    {",
+                    //string.Format("        o.{0} = ({1})refObject;", wDesc.PropertyName, wDesc.PropertyClass),
+                    "        o.ResetCachedRefProperties();",
+                    string.Format("        {0}.UpdateValue(refObject);", wDesc.WidgetName),
+                    "    }",
+                    "}"
+                },
+                null,
+                false,
+                false
+            );
             cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
-
-            method.BodyStrings.Add(string.Format("{0} o = ({0})_dataObject;", entityClassName));
-            method.BodyStrings.Add(string.Empty);
-            method.BodyStrings.Add(string.Format("if (o.{0} == null)", wDesc.PropertyName));
-            method.BodyStrings.Add("{");
-            method.BodyStrings.Add("    MessageBox.Show(this, c_noWayNoObjectSelected, c_captionFault, MessageBoxButtons.OK, MessageBoxIcon.Exclamation);");
-            method.BodyStrings.Add("    return;");
-            method.BodyStrings.Add("}");
-            method.BodyStrings.Add(string.Empty);
-            method.BodyStrings.Add(string.Format("DbMappedDOT refObject = (DbMappedDOT)o.{0}.Clone();", wDesc.PropertyName));
-            method.BodyStrings.Add(string.Format("using (ICardForm frm = UiRegistry.Instance.Uil{0}.CreateCard(refObject))", wDesc.PropertyClass));
-            method.BodyStrings.Add("{");
-            method.BodyStrings.Add("    ((Form)frm).ShowDialog(this);");
-            method.BodyStrings.Add("    if (frm.Changed)");
-            method.BodyStrings.Add("    {");
-            //method.BodyStrings.Add(string.Format("        o.{0} = ({1})refObject;", wDesc.PropertyName, wDesc.PropertyClass));
-            method.BodyStrings.Add("        o.ResetCachedRefProperties();");
-            method.BodyStrings.Add(string.Format("        {0}.UpdateValue(refObject);", wDesc.WidgetName));
-            method.BodyStrings.Add("    }");
-            method.BodyStrings.Add("}");
         }
     }
     #endregion
@@ -597,7 +626,7 @@ public class ElementsPackage : PackNS.Package
     }
     #endregion
 
-    public ElementsPackage(GuiPackage parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
+    public ElementsPackage(GuiPackage parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage, bool supportNullableRefTypes)
         : base(parentPackage, "Elements")
     {
         var mm = ParentPackage.ParentPackage.ParentPackage.DomainModel;
@@ -653,7 +682,7 @@ public class ElementsPackage : PackNS.Package
             GenerateMethodSyncFromEntity(panClass, entityDef, wDescs, preferNaturalLanguageForComments);
 
             // 3. Generate method SyncToDOT
-            GenerateMethodSyncToEntity(panClass, entityDef, wDescs, preferNaturalLanguageForComments);
+            GenerateMethodSyncToEntity(panClass, entityDef, wDescs, preferNaturalLanguageForComments, supportNullableRefTypes);
 
             // 4. Generate methods for work with reference properties
             GenerateMethodsForClearProps(panClass, clearProps, preferNaturalLanguageForComments);

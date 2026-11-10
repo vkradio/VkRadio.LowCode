@@ -15,7 +15,7 @@ public class CSPropertyGetterCachedObject : CSPropertyGetter
         {
             var line = string.Format(
                 "get {{ if ({0} == null && {0}Id.HasValue) {0} = ({1})StorageRegistry.Instance.{1}Storage.Restore({0}Id.Value); return {0}; }}",
-                Property.NameFieldCorresponding,
+                GetCorrespondingName(),
                 Property.Type
             );
 

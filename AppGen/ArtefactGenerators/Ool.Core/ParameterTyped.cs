@@ -1,8 +1,16 @@
-﻿namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
+﻿using Ardalis.GuardClauses;
 
-public class ParameterTyped: ParameterSimple
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
+
+public class ParameterTyped : ParameterSimple
 {
+    public ParameterTyped(string name, string type, string? value)
+        : base(name, value)
+    {
+        _type = Guard.Against.NullOrEmpty(type);
+    }
+
     protected string _type;
 
-    public string Type { get => _type; set => _type = value; }
+    public string Type { get => _type; protected set => _type = value; }
 }

@@ -1,8 +1,14 @@
-﻿namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property.Getter;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
+
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property.Getter;
 
 public class CSPropertyGetter
 {
     protected string? _predefinedCode;
+
+    protected string GetCorrespondingName() =>
+        Property.CorrespondingPropertyOrField?.Name
+        ?? throw new GeneratorException($"Neither {nameof(_predefinedCode)} set, not {nameof(Property.CorrespondingPropertyOrField)}, for a property {Property.Name}");
 
     public CSPropertyGetter(CSProperty property, bool singleLineHint, string? predefinedCode)
     {
@@ -21,9 +27,9 @@ public class CSPropertyGetter
     {
     }
 
-    public CSProperty Property { get; set; }
+    public CSProperty Property { get; protected set; }
 
-    public bool SingleLineHint { get; set; } = true;
+    public bool SingleLineHint { get; protected set; } = true;
 
     public virtual string[] GenerateText()
     {
@@ -33,7 +39,7 @@ public class CSPropertyGetter
         {
             var line = _predefinedCode is not null
                 ? _predefinedCode
-                : $"get => {Property.NameFieldCorresponding};";
+                : $"get => {GetCorrespondingName()};";
 
             text.Add(line);
         }
@@ -48,7 +54,7 @@ public class CSPropertyGetter
             }
             else
             {
-                text.Add($"    return {Property.NameFieldCorresponding};");
+                text.Add($"{CSharpHelper.C_TAB}return {GetCorrespondingName()};");
             }
 
             text.Add("}");

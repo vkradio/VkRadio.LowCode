@@ -6,6 +6,7 @@ using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property.Getter;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property.Setter;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
 using VkRadio.LowCode.AppGen.Domain;
@@ -23,7 +24,7 @@ public class GuiPackage : PackNS.Package
     public GuiPackage(CSharpProjectBase parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage, bool supportHiDpi)
         : base(parentPackage, "Gui")
     {
-        _elementsPackage = new ElementsPackage(this, preferNaturalLanguageForComments, uiLanguage);
+        _elementsPackage = new ElementsPackage(this, preferNaturalLanguageForComments, uiLanguage, parentPackage.ParentPackage.Generator.SupportNullableReferenceTypes);
         _subpackages.Add(_elementsPackage.Name, _elementsPackage);
 
         _launchersPackage = new LaunchersPackage(this, preferNaturalLanguageForComments, uiLanguage);
@@ -86,71 +87,80 @@ public class GuiPackage : PackNS.Package
 
         classes.Sort(CSharpHelper.ClassNameEntityDefPair.Compare);
 
-        var ctor = new CSConstructor(clsUiRegistry)
-        {
-            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Закрытый конструктор реестра запускальщиков" : "Private constructor of UI lauchers registry"),
-            Visibility = ElementVisibilityClassic.Private
-        };
+        var ctor = new CSConstructor(
+            clsUiRegistry,
+            new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Закрытый конструктор реестра запускальщиков" : "Private constructor of UI lauchers registry"),
+            ElementVisibilityClassic.Private,
+            null,
+            null,
+            null,
+            false,
+            false
+        );
         clsUiRegistry.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
 
-        var ctorStatic = new CSConstructor(clsUiRegistry)
-        {
-            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Статический конструктор реестра запускальщиков" : "Static constructor of UI lauchers registry"),
-            Visibility = ElementVisibilityClassic.Private,
-            //AdditionalKeywords = "static",
-            HintSingleLineBody = true,
-            IsStatic = true,
-        };
+        var ctorStatic = new CSConstructor(
+            clsUiRegistry,
+            new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Статический конструктор реестра запускальщиков" : "Static constructor of UI lauchers registry"),
+            ElementVisibilityClassic.Private,
+            null,
+            null,
+            null,
+            true,
+            true
+        );
         ctorStatic.BodyStrings.Add("_instance = new UiRegistry();");
         clsUiRegistry.Constructors.Add(CSharpHelper.GenerateMethodKey(ctorStatic), ctorStatic);
 
         var docCommentSingleton = preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Единственный экземпляр (Singleton)" : "Singleton";
-        var field = new CSClassField
-        {
-            Class = clsUiRegistry,
-            DocComment = new XmlComment(docCommentSingleton),
-            //InitialValue = "new UiRegistry()",
-            IsStatic = true,
-            Name = "_instance",
-            TypeKeyword = "UiRegistry",
-            Visibility = ElementVisibilityClassic.Private
-        };
+        var field = new CSClassField(
+            new CSharpReferenceType(false, "UiRegistry", false),
+            "_instance",
+            clsUiRegistry,
+            new XmlComment(docCommentSingleton),
+            ElementVisibilityClassic.Private,
+            null,
+            true
+        );
         clsUiRegistry.Fields.Add(field.Name, field);
 
-        var prop = new CSProperty
-        {
-            Class = clsUiRegistry,
-            DocComment = new XmlComment(docCommentSingleton),
-            IsStatic = true,
-            Name = "Instance",
-            NameFieldCorresponding = "_instance",
-            Type = "UiRegistry",
-            Visibility = ElementVisibilityClassic.Public
-        };
-        prop.Getter = new CSPropertyGetter(prop, true);
+        var prop = new CSProperty(
+            "Instance",
+            field,
+            null,
+            ElementVisibilityClassic.Public,
+            true,
+            null,
+            null,
+            new XmlComment(docCommentSingleton),
+            null
+        );
+        prop.SetGetter(new CSPropertyGetter(prop, true));
         clsUiRegistry.Properties.Add(prop.Name, prop);
 
-        var qSelectorField = new CSClassField
-        {
-            Class = clsUiRegistry,
-            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Хранилище быстрого выбора объектов из списков" : "Quick select storage of objects from lists"),
-            InitialValue = "new QuickSelectStorage()",
-            Name = "_quickSelectStorage",
-            TypeKeyword = "QuickSelectStorage",
-            Visibility = ElementVisibilityClassic.Private
-        };
+        var qSelectorField = new CSClassField(
+            new CSharpReferenceType(false, "QuickSelectStorage", false),
+            "_quickSelectStorage",
+            clsUiRegistry,
+            new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Хранилище быстрого выбора объектов из списков" : "Quick select storage of objects from lists"),
+            ElementVisibilityClassic.Private,
+            "new QuickSelectStorage()",
+            false
+        );
         clsUiRegistry.Fields.Add(qSelectorField.Name, qSelectorField);
 
-        var qSelectorProp = new CSProperty
-        {
-            Class = clsUiRegistry,
-            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Хранилище быстрого выбора объектов из списков" : "Quick select storage of objects from lists"),
-            Name = "QuickSelectStorage",
-            NameFieldCorresponding = "_quickSelectStorage",
-            Type = "QuickSelectStorage",
-            Visibility = ElementVisibilityClassic.Public
-        };
-        qSelectorProp.Getter = new CSPropertyGetter(qSelectorProp, true);
+        var qSelectorProp = new CSProperty(
+            "QuickSelectStorage",
+            qSelectorField,
+            null,
+            ElementVisibilityClassic.Public,
+            false,
+            null,
+            null,
+            new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Хранилище быстрого выбора объектов из списков" : "Quick select storage of objects from lists"),
+            null
+        );
+        qSelectorProp.SetGetter(new CSPropertyGetter(qSelectorProp, true));
         clsUiRegistry.Properties.Add(qSelectorProp.Name, qSelectorProp);
 
         foreach (var cls in classes)
@@ -162,31 +172,34 @@ public class GuiPackage : PackNS.Package
             var docComment = (preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Запускальщик графического интерфейса для управления объектами " : "Launcher of GUI for working with objects ") + localName;
 
             // Private fields for launchers
-            var uilField = new CSClassField
-            {
-                Class = clsUiRegistry,
-                DocComment = new XmlComment(docComment),
-                Name = fieldName,
-                TypeKeyword = "UILauncher",
-                Visibility = ElementVisibilityClassic.Private
-            };
+            var uilField = new CSClassField(
+                new CSharpReferenceType(false, "UILauncher", false),
+                fieldName,
+                clsUiRegistry,
+                new XmlComment(docComment),
+                ElementVisibilityClassic.Private,
+                null,
+                false
+            );
             clsUiRegistry.Fields.Add(uilField.Name, uilField);
 
             // Constructor that creates launcher instances
             ctor.BodyStrings.Add(string.Format("{0} = new {1}();", fieldName, propName));
 
             // Public properties for launchers
-            var uilProp = new CSProperty
-            {
-                Class = clsUiRegistry,
-                DocComment = new XmlComment(docComment),
-                Name = propName,
-                NameFieldCorresponding = fieldName,
-                Type = "UILauncher",
-                Visibility = ElementVisibilityClassic.Public
-            };
-            uilProp.Getter = new CSPropertyGetter(uilProp, true);
-            uilProp.Setter = new CSPropertySetter(uilProp, true, false);
+            var uilProp = new CSProperty(
+                propName,
+                uilField,
+                null,
+                ElementVisibilityClassic.Public,
+                false,
+                null,
+                null,
+                new XmlComment(docComment),
+                null
+            );
+            uilProp.SetGetter(new CSPropertyGetter(uilProp, true));
+            uilProp.SetSetter(new CSPropertySetter(uilProp, true, false));
             clsUiRegistry.Properties.Add(uilProp.Name, uilProp);
         }
         #endregion

@@ -39,6 +39,8 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
 
     public bool ProjectFileInModernSdkStyle { get; private set; } = true;
 
+    public bool SupportNullableReferenceTypes => false; // ProjectFileInModernSdkStyle;
+
     public override string? Generate()
     {
         // Create model of package of C# source code, based on database schema model.

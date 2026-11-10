@@ -1,5 +1,6 @@
 ﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 using VkRadio.LowCode.AppGen.Domain;
 using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
@@ -23,7 +24,7 @@ public static class CSharpHelper
     {
         public PropertyDefinition PropertyDefinition;
         public string PropertyName;
-        public string PropertyClass;
+        public string? PropertyClass;
         public string WidgetName;
         public string WidgetType;
         public string WidgetCaption;
@@ -50,72 +51,6 @@ public static class CSharpHelper
     }
 
     public static string GenerateEntityClassName(EntityDefinition entityDef) => NameHelper.NamesToPascalCase(entityDef.Names);
-
-    /// <summary>
-    /// Returns a class name for objects that corresponds to a reference property
-    /// </summary>
-    /// <param name="propDef">Reference property</param>
-    /// <returns></returns>
-    public static string? GetPropertyClassName(PropertyDefinition propDef)
-    {
-        if (!(propDef.FunctionalType is PFTLink))
-        {
-            return null;
-        }
-
-        EntityDefinition? otherEnd = null;
-
-        var pftConn = propDef.FunctionalType as PFTConnector;
-
-        if (pftConn != null)
-        {
-            otherEnd = pftConn.RelationshipConnector.End1.PropertyDefinition.Id == propDef.Id
-                ? pftConn.RelationshipConnector.End2.PropertyDefinition.OwnerDefinition
-                : pftConn.RelationshipConnector.End1.PropertyDefinition.OwnerDefinition;
-        }
-        else
-        {
-            var pftRefVal = propDef.FunctionalType as PFTReferenceValue;
-
-            if (pftRefVal is not null)
-            {
-                otherEnd = pftRefVal.RelationshipReference.ReferenceDefinition;
-            }
-            else
-            {
-                var pftTblOwner = propDef.FunctionalType as PFTTableOwner;
-
-                if (pftTblOwner is not null)
-                {
-                    otherEnd = pftTblOwner.RelationshipTable.PropertyDefinitionInOwner.OwnerDefinition;
-                }
-                else
-                {
-                    var pftTblPart = propDef.FunctionalType as PFTTablePart;
-
-                    if (pftTblPart is not null)
-                    {
-                        otherEnd = pftTblPart.RelationshipTable.PropertyDefinitionInTable.OwnerDefinition;
-                    }
-                    else
-                    {
-                        var pftBackRefTbl = propDef.FunctionalType as PFTBackReferencedTable;
-
-                        if (pftBackRefTbl is not null)
-                        {
-                            otherEnd = ((PropertyDefinition)pftBackRefTbl.RelationshipReference.OwnerPropertyDefinition).OwnerDefinition;
-                        }
-                        else
-                        {
-                            throw new GeneratorException($"Unsupported reference property type {propDef.FunctionalType.GetType().Name} in PropertyDefinition Id {propDef.Id}.");
-                        }
-                    }
-                }
-            }
-        }
-
-        return NameHelper.NamesToPascalCase(otherEnd.Names);
-    }
 
     /// <summary>
     /// Generate name of a widget for editing a property on a object edition card
@@ -198,7 +133,7 @@ public static class CSharpHelper
         var desc = new PropertyWidgetDescriptor
         {
             PropertyDefinition = propDef,
-            PropertyClass = GetPropertyClassName(propDef),
+            PropertyClass = TypeHelper.GetClassNameForEntity(propDef, returnNullIfNotApplicable: true), // GetPropertyClassName(propDef),
             WidgetName = propWidgetName,
             WidgetType = widgetClassName,
             WidgetCaption = caption,

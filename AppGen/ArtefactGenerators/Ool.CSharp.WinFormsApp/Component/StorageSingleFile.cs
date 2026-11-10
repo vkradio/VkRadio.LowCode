@@ -5,7 +5,7 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Compo
 
 public class StorageSingleFile : CSComponent
 {
-    public StorageSingleFile(ModelPackage package, NaturalLanguageEnum preferNaturalLanguageForComments)
+    public StorageSingleFile(ModelPackage package, NaturalLanguageEnum preferNaturalLanguageForComments, bool supportNullableRefTypes)
     {
         Package = package;
         Name = "Storages.cs";
@@ -21,7 +21,7 @@ public class StorageSingleFile : CSComponent
 
         foreach (var entityDef in package.ParentPackage.ParentPackage.DomainModel.AllEntityDefinitions.Values)
         {
-            Storage.CreateStorageClass(this, entityDef, dbModel, preferNaturalLanguageForComments);
+            Storage.CreateStorageClass(this, entityDef, dbModel, preferNaturalLanguageForComments, supportNullableRefTypes);
         }
     }
 }

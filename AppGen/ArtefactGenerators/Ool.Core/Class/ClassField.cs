@@ -1,28 +1,47 @@
-﻿namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Class;
+﻿using Ardalis.GuardClauses;
+
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Class;
 
 /// <summary>
 /// Field of an abstract class
 /// </summary>
 public abstract class ClassField
 {
-    protected Class _class;
-    protected AbstractDocComment _docComment;
+    protected Class? _class;
+    protected AbstractDocComment? _docComment;
     protected ElementVisibilityAbstract _visibility;
-    protected string _initialValue;
+    protected string? _initialValue;
     protected string _name;
     protected bool _isStatic;
 
     protected abstract string GenerateTextConcrete();
 
+    protected ClassField(
+        string name,
+        Class? owningClass = null,
+        AbstractDocComment? docComment = null,
+        ElementVisibilityAbstract? visibility = null,
+        string? initialValue = null,
+        bool isStatic = false
+    )
+    {
+        _class = owningClass;
+        _docComment = docComment;
+        _visibility = visibility ?? ElementVisibilityClassic.Private;
+        _initialValue = initialValue;
+        _name = Guard.Against.NullOrEmpty(name, nameof(name));
+        _isStatic = isStatic;
+    }
+
     /// <summary>
     /// Owning class
     /// </summary>
-    public Class Class { get => _class; set => _class = value; }
+    public Class? Class { get => _class; set => _class = value; }
 
     /// <summary>
     /// Comment
     /// </summary>
-    public AbstractDocComment DocComment { get => _docComment; set => _docComment = value; }
+    public AbstractDocComment? DocComment { get => _docComment; set => _docComment = value; }
 
     /// <summary>
     /// Field visibility
@@ -32,7 +51,7 @@ public abstract class ClassField
     /// <summary>
     /// Initial value
     /// </summary>
-    public string InitialValue { get => _initialValue; set => _initialValue = value; }
+    public string? InitialValue { get => _initialValue; set => _initialValue = value; }
 
     /// <summary>
     /// Field name
@@ -44,6 +63,8 @@ public abstract class ClassField
     /// </summary>
     public bool IsStatic { get => _isStatic; set => _isStatic = value; }
 
+    public virtual string TabChars => "    ";
+
     public virtual string[] GenerateText()
     {
         var text = new List<string>();
@@ -54,7 +75,7 @@ public abstract class ClassField
 
             for (var i = 0; i < commentStrings.Length; i++)
             {
-                commentStrings[i] = "    " + commentStrings[i];
+                commentStrings[i] = TabChars + commentStrings[i];
             }
 
             text.AddRange(commentStrings);

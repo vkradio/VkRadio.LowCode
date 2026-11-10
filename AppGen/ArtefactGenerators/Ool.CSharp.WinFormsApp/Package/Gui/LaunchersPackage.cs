@@ -2,6 +2,7 @@
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
 using VkRadio.LowCode.AppGen.Domain.Names;
 using PackNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Package;
@@ -49,46 +50,52 @@ public class LaunchersPackage : PackNS.Package
             component.Classes.Add(cls.Name, cls);
             component.MainClass = cls;
 
-            var ctor = new CSConstructor(cls)
-            {
-                DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Конструктор запускальщика" : "Launcher constructor"),
-                Visibility = ElementVisibilityClassic.Public
-            };
+            var ctor = new CSConstructor(
+                cls,
+                new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Конструктор запускальщика" : "Launcher constructor"),
+                ElementVisibilityClassic.Public
+            );
             cls.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
             ctor.BodyStrings.Add(string.Format("_storage = StorageRegistry.Instance.{0}Storage;", typeName));
             ctor.BodyStrings.Add(string.Format("_dotName = \"{0}\";", NameHelper.EncodeCSharpText(NameHelper.GetLocalNameUpperCase(entDef.Names, uiLanguage))));
 
-            var methodCard = new CSMethod
-            {
-                AdditionalKeywords = "override",
-                Class = cls,
-                DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Создание карточки элемента" : "Create a card of an element (data object)"),
-                Name = "CreateDOCard",
-                ReturnType = "DOCard",
-                Visibility = ElementVisibilityClassic.Protected
-            };
-            var param = new CSParameter
-            {
-                Name = "in_o",
-                Type = "DbMappedDOT"
-            };
+            var methodCard = new CSMethod(
+                cls,
+                "CreateDOCard",
+                new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Создание карточки элемента" : "Create a card of an element (data object)"),
+                ElementVisibilityClassic.Protected,
+                new CSharpReferenceType(false, "DOCard", false),
+                "override",
+                new List<string>
+                {
+                    string.Format("DOP{0} panel = new DOP{0}();", typeName),
+                    "DOCard card = new DOCard(_storage, in_o, _dotName, panel);",
+                    "return card;"
+                },
+                null,
+                false,
+                false
+            );
+            var param = new CSParameter("in_o", new CSharpReferenceType(false, "DbMappedDOT", false));
             methodCard.Params.Add(param.Name, param);
             cls.Methods.Add(CSharpHelper.GenerateMethodKey(methodCard), methodCard);
-            methodCard.BodyStrings.Add(string.Format("DOP{0} panel = new DOP{0}();", typeName));
-            methodCard.BodyStrings.Add("DOCard card = new DOCard(_storage, in_o, _dotName, panel);");
-            methodCard.BodyStrings.Add("return card;");
 
-            var methodList = new CSMethod
-            {
-                AdditionalKeywords = "override",
-                Class = cls,
-                DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Создание списка элементов" : "Create a list of elements (data objects)"),
-                Name = "CreateDOList",
-                ReturnType = "DOList",
-                Visibility = ElementVisibilityClassic.Protected
-            };
+            var methodList = new CSMethod(
+                cls,
+                "CreateDOList",
+                new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Создание списка элементов" : "Create a list of elements (data objects)"),
+                ElementVisibilityClassic.Protected,
+                new CSharpReferenceType(false, "DOList", false),
+                "override",
+                new List<string>
+                {
+                    string.Format("return new DOL{0}();", typeName)
+                },
+                null,
+                false,
+                false
+            );
             cls.Methods.Add(CSharpHelper.GenerateMethodKey(methodList), methodList);
-            methodList.BodyStrings.Add(string.Format("return new DOL{0}();", typeName));
         }
     }
 

@@ -4,6 +4,10 @@ public class CSPropertySetter
 {
     protected bool _useModify = true;
 
+    protected string GetCorrespondingName() =>
+        Property.CorrespondingPropertyOrField?.Name
+        ?? throw new InvalidOperationException($"No {nameof(Property.CorrespondingPropertyOrField)} set for a Property {Property.Name}");
+
     public CSPropertySetter(CSProperty property)
         : this(property, true, true)
     {
@@ -18,7 +22,7 @@ public class CSPropertySetter
 
     protected virtual string GenerateLineModify() => "Modify();";
 
-    protected virtual string[] GenerateLinesSetValue() => [$"{Property.NameFieldCorresponding} = value;"];
+    protected virtual string[] GenerateLinesSetValue() => [$"{GetCorrespondingName()} = value;"];
 
     public CSProperty Property { get; set; }
 

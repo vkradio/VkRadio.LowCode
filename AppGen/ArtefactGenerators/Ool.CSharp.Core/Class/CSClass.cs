@@ -1,6 +1,8 @@
-﻿using AbstClassNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Class;
-using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Constant;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property;
+using AbstClassNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Class;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class;
 
@@ -9,10 +11,16 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class;
 /// </summary>
 public class CSClass : AbstClassNS.Class
 {
-    const string c_tab = "    ";
-
-    protected Dictionary<string, CSProperty> _properties = [];
+    protected Dictionary<string, ICSProperty> _properties = [];
     protected Dictionary<string, CSConstructor> _constructors = [];
+
+    /// <summary>
+    /// Constants
+    /// </summary>
+    public new IDictionary<string, CSClassConstant> Constants => _constants
+        .Values
+        .Cast<CSClassConstant>()
+        .ToDictionary(x => x.Name);
 
     protected override string[] GenerateClassDocComment()
     {
@@ -20,7 +28,7 @@ public class CSClass : AbstClassNS.Class
         
         for (var i = 0; i < text.Length; i++)
         {
-            text[i] = c_tab + text[i];
+            text[i] = CSharpHelper.C_TAB + text[i];
         }
 
         return text;
@@ -42,7 +50,7 @@ public class CSClass : AbstClassNS.Class
 
         for (var i = 0; i < text.Count; i++)
         {
-            text[i] = c_tab + text[i];
+            text[i] = CSharpHelper.C_TAB + text[i];
         }
 
         return [.. text];
@@ -67,6 +75,23 @@ public class CSClass : AbstClassNS.Class
         }
 
         var textConstructors = new List<string>();
+
+        if (Constructors.Values.Count(x => x.IsStatic) == 0 &&
+            Constants.Values.Count(x => !x.TrueConst) != 0)
+        {
+            var staticInitCtor = new CSConstructor(
+                this,
+                null,
+                ElementVisibilityClassic.Private,
+                null,
+                new List<string>(),
+                null,
+                true,
+                false
+            );
+
+            _constructors.Add(CSharpHelper.GenerateMethodKey(staticInitCtor), staticInitCtor);
+        }
 
         foreach (var ctor in _constructors.Values)
         {
@@ -153,19 +178,19 @@ public class CSClass : AbstClassNS.Class
         {
             if (!string.IsNullOrWhiteSpace(text[i]))
             {
-                text[i] = c_tab + text[i];
+                text[i] = CSharpHelper.C_TAB + text[i];
             }
         }
 
         return [.. text];
     }
 
-    protected override string[] GenerateClassFooter() => [c_tab + "};"];
+    protected override string[] GenerateClassFooter() => [CSharpHelper.C_TAB + "};"];
 
     /// <summary>
     /// Embedded class for fast extraction of a predefined data object
     /// </summary>
-    public CSClassPredefined EmbeddedClassPredefined { get; set; }
+    public CSClassPredefinedDataObject? EmbeddedClassPredefined { get; set; }
 
     /// <summary>
     /// Is it a partial class representation
@@ -175,7 +200,7 @@ public class CSClass : AbstClassNS.Class
     /// <summary>
     /// Class properties
     /// </summary>
-    public IDictionary<string, CSProperty> Properties => _properties;
+    public IDictionary<string, ICSProperty> Properties => _properties;
 
     /// <summary>
     /// Class constructors

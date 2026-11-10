@@ -4,10 +4,10 @@ using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Constant;
-using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Field;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property.Getter;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Component;
 using VkRadio.LowCode.AppGen.Domain;
 using VkRadio.LowCode.AppGen.Domain.Names;
@@ -666,15 +666,18 @@ public class EntityPackage : PackNS.Package
 
         if (refProps.Count > 0)
         {
-            var method = new CSMethod
-            {
-                AdditionalKeywords = "override",
-                Class = cSharpClass,
-                DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Сброс закешированных ссылочных объектов" : "Reset cached referenced objects"),
-                Name = "ResetCachedRefProperties",
-                ReturnType = "void",
-                Visibility = ElementVisibilityClassic.Public
-            };
+            var method = new CSMethod(
+                cSharpClass,
+                "ResetCachedRefProperties",
+                new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Сброс закешированных ссылочных объектов" : "Reset cached referenced objects"),
+                ElementVisibilityClassic.Public,
+                null,
+                "override",
+                null,
+                null,
+                false,
+                false
+            );
             cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
             foreach (var propDef in refProps)
@@ -693,17 +696,18 @@ public class EntityPackage : PackNS.Package
     /// <param name="entityDef"></param>
     private static void CreateMethodInitNew(CSClass cSharpClass, EntityDefinition entityDef, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
-        var method = new CSMethod
-        {
-            Class = cSharpClass,
-            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Создание нового объекта и инициализация значений по умолчанию" : "Create a new object and initialize it with default values"),
-            IsStatic = false,
-            HintSingleLineBody = false,
-            Name = "InitNew",
-            ReturnType = "void",
-            Visibility = ElementVisibilityClassic.Public,
-            AdditionalKeywords = "override"
-        };
+        var method = new CSMethod(
+            cSharpClass,
+            "InitNew",
+            new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Создание нового объекта и инициализация значений по умолчанию" : "Create a new object and initialize it with default values"),
+            ElementVisibilityClassic.Public,
+            null,
+            "override",
+            null,
+            null,
+            false,
+            false
+        );
         cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
         GenerateInitVariablesForMethod(entityDef, method);
     }
@@ -715,17 +719,18 @@ public class EntityPackage : PackNS.Package
     /// <param name="entityDef"></param>
     private static void CreateMethodClone(CSClass cSharpClass, EntityDefinition entityDef, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
-        var method = new CSMethod
-        {
-            Class = cSharpClass,
-            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Создание независимой копии (клона) объекта" : "Create an isolated instance copy (clone) of an object"),
-            IsStatic = false,
-            HintSingleLineBody = false,
-            Name = "Clone",
-            ReturnType = "object",
-            Visibility = ElementVisibilityClassic.Public,
-            AdditionalKeywords = "override"
-        };
+        var method = new CSMethod(
+            cSharpClass,
+            "Clone",
+            new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Создание независимой копии (клона) объекта" : "Create an isolated instance copy (clone) of an object"),
+            ElementVisibilityClassic.Public,
+            new CSharpReferenceType(false, TypeConstants.Reference.C_OBJECT, false),
+            "override",
+            null,
+            null,
+            false,
+            false
+        );
         cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
         GenerateCloneVariablesForMethod(entityDef, method);
     }
@@ -739,17 +744,18 @@ public class EntityPackage : PackNS.Package
     /// <param name="entityDef"></param>
     private static void CreateMethodToString(CSClass cSharpClass, EntityDefinition entityDef, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
-        var method = new CSMethod
-        {
-            Class = cSharpClass,
-            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Строковое представление объекта по умолчанию" : "Default string representation of an object"),
-            IsStatic = false,
-            HintSingleLineBody = true,
-            Name = "ToString",
-            ReturnType = "string",
-            Visibility = ElementVisibilityClassic.Public,
-            AdditionalKeywords = "override"
-        };
+        var method = new CSMethod(
+            cSharpClass,
+            "ToString",
+            new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Строковое представление объекта по умолчанию" : "Default string representation of an object"),
+            ElementVisibilityClassic.Public,
+            new CSharpReferenceType(false, TypeConstants.Reference.C_STRING, false),
+            "override",
+            null,
+            null,
+            false,
+            true
+        );
         cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
 
         var varName = string.Empty;
@@ -832,29 +838,30 @@ public class EntityPackage : PackNS.Package
     /// </summary>
     /// <param name="cSharpClass"></param>
     /// <param name="entityDef"></param>
-    private static void CreateMethodValidate(CSClass cSharpClass, EntityDefinition entityDef, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
+    private static void CreateMethodValidate(CSClass cSharpClass, EntityDefinition entityDef, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage, bool supportNullableRefTypes)
     {
-        var method = new CSMethod
-        {
-            Class = cSharpClass,
-            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Проверка состояния объекта на допустимость к сохранению в БД" : "Validate a state of object before saving to a database"),
-            IsStatic = false,
-            HintSingleLineBody = false,
-            Name = "Validate",
-            ReturnType = "string",
-            Visibility = ElementVisibilityClassic.Public,
-            AdditionalKeywords = "override"
-        };
+        var method = new CSMethod(
+            cSharpClass,
+            "Validate",
+            new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Проверка состояния объекта на допустимость к сохранению в БД" : "Validate a state of object before saving to a database"),
+            ElementVisibilityClassic.Public,
+            new CSharpReferenceType(supportNullableRefTypes, TypeConstants.Reference.C_STRING, true),
+            "override",
+            null,
+            null,
+            false,
+            false
+        );
 
         cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
         GenerateValidateForMethod(entityDef, method, preferNaturalLanguageForComments, uiLanguage);
     }
 
-    public static CSClass CreateEntityClass(CSComponent component, EntityDefinition entityDef, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
+    public static CSClass CreateEntityClass(CSComponent component, EntityDefinition entityDef, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage, bool supportNullableRefTypes)
     {
         var name = CSharpHelper.GenerateEntityClassName(entityDef);
 
-        var result = new CSClass()
+        var result = new CSClass
         {
             Component = component,
             DocComment = new XmlComment(NameHelper.GetLocalNameUpperCase(entityDef.Names, preferNaturalLanguageForComments)),
@@ -868,51 +875,46 @@ public class EntityPackage : PackNS.Package
 
         foreach (var propDef in entityDef.PropertyDefinitions.Values)
         {
-            CSClassField field, fieldId;
-            CSProperty prop, propId;
-            CSCollectionGetter getter;
-            CSCollectionCounter counter;
-
-            FieldPropertyHelper.GenerateFieldPropertyAndGetter(
+            var (mainField, mainProperty, fieldForId, propertyForId, propertyForFilter, collectionReadMethod, collectionCountMethod) = FieldPropertyHelper.GenerateFieldPropertyAndGetter(
                 propDef,
                 result,
                 preferNaturalLanguageForComments,
-                out field,
-                out fieldId,
-                out prop,
-                out propId,
-                out getter,
-                out counter
+                supportNullableRefTypes
             );
 
-            if (field is not null)
+            if (mainField is not null)
             {
-                result.Fields.Add(field.Name, field);
+                result.Fields.Add(mainField.Name, mainField);
             }
 
-            if (fieldId is not null)
+            if (fieldForId is not null)
             {
-                result.Fields.Add(fieldId.Name, fieldId);
+                result.Fields.Add(fieldForId.Name, fieldForId);
             }
 
-            if (prop is not null)
+            if (mainProperty is not null)
             {
-                result.Properties.Add(prop.Name, prop);
+                result.Properties.Add(mainProperty.Name, mainProperty);
             }
 
-            if (propId is not null)
+            if (propertyForFilter is not null)
             {
-                result.Properties.Add(propId.Name, propId);
+                result.Properties.Add(propertyForFilter.Name, propertyForFilter);
             }
 
-            if (getter is not null)
+            if (propertyForId is not null)
             {
-                result.Methods.Add(getter.Name, getter);
+                result.Properties.Add(propertyForId.Name, propertyForId);
             }
 
-            if (counter is not null)
+            if (collectionReadMethod is not null)
             {
-                result.Methods.Add(counter.Name, counter);
+                result.Methods.Add(collectionReadMethod.Name, collectionReadMethod);
+            }
+
+            if (collectionCountMethod is not null)
+            {
+                result.Methods.Add(collectionCountMethod.Name, collectionCountMethod);
             }
         }
 
@@ -920,46 +922,47 @@ public class EntityPackage : PackNS.Package
         CreateMethodInitNew(result, entityDef, preferNaturalLanguageForComments);
         CreateMethodClone(result, entityDef, preferNaturalLanguageForComments);
         CreateMethodToString(result, entityDef, preferNaturalLanguageForComments);
-        CreateMethodValidate(result, entityDef, preferNaturalLanguageForComments, uiLanguage);
+        CreateMethodValidate(result, entityDef, preferNaturalLanguageForComments, uiLanguage, supportNullableRefTypes);
         GenerateResetCachedRefPropertiesMethod(result, entityDef, preferNaturalLanguageForComments);
         #endregion
 
         #region Insert constants and helpers for predefined objects retrievers
         if (entityDef.PredefinedEntityInstances.Count != 0)
         {
-            var predefsClass = new CSClassPredefined
+            var predefsClass = new CSClassPredefinedDataObject
             {
                 DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Быстрое извлечение предопределенных объектов" : "Quick read of a predefined objects"),
-                Name = "Predefined",
-                ParentClass = result
+                Name = "Predefined" //,
+                //ParentClass = result
             };
             result.EmbeddedClassPredefined = predefsClass;
 
             foreach (var pdo in entityDef.PredefinedEntityInstances)
             {
-                var idConst = new CSClassConstant("Guid", ElementVisibilityClassic.Public, false)
-                {
-                    Class = predefsClass,
-                    DocComment = new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "id объекта " : "id of object ") + NameHelper.GetLocalNameUpperCase(pdo.Names, preferNaturalLanguageForComments)),
-                    Name = NameHelper.NameToConstantId(pdo.Names),
-                    Value = $"new Guid(\"{pdo.Id}\")"
-                };
+                var idConst = new CSClassConstant(
+                    new CSharpValueType(TypeConstants.Value.C_GUID, false),
+                    false,
+                    NameHelper.NameToConstantId(pdo.Names),
+                    $"new Guid(\"{pdo.Id}\")",
+                    new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "id объекта " : "id of object ") + NameHelper.GetLocalNameUpperCase(pdo.Names, preferNaturalLanguageForComments)),
+                    ElementVisibilityClassic.Public
+                );
                 predefsClass.Constants.Add(idConst.Name, idConst);
 
-                var predefProp = new CSProperty
-                {
-                    Class = predefsClass,
-                    DocComment = new XmlComment(NameHelper.GetLocalNameUpperCase(pdo.Names, preferNaturalLanguageForComments)),
-                    Name = NameHelper.AddBeginningNIfNeeded(NameHelper.NamesToPascalCase(pdo.Names)),
-                    Type = CSharpHelper.GenerateEntityClassName(pdo.EntityDefinition),
-                    IsStatic = true
-                };
-                var predefGetter = new CSPropertyGetterPredefinedObject(predefProp)
-                {
-                    CorrespondingPEI = pdo,
-                    IdConstName = NameHelper.NameToConstantId(pdo.Names)
-                };
-                predefProp.Getter = predefGetter;
+                var predefProp = new CSProperty(
+                    NameHelper.AddBeginningNIfNeeded(NameHelper.NamesToPascalCase(pdo.Names)),
+                    null,
+                    null,
+                    ElementVisibilityClassic.Public,
+                    true,
+                    null,
+                    null,
+                    new XmlComment(NameHelper.GetLocalNameUpperCase(pdo.Names, preferNaturalLanguageForComments)),
+                    null,
+                    new CSharpReferenceType(supportNullableRefTypes, CSharpHelper.GenerateEntityClassName(pdo.EntityDefinition), true)
+                );
+                var predefGetter = new CSPropertyGetterPredefinedObject(predefProp, pdo, NameHelper.NameToConstantId(pdo.Names));
+                predefProp.SetGetter(predefGetter);
                 predefsClass.Properties.Add(predefProp.Name, predefProp);
             }
         }
@@ -996,7 +999,7 @@ public class EntityPackage : PackNS.Package
             modelComponent.UserUsings.Add($"{ParentPackage.ParentPackage.RootNamespace}.Model.Storage");
             modelComponent.UserUsings.Add("VkRadio.LowCode.Libs.Orm");
 
-            var modelClass = CreateEntityClass(modelComponent, entityDef, preferNaturalLanguageForComments, uiLanguage);
+            var modelClass = CreateEntityClass(modelComponent, entityDef, preferNaturalLanguageForComments, uiLanguage, parentPackage.ParentPackage.ParentPackage.Generator.SupportNullableReferenceTypes);
             modelComponent.MainClass = modelClass;
         }
     }
