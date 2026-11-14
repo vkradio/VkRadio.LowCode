@@ -1,8 +1,10 @@
-﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
+﻿using Ardalis.GuardClauses;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Constant;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property;
 using AbstClassNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Class;
+using CompNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Component;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class;
 
@@ -14,13 +16,22 @@ public class CSClass : AbstClassNS.Class
     protected Dictionary<string, ICSProperty> _properties = [];
     protected Dictionary<string, CSConstructor> _constructors = [];
 
+    public CSClass(string name, CompNS.Component component, XmlComment? docComment = null, string? inheritsFrom = null, bool partial = false)
+        : base(name, component, docComment, inheritsFrom)
+    {
+        Partial = partial;
+    }
+
     /// <summary>
     /// Constants
     /// </summary>
-    public new IDictionary<string, CSClassConstant> Constants => _constants
+    public new IReadOnlyDictionary<string, CSClassConstant> Constants => _constants
         .Values
         .Cast<CSClassConstant>()
-        .ToDictionary(x => x.Name);
+        .ToDictionary(x => x.Name)
+        .AsReadOnly();
+
+    public void AddConstant(CSClassConstant constant) => base.AddConstant(constant);
 
     protected override string[] GenerateClassDocComment()
     {
@@ -38,11 +49,11 @@ public class CSClass : AbstClassNS.Class
     {
         var text = new List<string>();
 
-        var classNameString = $"public{(Partial ? " partial" : string.Empty)} class {_name}";
+        var classNameString = $"public{(Partial ? " partial" : string.Empty)} class {Name}";
 
-        if (!string.IsNullOrEmpty(_inheritsFrom))
+        if (!string.IsNullOrEmpty(InheritsFrom))
         {
-            classNameString += ": " + _inheritsFrom;
+            classNameString += ": " + InheritsFrom;
         }
 
         text.Add(classNameString);
@@ -90,7 +101,7 @@ public class CSClass : AbstClassNS.Class
                 false
             );
 
-            _constructors.Add(CSharpHelper.GenerateMethodKey(staticInitCtor), staticInitCtor);
+            AddConstructor(CSharpHelper.GenerateMethodKey(staticInitCtor), staticInitCtor);
         }
 
         foreach (var ctor in _constructors.Values)
@@ -107,7 +118,7 @@ public class CSClass : AbstClassNS.Class
 
         var textConstants = new List<string>();
 
-        foreach (var constant in _constants.Values)
+        foreach (var constant in Constants.Values)
         {
             textConstants.AddRange(constant.GenerateText());
         }
@@ -200,10 +211,19 @@ public class CSClass : AbstClassNS.Class
     /// <summary>
     /// Class properties
     /// </summary>
-    public IDictionary<string, ICSProperty> Properties => _properties;
+    public IReadOnlyDictionary<string, ICSProperty> Properties => _properties.AsReadOnly();
+
+    public void AddProperty(ICSProperty property) => _properties.Add(Guard.Against.Null(property, nameof(property)).Name, property);
 
     /// <summary>
     /// Class constructors
     /// </summary>
-    public IDictionary<string, CSConstructor> Constructors => _constructors;
+    public IReadOnlyDictionary<string, CSConstructor> Constructors => _constructors.AsReadOnly();
+
+    public void AddConstructor(CSConstructor constructor) => _constructors.Add(Guard.Against.Null(constructor, nameof(constructor)).Name, constructor);
+
+    public void AddConstructor(string name, CSConstructor constructor) => _constructors.Add(
+        Guard.Against.NullOrEmpty(name, nameof(name)),
+        Guard.Against.Null(constructor, nameof(constructor))
+    );
 }

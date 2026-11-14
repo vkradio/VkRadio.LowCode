@@ -20,14 +20,13 @@ public class FrmMainComponentGroup
 
         package.Components.Add(_mainComponent.Name, _mainComponent);
 
-        var cls = new CSClass
-        {
-            Component = _mainComponent,
-            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Главная форма приложения" : "App main window"),
-            InheritsFrom = "Form",
-            Name = "FRM_Main",
-            Partial = true
-        };
+        var cls = new CSClass(
+            "FRM_Main",
+            _mainComponent,
+            new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Главная форма приложения" : "App main window"),
+            "Form",
+            true
+        );
         _mainComponent.Classes.Add(cls.Name, cls);
         _mainComponent.MainClass = cls;
     }

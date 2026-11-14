@@ -30,12 +30,11 @@ public class StoragePackage: PackNS.Package
         };
         package.Components.Add(storageRegistryComponent.Namespace, storageRegistryComponent);
 
-        var clsStorageRegistry = new CSClass
-        {
-            Component = storageRegistryComponent,
-            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Реестр хранилищ ОД" : "Data object storage registry"),
-            Name = "StorageRegistry"
-        };
+        var clsStorageRegistry = new CSClass(
+            "StorageRegistry",
+            storageRegistryComponent,
+            new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Реестр хранилищ ОД" : "Data object storage registry")
+        );
         storageRegistryComponent.Classes.Add(clsStorageRegistry.Name, clsStorageRegistry);
         storageRegistryComponent.MainClass = clsStorageRegistry;
 
@@ -82,7 +81,7 @@ public class StoragePackage: PackNS.Package
         var ctorParam = new CSParameter("dbProviderFactory", new CSharpReferenceType(false, "IDbProviderFactory", false));
         ctor.Params.Add(ctorParam.Name, ctorParam);
 
-        clsStorageRegistry.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
+        clsStorageRegistry.AddConstructor(CSharpHelper.GenerateMethodKey(ctor), ctor);
 
         //var ctorStatic = new CSConstructor(clsStorageRegistry)
         //{
@@ -106,7 +105,7 @@ public class StoragePackage: PackNS.Package
             true,
             true
         );
-        clsStorageRegistry.Methods.Add(initMethod.Name, initMethod);
+        clsStorageRegistry.AddMethod(initMethod);
 
         var initMethodParam = new CSParameter("instance", new CSharpReferenceType(false, "StorageRegistry", false));
         initMethod.Params.Add(initMethodParam.Name, initMethodParam);
@@ -128,7 +127,7 @@ public class StoragePackage: PackNS.Package
                 null,
                 false
             );
-            clsStorageRegistry.Fields.Add(field.Name, field);
+            clsStorageRegistry.AddField(field);
 
             // 2. Create storage in a constructor
             ctor.BodyStrings.Add($"{fieldName} = new {storageClassName}(dbProviderFactory); {fieldName}.Init();");
@@ -147,7 +146,7 @@ public class StoragePackage: PackNS.Package
             );
             prop.SetGetter(new CSPropertyGetter(prop, true));
             prop.SetSetter(new CSPropertySetter(prop, true, false));
-            clsStorageRegistry.Properties.Add(prop.Name, prop);
+            clsStorageRegistry.AddProperty(prop);
         }
 
         string singletonComment = preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Единственный экземпляр (Singleton)" : "Singleton";
@@ -161,10 +160,10 @@ public class StoragePackage: PackNS.Package
             null,
             true
         );
-        clsStorageRegistry.Fields.Add(fieldInstance.Name, fieldInstance);
+        clsStorageRegistry.AddField(fieldInstance);
 
         var instanceProp = new CSPropertyPredefined("Instance", "public static StorageRegistry Instance { get => _instance; }", new XmlComment(singletonComment));
-        clsStorageRegistry.Properties.Add(instanceProp.Name, instanceProp);
+        clsStorageRegistry.AddProperty(instanceProp);
 
         return storageRegistryComponent;
     }
@@ -195,12 +194,11 @@ public class StoragePackage: PackNS.Package
         };
         _components.Add(storageRegistryComponent.Namespace, storageRegistryComponent);
 
-        var clsStorageRegistry = new CSClass
-        {
-            Component = storageRegistryComponent,
-            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Реестр хранилищ ОД" : "Object data storage registry"),
-            Name = "StorageRegistry"
-        };
+        var clsStorageRegistry = new CSClass(
+            "StorageRegistry",
+            storageRegistryComponent,
+            new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Реестр хранилищ ОД" : "Object data storage registry")
+        );
         storageRegistryComponent.Classes.Add(clsStorageRegistry.Name, clsStorageRegistry);
 
         storageRegistryComponent.UserUsings.Add("VkRadio.LowCode.Libs.Orm");
@@ -244,7 +242,7 @@ public class StoragePackage: PackNS.Package
             false,
             false
         );
-        clsStorageRegistry.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
+        clsStorageRegistry.AddConstructor(CSharpHelper.GenerateMethodKey(ctor), ctor);
 
         var ctorParam = new CSParameter("dbProviderFactory", new CSharpReferenceType(false, "IDbProviderFactory", false));
         ctor.Params.Add(ctorParam.Name, ctorParam);
@@ -272,7 +270,7 @@ public class StoragePackage: PackNS.Package
             true,
             true
         );
-        clsStorageRegistry.Methods.Add(initMethod.Name, initMethod);
+        clsStorageRegistry.AddMethod(initMethod);
 
         var initMethodParam = new CSParameter("instance", new CSharpReferenceType(false, "StorageRegistry", false));
         initMethod.Params.Add(initMethodParam.Name, initMethodParam);
@@ -295,7 +293,7 @@ public class StoragePackage: PackNS.Package
                 null,
                 false
             );
-            clsStorageRegistry.Fields.Add(field.Name, field);
+            clsStorageRegistry.AddField(field);
 
             // 2. Create storage in a constructor
             ctor.BodyStrings.Add(string.Format("{0} = new {1}(dbProviderFactory); {2}.Init();", fieldName, storageClassName, fieldName));
@@ -314,7 +312,7 @@ public class StoragePackage: PackNS.Package
             );
             prop.SetGetter(new CSPropertyGetter(prop, true));
             prop.SetSetter(new CSPropertySetter(prop, true, false));
-            clsStorageRegistry.Properties.Add(prop.Name, prop);
+            clsStorageRegistry.AddProperty(prop);
         }
 
         string singletonComment = preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Единственный экземпляр (Singleton)" : "Singleton";
@@ -328,14 +326,14 @@ public class StoragePackage: PackNS.Package
             null,
             true
         );
-        clsStorageRegistry.Fields.Add(fieldInstance.Name, fieldInstance);
+        clsStorageRegistry.AddField(fieldInstance);
 
         var instanceProp = new CSPropertyPredefined(
             "Instance",
             "public static StorageRegistry Instance { get { return _instance; } }",
             new XmlComment(singletonComment)
         );
-        clsStorageRegistry.Properties.Add(instanceProp.Name, instanceProp);
+        clsStorageRegistry.AddProperty(instanceProp);
         #endregion
     }
 

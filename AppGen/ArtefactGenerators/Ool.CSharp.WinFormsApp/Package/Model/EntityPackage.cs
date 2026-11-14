@@ -678,7 +678,7 @@ public class EntityPackage : PackNS.Package
                 false,
                 false
             );
-            cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+            cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
 
             foreach (var propDef in refProps)
             {
@@ -708,7 +708,7 @@ public class EntityPackage : PackNS.Package
             false,
             false
         );
-        cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
         GenerateInitVariablesForMethod(entityDef, method);
     }
 
@@ -731,7 +731,7 @@ public class EntityPackage : PackNS.Package
             false,
             false
         );
-        cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
         GenerateCloneVariablesForMethod(entityDef, method);
     }
 
@@ -756,7 +756,7 @@ public class EntityPackage : PackNS.Package
             false,
             true
         );
-        cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
 
         var varName = string.Empty;
 
@@ -853,7 +853,7 @@ public class EntityPackage : PackNS.Package
             false
         );
 
-        cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
         GenerateValidateForMethod(entityDef, method, preferNaturalLanguageForComments, uiLanguage);
     }
 
@@ -861,60 +861,39 @@ public class EntityPackage : PackNS.Package
     {
         var name = CSharpHelper.GenerateEntityClassName(entityDef);
 
-        var result = new CSClass
-        {
-            Component = component,
-            DocComment = new XmlComment(NameHelper.GetLocalNameUpperCase(entityDef.Names, preferNaturalLanguageForComments)),
-            Name = name,
-            InheritsFrom = "DbMappedDOT",
-            Partial = true
-        };
+        var result = new CSClass(
+            name,
+            component,
+            new XmlComment(NameHelper.GetLocalNameUpperCase(entityDef.Names, preferNaturalLanguageForComments)),
+            "DbMappedDOT",
+            true
+        );
         component.Classes.Add(result.Name, result);
 
         // Create class fields for different types of table fields:
 
         foreach (var propDef in entityDef.PropertyDefinitions.Values)
         {
-            var (mainField, mainProperty, fieldForId, propertyForId, propertyForFilter, collectionReadMethod, collectionCountMethod) = FieldPropertyHelper.GenerateFieldPropertyAndGetter(
+            var (fields, properties, methods) = FieldPropertyHelper.GenerateFieldPropertyAndGetter(
                 propDef,
                 result,
                 preferNaturalLanguageForComments,
                 supportNullableRefTypes
             );
 
-            if (mainField is not null)
+            foreach (var field in fields)
             {
-                result.Fields.Add(mainField.Name, mainField);
+                result.AddField(field);
             }
 
-            if (fieldForId is not null)
+            foreach (var prop in properties)
             {
-                result.Fields.Add(fieldForId.Name, fieldForId);
+                result.AddProperty(prop);
             }
 
-            if (mainProperty is not null)
+            foreach (var method in methods)
             {
-                result.Properties.Add(mainProperty.Name, mainProperty);
-            }
-
-            if (propertyForFilter is not null)
-            {
-                result.Properties.Add(propertyForFilter.Name, propertyForFilter);
-            }
-
-            if (propertyForId is not null)
-            {
-                result.Properties.Add(propertyForId.Name, propertyForId);
-            }
-
-            if (collectionReadMethod is not null)
-            {
-                result.Methods.Add(collectionReadMethod.Name, collectionReadMethod);
-            }
-
-            if (collectionCountMethod is not null)
-            {
-                result.Methods.Add(collectionCountMethod.Name, collectionCountMethod);
+                result.AddMethod(method);
             }
         }
 
@@ -929,12 +908,11 @@ public class EntityPackage : PackNS.Package
         #region Insert constants and helpers for predefined objects retrievers
         if (entityDef.PredefinedEntityInstances.Count != 0)
         {
-            var predefsClass = new CSClassPredefinedDataObject
-            {
-                DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Быстрое извлечение предопределенных объектов" : "Quick read of a predefined objects"),
-                Name = "Predefined" //,
-                //ParentClass = result
-            };
+            var predefsClass = new CSClassPredefinedDataObject(
+                "Predefined",
+                component,
+                new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Быстрое извлечение предопределенных объектов" : "Quick read of a predefined objects")
+            );
             result.EmbeddedClassPredefined = predefsClass;
 
             foreach (var pdo in entityDef.PredefinedEntityInstances)
@@ -947,7 +925,7 @@ public class EntityPackage : PackNS.Package
                     new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "id объекта " : "id of object ") + NameHelper.GetLocalNameUpperCase(pdo.Names, preferNaturalLanguageForComments)),
                     ElementVisibilityClassic.Public
                 );
-                predefsClass.Constants.Add(idConst.Name, idConst);
+                predefsClass.AddConstant(idConst);
 
                 var predefProp = new CSProperty(
                     NameHelper.AddBeginningNIfNeeded(NameHelper.NamesToPascalCase(pdo.Names)),
@@ -963,7 +941,7 @@ public class EntityPackage : PackNS.Package
                 );
                 var predefGetter = new CSPropertyGetterPredefinedObject(predefProp, pdo, NameHelper.NameToConstantId(pdo.Names));
                 predefProp.SetGetter(predefGetter);
-                predefsClass.Properties.Add(predefProp.Name, predefProp);
+                predefsClass.AddProperty(predefProp);
             }
         }
         #endregion

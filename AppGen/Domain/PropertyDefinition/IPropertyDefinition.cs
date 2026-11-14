@@ -16,4 +16,9 @@ public interface IPropertyDefinition : IUniqueNamed
     /// Ordering attribute for objects in a list
     /// </summary>
     ListOrderEnum? ListOrder { get; set; }
+
+    /// <summary>
+    /// Entity type definition that owns this property
+    /// </summary>
+    public EntityDefinition OwnerDefinition { get; set; }
 }

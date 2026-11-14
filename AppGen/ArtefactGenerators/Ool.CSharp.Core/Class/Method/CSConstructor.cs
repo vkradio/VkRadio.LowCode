@@ -82,7 +82,7 @@ public class CSConstructor : CSMethod
                 .Take(classBodyText.Length - 1)
                 .ToList();
 
-            if (lines.Count != 1)
+            if (lines.Count != 2)
             {
                 lines.Add(string.Empty);
             }

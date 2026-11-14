@@ -40,13 +40,12 @@ public class LaunchersPackage : PackNS.Package
             component.UserUsings.Add("VkRadio.LowCode.Libs.Gui.WinForms");
             component.UserUsings.Add("VkRadio.LowCode.Libs.Orm");
 
-            var cls = new CSClass
-            {
-                Component = component,
-                DocComment = new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Запускальщик средств UI для объектов " : "UI launcher for objects ") + NameHelper.GetLocalNameUpperCase(entDef.Names, preferNaturalLanguageForComments)),
-                Name = uilName,
-                InheritsFrom = "UILauncher"
-            };
+            var cls = new CSClass(
+                uilName,
+                component,
+                new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Запускальщик средств UI для объектов " : "UI launcher for objects ") + NameHelper.GetLocalNameUpperCase(entDef.Names, preferNaturalLanguageForComments)),
+                "UILauncher"
+            );
             component.Classes.Add(cls.Name, cls);
             component.MainClass = cls;
 
@@ -55,7 +54,7 @@ public class LaunchersPackage : PackNS.Package
                 new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Конструктор запускальщика" : "Launcher constructor"),
                 ElementVisibilityClassic.Public
             );
-            cls.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
+            cls.AddConstructor(CSharpHelper.GenerateMethodKey(ctor), ctor);
             ctor.BodyStrings.Add(string.Format("_storage = StorageRegistry.Instance.{0}Storage;", typeName));
             ctor.BodyStrings.Add(string.Format("_dotName = \"{0}\";", NameHelper.EncodeCSharpText(NameHelper.GetLocalNameUpperCase(entDef.Names, uiLanguage))));
 
@@ -78,7 +77,7 @@ public class LaunchersPackage : PackNS.Package
             );
             var param = new CSParameter("in_o", new CSharpReferenceType(false, "DbMappedDOT", false));
             methodCard.Params.Add(param.Name, param);
-            cls.Methods.Add(CSharpHelper.GenerateMethodKey(methodCard), methodCard);
+            cls.AddMethod(CSharpHelper.GenerateMethodKey(methodCard), methodCard);
 
             var methodList = new CSMethod(
                 cls,
@@ -95,7 +94,7 @@ public class LaunchersPackage : PackNS.Package
                 false,
                 false
             );
-            cls.Methods.Add(CSharpHelper.GenerateMethodKey(methodList), methodList);
+            cls.AddMethod(CSharpHelper.GenerateMethodKey(methodList), methodList);
         }
     }
 

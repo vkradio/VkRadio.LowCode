@@ -49,12 +49,11 @@ public class GuiPackage : PackNS.Package
 
         _components.Add(uiRegistryComp.Name, uiRegistryComp);
 
-        var clsUiRegistry = new CSClass
-        {
-            Component = uiRegistryComp,
-            DocComment = new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Реестр запускальщиков средств UI" : "Registry of UI launchers"),
-            Name = "UiRegistry"
-        };
+        var clsUiRegistry = new CSClass(
+            "UiRegistry",
+            uiRegistryComp,
+            new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Реестр запускальщиков средств UI" : "Registry of UI launchers")
+        );
         uiRegistryComp.Classes.Add(clsUiRegistry.Name, clsUiRegistry);
         uiRegistryComp.MainClass = clsUiRegistry;
 
@@ -97,7 +96,7 @@ public class GuiPackage : PackNS.Package
             false,
             false
         );
-        clsUiRegistry.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
+        clsUiRegistry.AddConstructor(CSharpHelper.GenerateMethodKey(ctor), ctor);
 
         var ctorStatic = new CSConstructor(
             clsUiRegistry,
@@ -110,7 +109,7 @@ public class GuiPackage : PackNS.Package
             true
         );
         ctorStatic.BodyStrings.Add("_instance = new UiRegistry();");
-        clsUiRegistry.Constructors.Add(CSharpHelper.GenerateMethodKey(ctorStatic), ctorStatic);
+        clsUiRegistry.AddConstructor(CSharpHelper.GenerateMethodKey(ctorStatic), ctorStatic);
 
         var docCommentSingleton = preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Единственный экземпляр (Singleton)" : "Singleton";
         var field = new CSClassField(
@@ -122,7 +121,7 @@ public class GuiPackage : PackNS.Package
             null,
             true
         );
-        clsUiRegistry.Fields.Add(field.Name, field);
+        clsUiRegistry.AddField(field);
 
         var prop = new CSProperty(
             "Instance",
@@ -136,7 +135,7 @@ public class GuiPackage : PackNS.Package
             null
         );
         prop.SetGetter(new CSPropertyGetter(prop, true));
-        clsUiRegistry.Properties.Add(prop.Name, prop);
+        clsUiRegistry.AddProperty(prop);
 
         var qSelectorField = new CSClassField(
             new CSharpReferenceType(false, "QuickSelectStorage", false),
@@ -147,7 +146,7 @@ public class GuiPackage : PackNS.Package
             "new QuickSelectStorage()",
             false
         );
-        clsUiRegistry.Fields.Add(qSelectorField.Name, qSelectorField);
+        clsUiRegistry.AddField(qSelectorField);
 
         var qSelectorProp = new CSProperty(
             "QuickSelectStorage",
@@ -161,7 +160,7 @@ public class GuiPackage : PackNS.Package
             null
         );
         qSelectorProp.SetGetter(new CSPropertyGetter(qSelectorProp, true));
-        clsUiRegistry.Properties.Add(qSelectorProp.Name, qSelectorProp);
+        clsUiRegistry.AddProperty(qSelectorProp);
 
         foreach (var cls in classes)
         {
@@ -181,7 +180,7 @@ public class GuiPackage : PackNS.Package
                 null,
                 false
             );
-            clsUiRegistry.Fields.Add(uilField.Name, uilField);
+            clsUiRegistry.AddField(uilField);
 
             // Constructor that creates launcher instances
             ctor.BodyStrings.Add(string.Format("{0} = new {1}();", fieldName, propName));
@@ -200,7 +199,7 @@ public class GuiPackage : PackNS.Package
             );
             uilProp.SetGetter(new CSPropertyGetter(uilProp, true));
             uilProp.SetSetter(new CSPropertySetter(uilProp, true, false));
-            clsUiRegistry.Properties.Add(uilProp.Name, uilProp);
+            clsUiRegistry.AddProperty(uilProp);
         }
         #endregion
     }

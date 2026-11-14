@@ -20,56 +20,33 @@ public class FieldPropertyHelper
         return (fieldName, fieldName + "Id");
     }
 
-    public static (
-        CSClassField? MainField,
-        CSProperty MainProperty,
-        CSClassField? FieldForId,
-        CSProperty? PropertyForId,
-        ICSProperty? PropertyForFilter,
-        CSCollectionReadMethod? CollectionReadMethod,
-        CSCollectionCountMethod? CollectionCountMethod
-    ) GenerateFieldPropertyAndGetter(
+    public static (List<CSClassField> fields, List<ICSProperty> properties, List<CSMethod> methods) GenerateFieldPropertyAndGetter(
         PropertyDefinition propDef,
         CSClass cSharpClass,
         NaturalLanguageEnum preferNaturalLanguageForComments,
-        bool supportNullableRefTypes //,
-        //out CSClassField? outField,
-        //out CSClassField? outFieldId,
-        //out CSProperty? outProperty,
-        //out CSProperty? outPropertyId,
-        //out CSCollectionGetter? outCollectionGetter,
-        //out CSCollectionCounter? outCollectionCounter
+        bool supportNullableRefTypes
     )
     {
-        //outField = null;
-        //outFieldId = null;
-        //outProperty = null;
-        //outPropertyId = null;
-        //outCollectionGetter = null;
-        //outCollectionCounter = null;
-
-        CSClassField? mainField = null;
-        CSProperty mainProperty;
-        CSClassField? fieldForId = null;
-        CSProperty? propertyForId = null;
-        ICSProperty? propertyForFilter = null;
-        CSCollectionReadMethod? collectionReadMethod = null;
-        CSCollectionCountMethod? collectionCountMethod = null;
+        var fields = new List<CSClassField>();
+        var properties = new List<ICSProperty>();
+        var methods = new List<CSMethod>();
 
         var (fieldName, fieldIdName) = GetFieldNamesFromPropDef(propDef);
 
         #region 1.1. Fields and properties for explicit (non-reference) values
         if (!(propDef.FunctionalType is PFTLink))
         {
-            mainField = new CSClassField(
+            var mainField = new CSClassField(
                 CSharpTypeBase.DeriveFromPropertyFunctionalType(propDef, supportNullableRefTypes),
                 fieldName,
                 cSharpClass,
                 new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments)),
                 ElementVisibilityClassic.Protected
             );
+            fields.Add(mainField);
 
-            mainProperty = new CSProperty(propDef, mainField, mainField.DocComment, false);
+            var mainProperty = new CSProperty(propDef, mainField, mainField.DocComment, false);
+            properties.Add(mainProperty);
         }
         #endregion
         else
@@ -79,33 +56,45 @@ public class FieldPropertyHelper
                 propDef.FunctionalType is PFTConnector      ||
                 propDef.FunctionalType is PFTTableOwner)
             {
-                mainField = new CSClassField(
+                var mainField = new CSClassField(
                     CSharpTypeBase.DeriveFromPropertyFunctionalType(propDef, supportNullableRefTypes),
                     fieldName,
                     cSharpClass,
                     new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments)),
                     ElementVisibilityClassic.Protected
                 );
+                fields.Add(mainField);
 
-                fieldForId = new CSClassField(
+                var fieldForId = new CSClassField(
                     new CSharpValueType(TypeConstants.Value.C_GUID, true),
                     fieldIdName,
                     cSharpClass,
                     new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Внешний ключ на " : "Foreign Key to ") + NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments)),
                     ElementVisibilityClassic.Protected
                 );
+                fields.Add(fieldForId);
 
-                mainProperty = new CSProperty(propDef, mainField, mainField.DocComment, false);
-                propertyForId = new CSProperty(propDef, fieldForId, fieldForId.DocComment, true);
+                var mainProperty = new CSProperty(propDef, mainField, mainField.DocComment, false);
+                properties.Add(mainProperty);
+
+                var propertyForId = new CSProperty(propDef, fieldForId, fieldForId.DocComment, true);
+                properties.Add(propertyForId);
             }
             #endregion
             else if (propDef.FunctionalType is PFTTablePart || propDef.FunctionalType is PFTBackReferencedTable)
             #region 1.3. Fields for collections (no tables)
             {
-                propertyForFilter = new CSPropertyTableFilter(propDef, preferNaturalLanguageForComments);
-                mainProperty = new CSProperty(propDef, (IPropertyOrField)propertyForFilter, null, false);
-                collectionReadMethod = new CSCollectionReadMethod(cSharpClass, propDef, preferNaturalLanguageForComments, supportNullableRefTypes);
-                collectionCountMethod = new CSCollectionCountMethod(cSharpClass, propDef, preferNaturalLanguageForComments, supportNullableRefTypes);
+                var propertyForFilter = new CSPropertyTableFilter(propDef, preferNaturalLanguageForComments);
+                properties.Add(propertyForFilter);
+
+                var propertyForDataTable = new CSPropertyDataTable(propDef, preferNaturalLanguageForComments);
+                properties.Add(propertyForDataTable);
+
+                var collectionReadMethod = new CSCollectionReadMethod(cSharpClass, propDef, preferNaturalLanguageForComments, supportNullableRefTypes);
+                methods.Add(collectionReadMethod);
+
+                var collectionCountMethod = new CSCollectionCountMethod(cSharpClass, propDef, preferNaturalLanguageForComments, supportNullableRefTypes);
+                methods.Add(collectionCountMethod);
             }
             #endregion
             else
@@ -114,6 +103,6 @@ public class FieldPropertyHelper
             }
         }
 
-        return (mainField, mainProperty, fieldForId, propertyForId, propertyForFilter, collectionReadMethod, collectionCountMethod);
+        return (fields, properties, methods);
     }
 }

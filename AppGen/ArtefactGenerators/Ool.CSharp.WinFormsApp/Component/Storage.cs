@@ -59,7 +59,7 @@ public class Storage : CSComponentWMainClass
                 )),
                 ElementVisibilityClassic.Public
             );
-            storageClass.Constants.Add(c.Name, c);
+            storageClass.AddConstant(c);
             result.Add(c);
 
             c = new CSClassConstant(
@@ -75,7 +75,7 @@ public class Storage : CSComponentWMainClass
                 )),
                 ElementVisibilityClassic.Public
             );
-            storageClass.Constants.Add(c.Name, c);
+            storageClass.AddConstant(c);
             result.Add(c);
 
             var decimalPositions = 0;
@@ -119,7 +119,7 @@ public class Storage : CSComponentWMainClass
             false,
             false
         );
-        storageClass.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
+        storageClass.AddConstructor(CSharpHelper.GenerateMethodKey(ctor), ctor);
 
         var ctorParam = new CSParameter("dbProviderFactory", new CSharpReferenceType(false, "IDbProviderFactory", false));
         ctor.Params.Add(ctorParam.Name, ctorParam);
@@ -238,7 +238,7 @@ public class Storage : CSComponentWMainClass
         param = new CSParameter("in_o", new CSharpReferenceType(false, entityClassName, false));
         method.Params.Add(param.Name, param);
 
-        storageClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        storageClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
         #endregion
 
         var entityDef = tableAndDotCorrespondence.EntityDefinition;
@@ -335,7 +335,7 @@ public class Storage : CSComponentWMainClass
         param = new CSParameter("in_o", new CSharpReferenceType(false, entityClassName, false));
         method.Params.Add(param.Name, param);
 
-        storageClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        storageClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
         #endregion
 
         var entityDef = tableAndEntityCorrespondence.EntityDefinition;
@@ -429,7 +429,7 @@ public class Storage : CSComponentWMainClass
         param = new CSParameter($"in_transaction", new CSharpReferenceType(supportNullableRefTypes, "DbTransaction", true), "null");
         method.Params.Add(param.Name, param);
 
-        storageClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        storageClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
         #endregion
 
         method.BodyStrings.Add($"if (in_{propName} == null)");
@@ -449,14 +449,13 @@ public class Storage : CSComponentWMainClass
         var storageClassName = entityClassName + "Storage";
         var correspondence = (TableAndEntityCorrespondence)dbModel.TableAndSourceCorrespondence[entityDefinition.Id];
 
-        var storageClass = new CSClass
-        {
-            Component = component,
-            DocComment = new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Хранилище объектов " : "Storage of objects ") + NameHelper.GetLocalNameUpperCase(correspondence.EntityDefinition.Names, preferNaturalLanguageForComments)),
-            Name = storageClassName,
-            InheritsFrom = $"DOStorage<{storageClassName}, {entityClassName}>",
-            Partial = true
-        };
+        var storageClass = new CSClass(
+            storageClassName,
+            component,
+            new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Хранилище объектов " : "Storage of objects ") + NameHelper.GetLocalNameUpperCase(correspondence.EntityDefinition.Names, preferNaturalLanguageForComments)),
+            $"DOStorage<{storageClassName}, {entityClassName}>",
+            true
+        );
         component.Classes.Add(storageClass.Name, storageClass);
 
         // Create constants corresponding to table fields

@@ -8,9 +8,9 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Proper
 
 public class CSPropertyTableFilter : CSPropertyPredefined, IPropertyOrField
 {
-    private CSharpReferenceType _type = new CSharpReferenceType(false, "FilterSimple", false);
+    public static readonly CSharpReferenceType PropertyType = new CSharpReferenceType(false, "FilterSimple", false);
 
-    private static string PropertyName(PropertyDefinition propDef) => $"{NameHelper.NamesToPascalCase(propDef.Names, true)}Filter";
+    public static string PropertyName(PropertyDefinition propDef) => $"{NameHelper.NamesToPascalCase(propDef.Names, true)}Filter";
 
     private static string NameOfTableField(PropertyDefinition propDef)
     {
@@ -37,11 +37,11 @@ public class CSPropertyTableFilter : CSPropertyPredefined, IPropertyOrField
     public CSPropertyTableFilter(PropertyDefinition propDef, NaturalLanguageEnum preferNaturalLanguageForComments)
         : base(
             PropertyName(propDef),
-            $"public virtual FilterSimple {PropertyName(propDef)} {{ get {{ return FilterSimple.CreateTableFilter(_id, \"{NameOfTableField(propDef)}\", VkRadio.LowCode.Libs.Orm.DbProviderFactory.Default); }} }}",
+            $"public virtual {PropertyType} {PropertyName(propDef)} {{ get {{ return {PropertyType}.CreateTableFilter(_id, \"{NameOfTableField(propDef)}\", VkRadio.LowCode.Libs.Orm.DbProviderFactory.Default); }} }}",
             new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Фильтр для свойства " : "Filter for the property ") + NameHelper.GetLocalNameLowerCase(propDef.Names, preferNaturalLanguageForComments))
         )
     {
     }
 
-    public CSharpTypeBase Type => _type;
+    public CSharpTypeBase Type => PropertyType;
 }

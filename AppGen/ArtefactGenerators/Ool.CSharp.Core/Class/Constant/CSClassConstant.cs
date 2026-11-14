@@ -23,13 +23,13 @@ public class CSClassConstant : ClassConstant
     protected override string GenerateTextConcrete()
     {
         return string.Format(
-            "{0}{1}{2} {3} {4} = {5};",
+            "{0}{1}{2} {3} {4}{5};",
             CSharpHelper.C_TAB,
             Visibility.Value != ElementVisibilityEnum.Private ? Visibility.ToString() + " " : string.Empty,
             TrueConst ? "const" : "static readonly",
             Type,
             Name,
-            Value
+            TrueConst ? $" = {Value}" : string.Empty
         );
     }
 }

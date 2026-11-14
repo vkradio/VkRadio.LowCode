@@ -50,14 +50,13 @@ public class ListsPackage : PackNS.Package
             component.SystemUsings.Add("System.Windows.Forms");
             component.UserUsings.Add("VkRadio.LowCode.Libs.Gui.WinForms");
 
-            var cls = new CSClass
-            {
-                Component = component,
-                DocComment = new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Список объектов " : "List of objects ") + NameHelper.GetLocalNameUpperCase(entityDef.Names, preferNaturalLanguageForComments)),
-                Name = formName,
-                InheritsFrom = "DOList",
-                Partial = true
-            };
+            var cls = new CSClass(
+                formName,
+                component,
+                new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Список объектов " : "List of objects ") + NameHelper.GetLocalNameUpperCase(entityDef.Names, preferNaturalLanguageForComments)),
+                "DOList",
+                true
+            );
             component.Classes.Add(cls.Name, cls);
             component.MainClass = cls;
 
@@ -68,7 +67,7 @@ public class ListsPackage : PackNS.Package
                 new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Конструктор списка" : "List constructor"),
                 ElementVisibilityClassic.Public
             );
-            cls.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
+            cls.AddConstructor(CSharpHelper.GenerateMethodKey(ctor), ctor);
             ctor.BodyStrings.Add("InitializeComponent();");
             ctor.BodyStrings.Add(string.Empty);
             ctor.BodyStrings.Add("DGV_ListProtected.Columns.AddRange(new DataGridViewColumn[]");
@@ -281,7 +280,7 @@ public class ListsPackage : PackNS.Package
             var param2 = new CSParameter("e", new CSharpReferenceType(false, "DataGridViewCellFormattingEventArgs", false));
             methodFormatter.Params.Add(param1.Name, param1);
             methodFormatter.Params.Add(param2.Name, param2);
-            cls.Methods.Add(CSharpHelper.GenerateMethodKey(methodFormatter), methodFormatter);
+            cls.AddMethod(CSharpHelper.GenerateMethodKey(methodFormatter), methodFormatter);
             #endregion
             #endregion
 

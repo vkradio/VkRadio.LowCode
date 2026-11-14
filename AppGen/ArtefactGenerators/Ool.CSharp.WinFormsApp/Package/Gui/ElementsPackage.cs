@@ -55,7 +55,7 @@ public class ElementsPackage : PackNS.Package
             false,
             false
         );
-        cSharpClass.Constructors.Add(CSharpHelper.GenerateMethodKey(ctor), ctor);
+        cSharpClass.AddConstructor(CSharpHelper.GenerateMethodKey(ctor), ctor);
 
         ctor.BodyStrings.Add("InitializeComponent();");
         ctor.BodyStrings.Add(string.Empty);
@@ -126,7 +126,7 @@ public class ElementsPackage : PackNS.Package
 
         var param = new CSParameter("in_o", new CSharpReferenceType(false, "DbMappedDOT", false));
         method.Params.Add(param.Name, param);
-        cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
 
         var className = NameHelper.NamesToPascalCase(entityDef.Names);
 
@@ -185,7 +185,7 @@ public class ElementsPackage : PackNS.Package
 
         var param = new CSParameter("in_o", new CSharpReferenceType(false, "DbMappedDOT", false));
         method.Params.Add(param.Name, param);
-        cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+        cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
 
         var propSetted = false;
 
@@ -284,7 +284,7 @@ public class ElementsPackage : PackNS.Package
                 false,
                 false
             );
-            cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+            cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
         }
     }
 
@@ -329,7 +329,7 @@ public class ElementsPackage : PackNS.Package
                 false,
                 false
             );
-            cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+            cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
         }
     }
 
@@ -377,7 +377,7 @@ public class ElementsPackage : PackNS.Package
                 false,
                 false
             );
-            cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+            cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
         }
     }
 
@@ -431,7 +431,7 @@ public class ElementsPackage : PackNS.Package
             method.Params.Add(param.Name, param);
             param = new CSParameter("e", new CSharpReferenceType(false, "EventArgs", false));
             method.Params.Add(param.Name, param);
-            cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+            cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
         }
     }
 
@@ -455,7 +455,7 @@ public class ElementsPackage : PackNS.Package
                 false,
                 false
             );
-            cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+            cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
 
             string? fieldName = null; // NameHelper.NameToUnderscoreSeparatedName(wDesc.PropertyDefinition.Names) + "_id";
             var backRefTable = wDesc.PropertyDefinition.FunctionalType as PFTBackReferencedTable;
@@ -528,7 +528,7 @@ public class ElementsPackage : PackNS.Package
                 false,
                 false
             );
-            cSharpClass.Methods.Add(CSharpHelper.GenerateMethodKey(method), method);
+            cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
         }
     }
     #endregion
@@ -658,14 +658,13 @@ public class ElementsPackage : PackNS.Package
             panComponent.UserUsings.Add("VkRadio.LowCode.Libs.Gui.WinForms");
             panComponent.UserUsings.Add("VkRadio.LowCode.Libs.Orm");
 
-            var panClass = new CSClass
-            {
-                Component = panComponent,
-                DocComment = new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Панель (карточка) редактирования объекта " : "Panel (card) for editing an object ") + NameHelper.GetLocalNameUpperCase(entityDef.Names, preferNaturalLanguageForComments)),
-                Name = formName,
-                InheritsFrom = "DOEditPanel",
-                Partial = true
-            };
+            var panClass = new CSClass(
+                formName,
+                panComponent,
+                new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Панель (карточка) редактирования объекта " : "Panel (card) for editing an object ") + NameHelper.GetLocalNameUpperCase(entityDef.Names, preferNaturalLanguageForComments)),
+                "DOEditPanel",
+                true
+            );
             panComponent.Classes.Add(panClass.Name, panClass);
             panComponent.MainClass = panClass;
 
