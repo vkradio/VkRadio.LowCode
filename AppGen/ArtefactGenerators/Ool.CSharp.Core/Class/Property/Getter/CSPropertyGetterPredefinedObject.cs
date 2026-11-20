@@ -1,4 +1,5 @@
 ﻿using Ardalis.GuardClauses;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 using VkRadio.LowCode.AppGen.Domain.PredefinedEntityInstances;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property.Getter;
@@ -14,8 +15,12 @@ public class CSPropertyGetterPredefinedObject : CSPropertyGetter
 
     public override string[] GenerateText()
     {
+        var type = (CSharpReferenceType)Property.Type;
+        var notNullableExclamation = type.SupportNullableRefTypes;
+
         var entityClassName = CSharpHelper.GenerateEntityClassName(CorrespondingPEI.EntityDefinition);
-        return [$"get => ({entityClassName})StorageRegistry.Instance.{entityClassName}Storage.Restore({IdConstName});"];
+
+        return [$"get => ({entityClassName})StorageRegistry.Instance.{entityClassName}Storage.Restore({IdConstName}){(notNullableExclamation ? "!" : string.Empty)};"];
     }
 
     public PredefinedEntityInstance CorrespondingPEI { get; private set; }

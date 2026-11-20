@@ -3,10 +3,8 @@
 /// <summary>
 /// Functional property type - table part
 /// </summary>
-public class PFTTablePart : PFTLink
+public class PFTTablePart : PFTLink, IPFTTable
 {
-    Relationship.RelationshipTable _relationshipTable;
-
     public PFTTablePart()
     {
         _stringCode = C_STRING_CODE;
@@ -15,7 +13,9 @@ public class PFTTablePart : PFTLink
     /// <summary>
     /// Relationship
     /// </summary>
-    public Relationship.RelationshipTable RelationshipTable { get { return _relationshipTable; } set { _relationshipTable = value; } }
+    public Relationship.RelationshipTable RelationshipTable { get; set; }
 
     public const string C_STRING_CODE = "table";
+
+    public override (EntityDefinition EntityDefinition, bool IsTable) GetEntityDefinition() => (RelationshipTable.PropertyDefinitionInTable.OwnerDefinition, true);
 }

@@ -39,7 +39,7 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
 
     public bool ProjectFileInModernSdkStyle { get; private set; } = true;
 
-    public bool SupportNullableReferenceTypes => false; // ProjectFileInModernSdkStyle;
+    public bool SupportNullableReferenceTypes { get; private set; }
 
     public override string? Generate()
     {
@@ -130,6 +130,19 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
             bool.TryParse(xelProjectFileStyle.Value, out var projectFileInModernSdkStyle))
         {
             ProjectFileInModernSdkStyle = projectFileInModernSdkStyle;
+        }
+
+        var xelNullableRefTypes = xelTarget.Element("SupportNullableReferenceTypes");
+
+        if (xelNullableRefTypes is not null &&
+            bool.TryParse(xelNullableRefTypes.Value, out var supportNullableRefTypes))
+        {
+            if (!ProjectFileInModernSdkStyle && supportNullableRefTypes)
+            {
+                throw new GeneratorException("<SupportNullableReferenceTypes>true</SupportNullableReferenceTypes> is not a valid value for non-SDK-style project files; and those should be enabled by <ProjectFileInModernSdkStyle> element.");
+            }
+
+            SupportNullableReferenceTypes = supportNullableRefTypes;
         }
     }
 

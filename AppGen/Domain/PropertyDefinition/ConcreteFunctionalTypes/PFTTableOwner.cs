@@ -49,4 +49,6 @@ public class PFTTableOwner : PFTLink, IPFTDependentLink
     {
         OnDeleteAction = OnDeleteActionEnum.Delete;
     }
+
+    public override (EntityDefinition EntityDefinition, bool IsTable) GetEntityDefinition() => (RelationshipTable.PropertyDefinitionInOwner.OwnerDefinition, false);
 }

@@ -14,7 +14,7 @@ namespace VkRadio.LowCode.Libs.Orm
         protected const string c_propertyValueNotSet = "The value of the property \"{0}\" is not set.";
         protected const string c_invalidPropertyLength = "The property \"{0}\" should have a length between {1} and {2} symbols.";
         protected const string c_invalidEmail = "The property \"{0}\" has an invalid value.";
-        protected readonly string c_invalidPropertyDateTime = string.Format(CultureInfo.CurrentCulture, "Свойство \"{0}\" должно иметь значение не менее {1} и не более {2}.", "{0}", C_MIN_SQL_DATE_TIME, C_MAX_SQL_DATE_TIME);
+        protected readonly string c_invalidPropertyDateTime = string.Format(CultureInfo.CurrentCulture, "The property \"{0}\" should have value at least {1}, but no more than {2}.", "{0}", C_MIN_SQL_DATE_TIME, C_MAX_SQL_DATE_TIME);
 
         protected IDbProviderFactory _dbProviderFactory = default!;
 

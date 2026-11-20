@@ -63,7 +63,7 @@ public class LaunchersPackage : PackNS.Package
                 "CreateDOCard",
                 new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Создание карточки элемента" : "Create a card of an element (data object)"),
                 ElementVisibilityClassic.Protected,
-                new CSharpReferenceType(false, "DOCard", false),
+                new CSharpReferenceTechnicalType(false, "DOCard", false),
                 "override",
                 new List<string>
                 {
@@ -75,7 +75,7 @@ public class LaunchersPackage : PackNS.Package
                 false,
                 false
             );
-            var param = new CSParameter("in_o", new CSharpReferenceType(false, "DbMappedDOT", false));
+            var param = new CSParameter("in_o", new CSharpReferenceTechnicalType(false, "DbMappedDOT", false));
             methodCard.Params.Add(param.Name, param);
             cls.AddMethod(CSharpHelper.GenerateMethodKey(methodCard), methodCard);
 
@@ -84,7 +84,7 @@ public class LaunchersPackage : PackNS.Package
                 "CreateDOList",
                 new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Создание списка элементов" : "Create a list of elements (data objects)"),
                 ElementVisibilityClassic.Protected,
-                new CSharpReferenceType(false, "DOList", false),
+                new CSharpReferenceTechnicalType(false, "DOList", false),
                 "override",
                 new List<string>
                 {

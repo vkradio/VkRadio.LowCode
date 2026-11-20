@@ -48,4 +48,6 @@ public class PFTReferenceValue : PFTLink, IPFTDependentLink
     {
         OnDeleteAction = OnDeleteActionEnum.CannotDelete;
     }
+
+    public override (EntityDefinition EntityDefinition, bool IsTable) GetEntityDefinition() => (RelationshipReference.ReferenceDefinition, false);
 }

@@ -11,7 +11,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
         protected string c_noWayNoObjectSelected = "Object not selected.";
         protected string c_captionFault = "Refusal";
 
-        protected DbMappedDOT? _dataObject;
+        protected DbMappedDOT _dataObject = default!;
 
         public DOEditPanel() => InitializeComponent();
 

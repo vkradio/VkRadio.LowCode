@@ -17,8 +17,8 @@ public class ProjectFileBaseSdkStyleFormat : ProjectFile
         _predefinedCode.Add("  <PropertyGroup>");
         _predefinedCode.Add($"    <TargetFramework>{TargetFramework.VersionToTfm(generator.DotNetVersion)}</TargetFramework>");
         _predefinedCode.Add("    <UseWindowsForms>true</UseWindowsForms>");
-        _predefinedCode.Add("    <LangVersion>latest</LangVersion>");
-        _predefinedCode.Add("    <Nullable>enable</Nullable>");
+        _predefinedCode.Add("    <LangVersion>13.0</LangVersion>");
+        _predefinedCode.Add($"    <Nullable>{(generator.SupportNullableReferenceTypes ? "enable" : "disable")}</Nullable>");
         _predefinedCode.Add("    <CLSCompliant>false</CLSCompliant>");
         _predefinedCode.Add("  </PropertyGroup>");
         _predefinedCode.Add(string.Empty);

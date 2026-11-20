@@ -12,5 +12,7 @@ public class CSharpTypeHardCoded : CSharpTypeBase
         _hardCodedValue = Guard.Against.NullOrEmpty(hardCodedValue, nameof(hardCodedValue));
     }
 
-    public override string GenerateLiteral() => _hardCodedValue;
+    public override string GenerateLiteral(string? format) => _hardCodedValue;
+
+    public override string? DefaultValue() => null;
 }

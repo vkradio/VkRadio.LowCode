@@ -431,9 +431,9 @@ public class EntityPackage : PackNS.Package
     #endregion
 
     #region Validate method
-    private static void GenerateValidateForMethod(EntityDefinition entityDef, CSMethod method, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
+    private static void GenerateValidateForMethod(EntityDefinition entityDef, CSMethod method, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage, bool supportNullableRefTypes)
     {
-        method.BodyStrings.Add("string baseResult = base.Validate();");
+        method.BodyStrings.Add("var baseResult = base.Validate();");
         method.BodyStrings.Add("if (baseResult != null)");
         method.BodyStrings.Add("    return baseResult;");
         method.BodyStrings.Add(string.Empty);
@@ -446,7 +446,7 @@ public class EntityPackage : PackNS.Package
 
         foreach (var propDef in entityDef.PropertyDefinitions.Values)
         {
-            propValidateStrings.AddRange(GenerateValidatesStringsForPropDef(propDef, preferNaturalLanguageForComments, uiLanguage));
+            propValidateStrings.AddRange(GenerateValidatesStringsForPropDef(propDef, preferNaturalLanguageForComments, uiLanguage, supportNullableRefTypes));
         }
 
         if (propValidateStrings.Count != 0)
@@ -462,7 +462,7 @@ public class EntityPackage : PackNS.Package
         method.BodyStrings.Add("return null;");
     }
 
-    private static string[] GenerateValidatesStringsForPropDef(PropertyDefinition propDef, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
+    private static string[] GenerateValidatesStringsForPropDef(PropertyDefinition propDef, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage, bool supportNullableRefTypes)
     {
         var text = new List<string>();
 
@@ -470,7 +470,7 @@ public class EntityPackage : PackNS.Package
         var propLocalName = NameHelper.GetLocalNameUpperCase(propDef.Names, uiLanguage);
 
         #region Explicit (non-reference) values
-        if (!(propDef.FunctionalType is PFTLink))
+        if (propDef.FunctionalType is not PFTLink)
         {
             var pftBool = propDef.FunctionalType as PFTBoolean;
 
@@ -511,7 +511,7 @@ public class EntityPackage : PackNS.Package
 
                             if (pftString is not null)
                             {
-                                text.AddRange(GenerateValidateVarValueForString(propDef, pftString, varName, propLocalName));
+                                text.AddRange(GenerateValidateVarValueForString(propDef, pftString, varName, propLocalName, supportNullableRefTypes));
                             }
                             else
                             {
@@ -568,7 +568,7 @@ public class EntityPackage : PackNS.Package
         return [.. text];
     }
 
-    private static string[] GenerateValidateVarValueForString(PropertyDefinition propDef, PFTString pftString, string varName, string propLocalName)
+    private static string[] GenerateValidateVarValueForString(PropertyDefinition propDef, PFTString pftString, string varName, string propLocalName, bool supportNullableRefTypes)
     {
         var text = new List<string>();
 
@@ -596,10 +596,10 @@ public class EntityPackage : PackNS.Package
 
         if (minLength > 0)
         {
-            minEquation = string.Format("{0}{1}.Length < {2} || ", pftString.Nullable && minLength > 0 ? "(" : string.Empty, varName, minLength);
+            minEquation = string.Format("{0}{1}{3}.Length < {2} || ", pftString.Nullable && minLength > 0 ? "(" : string.Empty, varName, minLength, supportNullableRefTypes ? "!" : string.Empty);
         }
 
-        var equation = string.Format("if ({0}{1}{2}.Length > {3})", nullableEquation, minEquation, varName, pftString.MaxLength);
+        var equation = string.Format("if ({0}{1}{2}{4}.Length > {3})", nullableEquation, minEquation, varName, pftString.MaxLength, supportNullableRefTypes ? "!" : string.Empty);
 
         if (pftString.Nullable && minLength > 0)
         {
@@ -724,7 +724,7 @@ public class EntityPackage : PackNS.Package
             "Clone",
             new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Создание независимой копии (клона) объекта" : "Create an isolated instance copy (clone) of an object"),
             ElementVisibilityClassic.Public,
-            new CSharpReferenceType(false, TypeConstants.Reference.C_OBJECT, false),
+            new CSharpReferenceTechnicalType(false, TypeEnum.Object, false),
             "override",
             null,
             null,
@@ -749,7 +749,7 @@ public class EntityPackage : PackNS.Package
             "ToString",
             new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Строковое представление объекта по умолчанию" : "Default string representation of an object"),
             ElementVisibilityClassic.Public,
-            new CSharpReferenceType(false, TypeConstants.Reference.C_STRING, false),
+            new CSharpReferenceTechnicalType(false, TypeEnum.String, false),
             "override",
             null,
             null,
@@ -845,7 +845,7 @@ public class EntityPackage : PackNS.Package
             "Validate",
             new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Проверка состояния объекта на допустимость к сохранению в БД" : "Validate a state of object before saving to a database"),
             ElementVisibilityClassic.Public,
-            new CSharpReferenceType(supportNullableRefTypes, TypeConstants.Reference.C_STRING, true),
+            new CSharpReferenceTechnicalType(supportNullableRefTypes, TypeEnum.String, true),
             "override",
             null,
             null,
@@ -854,7 +854,7 @@ public class EntityPackage : PackNS.Package
         );
 
         cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
-        GenerateValidateForMethod(entityDef, method, preferNaturalLanguageForComments, uiLanguage);
+        GenerateValidateForMethod(entityDef, method, preferNaturalLanguageForComments, uiLanguage, supportNullableRefTypes);
     }
 
     public static CSClass CreateEntityClass(CSComponent component, EntityDefinition entityDef, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage, bool supportNullableRefTypes)
@@ -918,7 +918,7 @@ public class EntityPackage : PackNS.Package
             foreach (var pdo in entityDef.PredefinedEntityInstances)
             {
                 var idConst = new CSClassConstant(
-                    new CSharpValueType(TypeConstants.Value.C_GUID, false),
+                    new CSharpValueType(TypeEnum.Guid, false),
                     false,
                     NameHelper.NameToConstantId(pdo.Names),
                     $"new Guid(\"{pdo.Id}\")",
@@ -937,7 +937,7 @@ public class EntityPackage : PackNS.Package
                     null,
                     new XmlComment(NameHelper.GetLocalNameUpperCase(pdo.Names, preferNaturalLanguageForComments)),
                     null,
-                    new CSharpReferenceType(supportNullableRefTypes, CSharpHelper.GenerateEntityClassName(pdo.EntityDefinition), true)
+                    new CSharpReferenceDomainType(supportNullableRefTypes, CSharpHelper.GenerateEntityClassName(pdo.EntityDefinition), false)
                 );
                 var predefGetter = new CSPropertyGetterPredefinedObject(predefProp, pdo, NameHelper.NameToConstantId(pdo.Names));
                 predefProp.SetGetter(predefGetter);

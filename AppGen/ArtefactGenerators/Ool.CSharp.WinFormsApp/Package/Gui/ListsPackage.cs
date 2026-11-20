@@ -276,8 +276,8 @@ public class ListsPackage : PackNS.Package
                 false,
                 false
             );
-            var param1 = new CSParameter("sender", new CSharpReferenceType(false, TypeConstants.Reference.C_OBJECT, false));
-            var param2 = new CSParameter("e", new CSharpReferenceType(false, "DataGridViewCellFormattingEventArgs", false));
+            var param1 = new CSParameter("sender", new CSharpReferenceTechnicalType(false, TypeEnum.Object, false));
+            var param2 = new CSParameter("e", new CSharpReferenceTechnicalType(false, "DataGridViewCellFormattingEventArgs", false));
             methodFormatter.Params.Add(param1.Name, param1);
             methodFormatter.Params.Add(param2.Name, param2);
             cls.AddMethod(CSharpHelper.GenerateMethodKey(methodFormatter), methodFormatter);

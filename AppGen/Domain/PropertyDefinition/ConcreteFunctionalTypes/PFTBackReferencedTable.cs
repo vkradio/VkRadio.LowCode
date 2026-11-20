@@ -3,7 +3,7 @@
 /// <summary>
 /// Functional type of a property - collection (table) of objects, implicitly created from links for the corresponding object registry
 /// </summary>
-public class PFTBackReferencedTable : PFTLink
+public class PFTBackReferencedTable : PFTLink, IPFTTable
 {
     /// <summary>
     /// Collection constructor
@@ -44,4 +44,6 @@ public class PFTBackReferencedTable : PFTLink
     /// String code of a functional property type (used in a MetaModel file)
     /// </summary>
     public const string C_STRING_CODE = "back referenced table";
+
+    public override (EntityDefinition EntityDefinition, bool IsTable) GetEntityDefinition() => (RelationshipReference.OwnerPropertyDefinition.OwnerDefinition, true);
 }

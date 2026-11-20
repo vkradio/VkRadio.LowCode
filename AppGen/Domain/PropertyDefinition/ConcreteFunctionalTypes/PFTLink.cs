@@ -19,4 +19,6 @@ public abstract class PFTLink : PropertyFunctionalType
     public override object ParseValueFromXmlString(string xmlString) => new SRefObject(new Guid(xmlString));
 
     public override IPropertyValue CreatePropertyValue() => new PropertyValue<SRefObject>(_propertyDefinition);
+
+    public abstract (EntityDefinition EntityDefinition, bool IsTable) GetEntityDefinition();
 }

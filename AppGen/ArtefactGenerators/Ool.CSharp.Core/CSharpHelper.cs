@@ -133,7 +133,7 @@ public static class CSharpHelper
         var desc = new PropertyWidgetDescriptor
         {
             PropertyDefinition = propDef,
-            PropertyClass = TypeHelper.GetClassNameForEntity(propDef, returnNullIfNotApplicable: true), // GetPropertyClassName(propDef),
+            PropertyClass = propDef.GetEntityClassName(returnNullIfNotApplicable: true),
             WidgetName = propWidgetName,
             WidgetType = widgetClassName,
             WidgetCaption = caption,
@@ -142,69 +142,5 @@ public static class CSharpHelper
         };
 
         return desc;
-    }
-
-    /// <summary>
-    /// Analize a definition of a property and get its parameters for a purpose of constructing a method FillDOFromReader of storage
-    /// </summary>
-    /// <param name="propDef"></param>
-    /// <param name="outIsNullable"></param>
-    /// <param name="outIsId"></param>
-    /// <param name="outType">C# type</param>
-    public static void GetTypeInfoForFillDOFromReaderRow(PropertyDefinition propDef, out bool outIsNullable, out bool outIsId, out string outType)
-    {
-        outIsId = false;
-        outIsNullable = false;
-        outType = string.Empty;
-
-        if (!(propDef.FunctionalType is PFTLink))
-        {
-            outIsNullable = propDef.FunctionalType.Nullable;
-
-            if (propDef.FunctionalType is PFTBoolean)
-            {
-                outType = "bool" + (outIsNullable ? "?" : string.Empty);
-            }
-            else if (propDef.FunctionalType is PFTDateTime)
-            {
-                outType = "DateTime" + (outIsNullable ? "?" : string.Empty);
-            }
-            else if (propDef.FunctionalType is PFTDecimal)
-            {
-                outType = "decimal" + (outIsNullable ? "?" : string.Empty);
-            }
-            else if (propDef.FunctionalType is PFTInteger)
-            {
-                outType = "int" + (outIsNullable ? "?" : string.Empty);
-            }
-            else if (propDef.FunctionalType is PFTString)
-            {
-                outType = "string";
-            }
-            else if (propDef.FunctionalType is PFTUniqueCode)
-            {
-                outType = "Guid" + (outIsNullable ? "?" : string.Empty);
-            }
-            else
-            {
-                throw new GeneratorException($"Unexpected non-reference PropertyFunctionalType {propDef.FunctionalType.GetType().Name} in PropertyDefinition Id {propDef.Id} for constructing FillDOFromReader.");
-            }
-        }
-        else
-        {
-            if (propDef.FunctionalType is PFTBackReferencedTable ||
-                propDef.FunctionalType is PFTConnector ||
-                propDef.FunctionalType is PFTReferenceValue ||
-                propDef.FunctionalType is PFTTableOwner)
-            {
-                outIsId = true;
-                outIsNullable = true;
-                outType = "Guid?";
-            }
-            else
-            {
-                throw new GeneratorException($"Unexpected reference type: {propDef.FunctionalType.GetType().Name} in PropertyDefinition Id {propDef.Id} when constructing values for FillDOFromReader.");
-            }
-        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
+﻿using Ardalis.GuardClauses;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
@@ -8,7 +9,11 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Proper
 
 public class CSPropertyTableFilter : CSPropertyPredefined, IPropertyOrField
 {
-    public static readonly CSharpReferenceType PropertyType = new CSharpReferenceType(false, "FilterSimple", false);
+    private readonly IPropertyDefinition _propertyDefinition;
+
+    private CSharpReferenceDomainFilterType? _type;
+
+    public static CSharpReferenceDomainFilterType GetPropertyType(IPropertyDefinition propDef) => new CSharpReferenceDomainFilterType(false, propDef);
 
     public static string PropertyName(PropertyDefinition propDef) => $"{NameHelper.NamesToPascalCase(propDef.Names, true)}Filter";
 
@@ -37,11 +42,20 @@ public class CSPropertyTableFilter : CSPropertyPredefined, IPropertyOrField
     public CSPropertyTableFilter(PropertyDefinition propDef, NaturalLanguageEnum preferNaturalLanguageForComments)
         : base(
             PropertyName(propDef),
-            $"public virtual {PropertyType} {PropertyName(propDef)} {{ get {{ return {PropertyType}.CreateTableFilter(_id, \"{NameOfTableField(propDef)}\", VkRadio.LowCode.Libs.Orm.DbProviderFactory.Default); }} }}",
+            $"public virtual {GetPropertyType(propDef)} {PropertyName(propDef)} {{ get {{ return {GetPropertyType(propDef)}.CreateTableFilter(_id, \"{NameOfTableField(propDef)}\", VkRadio.LowCode.Libs.Orm.DbProviderFactory.Default); }} }}",
             new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Фильтр для свойства " : "Filter for the property ") + NameHelper.GetLocalNameLowerCase(propDef.Names, preferNaturalLanguageForComments))
         )
     {
+        _propertyDefinition = Guard.Against.Null(propDef, nameof(propDef));
     }
 
-    public CSharpTypeBase Type => PropertyType;
+    public CSharpTypeBase Type
+    {
+        get
+        {
+            _type ??= GetPropertyType(_propertyDefinition);
+
+            return _type;
+        }
+    }
 }

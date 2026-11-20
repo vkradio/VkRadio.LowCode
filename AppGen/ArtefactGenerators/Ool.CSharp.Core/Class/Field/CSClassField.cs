@@ -10,6 +10,24 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Field;
 /// </summary>
 public class CSClassField : ClassField, IPropertyOrField
 {
+    private static string? GetInitialValue(string? initialValue, bool isStatic, CSharpTypeBase type)
+    {
+        if (isStatic ||
+            !string.IsNullOrEmpty(initialValue))
+        {
+            return initialValue;
+        }
+
+        if (type is CSharpReferenceType refType &&
+            refType.SupportNullableRefTypes &&
+            !refType.IsNullableByDomain)
+        {
+            return "default!";
+        }
+
+        return initialValue;
+    }
+
     public CSClassField(
         CSharpTypeBase type,
         string name,
@@ -23,11 +41,11 @@ public class CSClassField : ClassField, IPropertyOrField
         owningClass,
         docComment,
         visibility,
-        initialValue,
+        GetInitialValue(initialValue, isStatic, Guard.Against.Null(type, nameof(type))),
         isStatic
     )
     {
-        Type = Guard.Against.Null(type, nameof(type));
+        Type = type;
     }
 
     public CSharpTypeBase Type { get; private set; }

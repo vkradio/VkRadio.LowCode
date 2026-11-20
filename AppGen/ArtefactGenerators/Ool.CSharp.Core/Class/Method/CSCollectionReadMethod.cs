@@ -14,7 +14,7 @@ public class CSCollectionReadMethod : CSMethod
             $"Get{NameHelper.NamesToPascalCase(propDef.Names, true)}",
             TypeHelper.GetXmlCommentForTablePropDef(propDef, preferNaturalLanguageForComments),
             ElementVisibilityClassic.Public,
-            new CSharpReferenceType(supportNullableRefTypes, $"List<{TypeHelper.GetClassNameForEntity(propDef)}>", false),
+            new CSharpReferenceDomainListType(supportNullableRefTypes, propDef),
             "virtual",
             null,
             null,
@@ -22,7 +22,7 @@ public class CSCollectionReadMethod : CSMethod
             true
         )
     {
-        if (!(propDef.FunctionalType is PFTBackReferencedTable || propDef.FunctionalType is PFTTablePart))
+        if (propDef.FunctionalType is not IPFTTable)
         {
             throw new ArgumentException(
                 $"{nameof(propDef)}.{nameof(propDef.FunctionalType)} is not a table/collection ({propDef.FunctionalType.GetType().Name} for {nameof(PropertyDefinition)} {nameof(propDef.Id)} {propDef.Id}).",
@@ -32,26 +32,25 @@ public class CSCollectionReadMethod : CSMethod
 
         DocComment!.Text += preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? " (чтение коллекции)" : " (read collection)";
 
-        var param = new CSParameter("additionalWhere", new CSharpReferenceType(supportNullableRefTypes, TypeConstants.Reference.C_STRING, true), "null");
+        var param = new CSParameter("additionalWhere", new CSharpReferenceTechnicalType(supportNullableRefTypes, TypeEnum.String, true), "null");
         Params.Add(param.Name, param);
 
-        param = new CSParameter("@params", new CSharpReferenceType(supportNullableRefTypes, "DbParameter[]", true), "null");
+        param = new CSParameter("@params", new CSharpReferenceTechnicalType(supportNullableRefTypes, "DbParameter[]", true), "null");
         Params.Add(param.Name, param);
 
-        param = new CSParameter("orderBy", new CSharpReferenceType(supportNullableRefTypes, TypeConstants.Reference.C_STRING, true), "null");
+        param = new CSParameter("orderBy", new CSharpReferenceTechnicalType(supportNullableRefTypes, TypeEnum.String, true), "null");
         Params.Add(param.Name, param);
 
-        param = new CSParameter("transaction", new CSharpReferenceType(supportNullableRefTypes, "DbTransaction", true), "null");
+        param = new CSParameter("transaction", new CSharpReferenceTechnicalType(supportNullableRefTypes, "DbTransaction", true), "null");
         Params.Add(param.Name, param);
 
-        param = new CSParameter("doNotUseDefaultOrder", new CSharpValueType(TypeConstants.Value.C_BOOL, false), "false");
+        param = new CSParameter("doNotUseDefaultOrder", new CSharpValueType(TypeEnum.Bool, false), "false");
         Params.Add(param.Name, param);
 
-        param = new CSParameter("selectTop", new CSharpValueType(TypeConstants.Value.C_INT, false), "0");
+        param = new CSParameter("selectTop", new CSharpValueType(TypeEnum.Int32, false), "0");
         Params.Add(param.Name, param);
 
         var basePropName = NameHelper.NamesToPascalCase(propDef.Names, true);
-        var entityClassName = TypeHelper.GetClassNameForEntity(propDef);
-        BodyStrings.Add($"StorageRegistry.Instance.{entityClassName}Storage.ReasAsCollectionForParent({basePropName}Filter, additionalWhere, @params, orderBy, transaction, doNotUseDefaultOrder, selectTop);");
+        BodyStrings.Add($"StorageRegistry.Instance.{((CSharpReferenceDomainListType)ReturnType).EntityName}Storage.ReasAsCollectionForParent({basePropName}Filter, additionalWhere, @params, orderBy, transaction, doNotUseDefaultOrder, selectTop);");
     }
 }

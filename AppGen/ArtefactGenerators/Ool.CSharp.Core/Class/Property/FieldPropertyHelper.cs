@@ -37,7 +37,7 @@ public class FieldPropertyHelper
         if (!(propDef.FunctionalType is PFTLink))
         {
             var mainField = new CSClassField(
-                CSharpTypeBase.DeriveFromPropertyFunctionalType(propDef, supportNullableRefTypes),
+                propDef.GetCSharpType(supportNullableRefTypes, true),
                 fieldName,
                 cSharpClass,
                 new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments)),
@@ -57,7 +57,7 @@ public class FieldPropertyHelper
                 propDef.FunctionalType is PFTTableOwner)
             {
                 var mainField = new CSClassField(
-                    CSharpTypeBase.DeriveFromPropertyFunctionalType(propDef, supportNullableRefTypes),
+                    propDef.GetCSharpType(supportNullableRefTypes, true),
                     fieldName,
                     cSharpClass,
                     new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments)),
@@ -66,7 +66,7 @@ public class FieldPropertyHelper
                 fields.Add(mainField);
 
                 var fieldForId = new CSClassField(
-                    new CSharpValueType(TypeConstants.Value.C_GUID, true),
+                    new CSharpValueType(TypeEnum.Guid, true),
                     fieldIdName,
                     cSharpClass,
                     new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Внешний ключ на " : "Foreign Key to ") + NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments)),

@@ -1,4 +1,6 @@
-﻿namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property.Getter;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
+
+namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property.Getter;
 
 public class CSPropertyGetterCachedObject : CSPropertyGetter
 {
@@ -13,10 +15,17 @@ public class CSPropertyGetterCachedObject : CSPropertyGetter
 
         if (SingleLineHint)
         {
+            var type = (CSharpReferenceType)Property.Type;
+            var notNullableExclamation =
+                type.SupportNullableRefTypes &&
+                !type.IsNullableByDomain;
+
             var line = string.Format(
-                "get {{ if ({0} == null && {0}Id.HasValue) {0} = ({1})StorageRegistry.Instance.{1}Storage.Restore({0}Id.Value); return {0}; }}",
+                "get {{ if ({0} == null && {0}Id.HasValue) {0} = ({1})StorageRegistry.Instance.{2}Storage.Restore({0}Id.Value){3}; return {0}; }}",
                 GetCorrespondingName(),
-                Property.Type
+                Property.Type,
+                Property.Type.TypeName,
+                notNullableExclamation ? "!" : string.Empty
             );
 
             text.Add(line);

@@ -2,7 +2,7 @@
 
 namespace VkRadio.LowCode.AppGen.Domain.Names;
 
-public class NameHelper
+public static class NameHelper
 {
     static bool LastLetterIsSLike(string word)
     {
@@ -36,6 +36,20 @@ public class NameHelper
     }
 
     public static string[] GetNameWords(IDictionary<NaturalLanguageEnum, string> names) => GetNameWords(names[NaturalLanguageEnum.En]);
+
+    public static string CapitalizeFirst(this string input)
+    {
+        if (string.IsNullOrEmpty(input))
+        {
+            return input;
+        }
+
+        return string.Create(input.Length, input, static (span, src) =>
+        {
+            src.AsSpan().CopyTo(span);
+            span[0] = char.ToUpper(span[0]);
+        });
+    }
 
     public static string NamesToPascalCase(IDictionary<NaturalLanguageEnum, string> names, bool firstLetterUpperCase)
     {
@@ -188,12 +202,7 @@ public class NameHelper
     /// <returns>Localized name with a big first letter</returns>
     public static string GetLocalNameUpperCase(IDictionary<NaturalLanguageEnum, string> names, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
-        var localName = GetLocalNameLowerCase(names, preferNaturalLanguageForComments);
-
-        if (localName.Length > 0)
-        {
-            localName = char.ToUpper(localName[0]) + (localName.Length > 1 ? localName.Substring(1) : string.Empty);
-        }
+        var localName = GetLocalNameLowerCase(names, preferNaturalLanguageForComments).CapitalizeFirst();
 
         return localName;
     }

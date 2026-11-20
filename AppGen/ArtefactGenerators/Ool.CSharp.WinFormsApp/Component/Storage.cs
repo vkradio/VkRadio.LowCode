@@ -47,7 +47,7 @@ public class Storage : CSComponentWMainClass
             }
 
             var c = new CSClassConstant(
-                new CSharpReferenceType(false, "string", false),
+                new CSharpReferenceTechnicalType(false, TypeEnum.String, false),
                 true,
                 string.Format("{0}{1}", NameHelper.NameToConstant(field.EntityPropertyCorrespondence!.PropertyDefinition.Names, false), fk != null ? "_ID" : string.Empty),
                 string.Format("\"{0}\"", field.Name),
@@ -63,7 +63,7 @@ public class Storage : CSComponentWMainClass
             result.Add(c);
 
             c = new CSClassConstant(
-                new CSharpReferenceType(false, "string", false),
+                new CSharpReferenceTechnicalType(false, TypeEnum.String, false),
                 true,
                 string.Format("{0}{1}_Q", NameHelper.NameToConstant(field.EntityPropertyCorrespondence.PropertyDefinition.Names, false), fk != null ? "_ID" : string.Empty),
                 string.Format("\"\\\"{0}\\\"\"", field.Name),
@@ -106,7 +106,8 @@ public class Storage : CSComponentWMainClass
         EntityDefinition entityDef,
         TableAndEntityCorrespondence tableAndDotCorrespondence,
         List<int> decimalConstants,
-        NaturalLanguageEnum preferNaturalLanguageForComments
+        NaturalLanguageEnum preferNaturalLanguageForComments,
+        bool supportNullableRefTypes
     )
     {
         var ctor = new CSConstructor(
@@ -121,7 +122,7 @@ public class Storage : CSComponentWMainClass
         );
         storageClass.AddConstructor(CSharpHelper.GenerateMethodKey(ctor), ctor);
 
-        var ctorParam = new CSParameter("dbProviderFactory", new CSharpReferenceType(false, "IDbProviderFactory", false));
+        var ctorParam = new CSParameter("dbProviderFactory", new CSharpReferenceTechnicalType(false, "IDbProviderFactory", false));
         ctor.Params.Add(ctorParam.Name, ctorParam);
 
         ctor.BodyStrings.Add(string.Format("_tableName = \"{0}\";", tableAndDotCorrespondence.Table.Name));
@@ -194,7 +195,7 @@ public class Storage : CSComponentWMainClass
 
             foreach (var pei in entityDef.PredefinedEntityInstances)
             {
-                ctor.BodyStrings.Add(string.Format("_predefinedObjects.Add(new Guid(\"{0}\"), null);", pei.Id));
+                ctor.BodyStrings.Add(string.Format("_predefinedObjects.Add(new Guid(\"{0}\"), null{1});", pei.Id, supportNullableRefTypes ? "!" : string.Empty));
             }
         }
 
@@ -232,10 +233,10 @@ public class Storage : CSComponentWMainClass
             false
         );
 
-        var param = new CSParameter("in_reader", new CSharpReferenceType(false, "DbDataReader", false));
+        var param = new CSParameter("in_reader", new CSharpReferenceTechnicalType(false, "DbDataReader", false));
         method.Params.Add(param.Name, param);
 
-        param = new CSParameter("in_o", new CSharpReferenceType(false, entityClassName, false));
+        param = new CSParameter("in_o", new CSharpReferenceTechnicalType(false, entityClassName, false));
         method.Params.Add(param.Name, param);
 
         storageClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
@@ -313,7 +314,7 @@ public class Storage : CSComponentWMainClass
         }
     }
 
-    private static void GenerateFillParameters(CSClass storageClass, string entityClassName, TableAndEntityCorrespondence tableAndEntityCorrespondence, NaturalLanguageEnum preferNaturalLanguageForComments)
+    private static void GenerateFillParameters(CSClass storageClass, string entityClassName, TableAndEntityCorrespondence tableAndEntityCorrespondence, NaturalLanguageEnum preferNaturalLanguageForComments, bool supportNullableRefTypes)
     {
         #region Method heading
         var method = new CSMethod(
@@ -329,10 +330,10 @@ public class Storage : CSComponentWMainClass
             false
         );
 
-        var param = new CSParameter("in_params", new CSharpReferenceType(false, "DbParameterCollection", false));
+        var param = new CSParameter("in_params", new CSharpReferenceTechnicalType(false, "DbParameterCollection", false));
         method.Params.Add(param.Name, param);
 
-        param = new CSParameter("in_o", new CSharpReferenceType(false, entityClassName, false));
+        param = new CSParameter("in_o", new CSharpReferenceTechnicalType(false, entityClassName, false));
         method.Params.Add(param.Name, param);
 
         storageClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
@@ -348,9 +349,22 @@ public class Storage : CSComponentWMainClass
                 .PropertyCorrespondences
                 .First(x => x.TableField.Name == field.Name);
 
-            bool isNullable, isId;
-            string typeName;
-            CSharpHelper.GetTypeInfoForFillDOFromReaderRow(corr.PropertyDefinition, out isNullable, out isId, out typeName);
+            var typeEnumValue = corr.PropertyDefinition.GetPredefinedType(returnNullIfNotApplicable: true);
+            string? propEntityClassName = null;
+            var isNullable = corr.PropertyDefinition.FunctionalType.Nullable;
+            var isId = !typeEnumValue.HasValue;
+            CSharpTypeBase type;
+
+            if (isId)
+            {
+                typeEnumValue = TypeEnum.Guid;
+                propEntityClassName = corr.PropertyDefinition.GetEntityClassName();
+                type = new CSharpValueType(TypeEnum.Guid, isNullable);
+            }
+            else
+            {
+                type = corr.PropertyDefinition.GetCSharpType(supportNullableRefTypes, true);
+            }    
 
             var propName = NameHelper.NamesToPascalCase(corr.PropertyDefinition.Names);
 
@@ -359,13 +373,13 @@ public class Storage : CSComponentWMainClass
                 var propNameWOId = propName;
                 propName += "Id";
                 method.BodyStrings.Add(string.Format("if (!in_o.{0}Id.HasValue && in_o.{0} != null)", propNameWOId));
-                method.BodyStrings.Add(CSharpHelper.C_TAB + string.Format("in_params.Add(_dbProviderFactory.CreateParameter(_parameters[{1}], in_o.{0}.Id.Value, typeof(Guid?), true));", propNameWOId, i));
+                method.BodyStrings.Add(CSharpHelper.C_TAB + string.Format("in_params.Add(_dbProviderFactory.CreateParameter(_parameters[{1}], in_o.{0}.Id!.Value, typeof(Guid), false));", propNameWOId, i));
                 method.BodyStrings.Add("else");
-                method.BodyStrings.Add(CSharpHelper.C_TAB + string.Format("in_params.Add(_dbProviderFactory.CreateParameter(_parameters[{0}], in_o.{1}, typeof({2}), {3}));", i, propName, typeName, isNullable ? "true" : "false"));
+                method.BodyStrings.Add(CSharpHelper.C_TAB + string.Format("in_params.Add(_dbProviderFactory.CreateParameter(_parameters[{0}], in_o.{1}{4}, typeof({2}), {3}));", i, propName, type.ToString(), isNullable ? "true" : "false", isNullable ? string.Empty : "!.Value"));
             }
             else
             {
-                method.BodyStrings.Add(string.Format("in_params.Add(_dbProviderFactory.CreateParameter(_parameters[{0}], in_o.{1}, typeof({2}), {3}));", i, propName, typeName, isNullable ? "true" : "false"));
+                method.BodyStrings.Add(string.Format("in_params.Add(_dbProviderFactory.CreateParameter(_parameters[{0}], in_o.{1}, typeof({2}), {3}));", i, propName, type.ToString("nq"), isNullable ? "true" : "false"));
             }
         }
     }
@@ -414,8 +428,8 @@ public class Storage : CSComponentWMainClass
             ),
             ElementVisibilityClassic.Public,
             isSingle
-                ? new CSharpReferenceType(supportNullableRefTypes, entityClassName, candidate.PropertyDefinition.FunctionalType.Nullable)
-                : new CSharpReferenceType(supportNullableRefTypes, $"List<{entityClassName}>", false),
+                ? new CSharpReferenceDomainType(supportNullableRefTypes, entityClassName, true)
+                : new CSharpReferenceDomainListType(supportNullableRefTypes, entityClassName),
             "virtual",
             null,
             null,
@@ -423,10 +437,10 @@ public class Storage : CSComponentWMainClass
             false
         );
 
-        var param = new CSParameter($"in_{propName}", new CSharpReferenceType(false, TypeConstants.Reference.C_STRING, false));
+        var param = new CSParameter($"in_{propName}", new CSharpReferenceTechnicalType(false, TypeEnum.String, false));
         method.Params.Add(param.Name, param);
 
-        param = new CSParameter($"in_transaction", new CSharpReferenceType(supportNullableRefTypes, "DbTransaction", true), "null");
+        param = new CSParameter($"in_transaction", new CSharpReferenceTechnicalType(supportNullableRefTypes, "DbTransaction", true), "null");
         method.Params.Add(param.Name, param);
 
         storageClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
@@ -463,13 +477,13 @@ public class Storage : CSComponentWMainClass
         var fieldConstants = GenerateFieldConstants(correspondence, storageClass, decimalConstants, preferNaturalLanguageForComments);
 
         // Create constructor
-        GenerateConstructor(fieldConstants, storageClass, entityClassName, storageClassName, entityDefinition, correspondence, decimalConstants, preferNaturalLanguageForComments);
+        GenerateConstructor(fieldConstants, storageClass, entityClassName, storageClassName, entityDefinition, correspondence, decimalConstants, preferNaturalLanguageForComments, supportNullableRefTypes);
 
         // FillDOFromReader method
         GenerateFillDOFromReader(storageClass, entityClassName, correspondence, preferNaturalLanguageForComments);
 
         // FillParameters method
-        GenerateFillParameters(storageClass, entityClassName, correspondence, preferNaturalLanguageForComments);
+        GenerateFillParameters(storageClass, entityClassName, correspondence, preferNaturalLanguageForComments, supportNullableRefTypes);
 
         // RestoreByName method, if applicable
         GenerateRestoreByNameMethod(storageClass, entityClassName, correspondence, preferNaturalLanguageForComments, supportNullableRefTypes);

@@ -50,8 +50,18 @@ public class PFTConnector : PFTLink, IPFTDependentLink
     public const string C_STRING_CODE = "object connector";
 
     public OnDeleteActionEnum OnDeleteAction { get; set; }
+
     public void SetDefaultOnDeleteAction()
     {
         OnDeleteAction = OnDeleteActionEnum.Ingnore;
+    }
+
+    public override (EntityDefinition EntityDefinition, bool IsTable) GetEntityDefinition()
+    {
+        var end = RelationshipConnector.End1.PropertyDefinition.Id == PropertyDefinition.Id
+            ? RelationshipConnector.End2
+            : RelationshipConnector.End1;
+
+        return (end.PropertyDefinition.OwnerDefinition, false);
     }
 }

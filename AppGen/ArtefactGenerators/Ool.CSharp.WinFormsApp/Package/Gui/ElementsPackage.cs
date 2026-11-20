@@ -124,7 +124,7 @@ public class ElementsPackage : PackNS.Package
             false
         );
 
-        var param = new CSParameter("in_o", new CSharpReferenceType(false, "DbMappedDOT", false));
+        var param = new CSParameter("in_o", new CSharpReferenceTechnicalType(false, "DbMappedDOT", false));
         method.Params.Add(param.Name, param);
         cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
 
@@ -171,7 +171,7 @@ public class ElementsPackage : PackNS.Package
             "SyncToDOT",
             new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Синхронизация виджета из данных объекта" : "Synchronize widget content from object data"),
             ElementVisibilityClassic.Public,
-            new CSharpReferenceType(supportNullableRefTypes, TypeConstants.Reference.C_STRING, true),
+            new CSharpReferenceTechnicalType(supportNullableRefTypes, TypeEnum.String, true),
             "override",
             new List<string>
             {
@@ -183,7 +183,7 @@ public class ElementsPackage : PackNS.Package
             false
         );
 
-        var param = new CSParameter("in_o", new CSharpReferenceType(false, "DbMappedDOT", false));
+        var param = new CSParameter("in_o", new CSharpReferenceTechnicalType(false, "DbMappedDOT", false));
         method.Params.Add(param.Name, param);
         cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
 
@@ -193,36 +193,9 @@ public class ElementsPackage : PackNS.Package
         {
             if (wDesc.WidgetName[..3] == "SF_")
             {
-                bool isNullable, isId;
-                string typeName;
-                CSharpHelper.GetTypeInfoForFillDOFromReaderRow(wDesc.PropertyDefinition, out isNullable, out isId, out typeName);
-
-                var typeNameForMethod = string.Empty;
-
-                if (typeName.IndexOf("string") == 0)
-                {
-                    typeNameForMethod = "String";
-                }
-                else if (typeName.IndexOf("int") == 0)
-                {
-                    typeNameForMethod = "Int";
-                }
-                else if (typeName.IndexOf("decimal") == 0)
-                {
-                    typeNameForMethod = "Decimal";
-                }
-                else if (typeName.IndexOf("DateTime") == 0)
-                {
-                    typeNameForMethod = "DateTime";
-                }
-                else if (typeName.IndexOf("Guid") == 0)
-                {
-                    typeNameForMethod = "Guid";
-                }
-                else
-                {
-                    throw new GeneratorException(string.Format("Unsupported typeName: {0}.", typeName ?? "NULL"));
-                }
+                var type = wDesc.PropertyDefinition.GetPredefinedType()!.Value;
+                var isNullable = wDesc.PropertyDefinition.FunctionalType.Nullable;
+                var typeNameForMethod = type.ToLiteral().CapitalizeFirst();
 
                 var gettingMethod = string.Format(
                     "GetValueAs{0}{1}({2})",
@@ -288,7 +261,7 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    private static void GenerateMethodsForSelectProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> selectProps, NaturalLanguageEnum preferNaturalLanguageForComments)
+    private static void GenerateMethodsForSelectProps(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> selectProps, NaturalLanguageEnum preferNaturalLanguageForComments, bool supportNullableRefTypes)
     {
         var entityClassName = selectProps.Count != 0
             ? NameHelper.NamesToPascalCase(selectProps[0].PropertyDefinition.OwnerDefinition.Names)
@@ -311,11 +284,11 @@ public class ElementsPackage : PackNS.Package
                     "    {",
                     string.Format("        {0} o = ({0})_dataObject;", entityClassName),
                     string.Empty,
-                    string.Format("        o.{0} = ({1})((DOListForm)frm).SelectedValue;", wDesc.PropertyName, wDesc.PropertyClass),
+                    string.Format("        o.{0} = ({1})((DOListForm)frm).SelectedValue{2};", wDesc.PropertyName, wDesc.PropertyClass, supportNullableRefTypes ? "!" : string.Empty),
                     string.Format("        {0}.SetValue(o.{1});", wDesc.WidgetName, wDesc.PropertyName),
                     string.Empty,
                     string.Format("        var qSelectList = UiRegistry.Instance.QuickSelectStorage.GetRowsForDOT(\"{0}\");", wDesc.PropertyClass),
-                    string.Format("        QuickSelectStorage.SelectableRow row = QuickSelectStorage.GetRowById(qSelectList, o.{0}.Id.Value);", wDesc.PropertyName),
+                    string.Format("        var row = QuickSelectStorage.GetRowById(qSelectList, o.{0}{1}.Id{1}.Value);", wDesc.PropertyName, supportNullableRefTypes ? "!" : string.Empty),
                     "        if (row == null)",
                     string.Format("            row = new QuickSelectStorage.SelectableRow() {{ Id = o.{0}.Id.Value, Name = o.{0}.ToString() }};", wDesc.PropertyName),
                     "        else",
@@ -406,7 +379,7 @@ public class ElementsPackage : PackNS.Package
                     "ToolStripMenuItem mi = (ToolStripMenuItem)sender;",
                     "QuickSelectStorage.SelectableRow row = (QuickSelectStorage.SelectableRow)mi.Tag;",
                     "Guid id = row.Id;",
-                    string.Format("{0} selectedValue = StorageRegistry.Instance.{0}Storage.Restore(id) as {0};", wDesc.PropertyClass),
+                    string.Format("var selectedValue = StorageRegistry.Instance.{0}Storage.Restore(id) as {0};", wDesc.PropertyClass),
                     "if (selectedValue == null)",
                     "{",
                     "    MessageBox.Show(this, \"" + objDoesNotExistsText + "\", \"" + messageCaption + "\", MessageBoxButtons.OK, MessageBoxIcon.Information);",
@@ -427,9 +400,9 @@ public class ElementsPackage : PackNS.Package
                 false
             );
 
-            var param = new CSParameter("sender", new CSharpReferenceType(false, "object", false));
+            var param = new CSParameter("sender", new CSharpReferenceTechnicalType(false, TypeEnum.Object, false));
             method.Params.Add(param.Name, param);
-            param = new CSParameter("e", new CSharpReferenceType(false, "EventArgs", false));
+            param = new CSParameter("e", new CSharpReferenceTechnicalType(false, "EventArgs", false));
             method.Params.Add(param.Name, param);
             cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
         }
@@ -685,7 +658,7 @@ public class ElementsPackage : PackNS.Package
 
             // 4. Generate methods for work with reference properties
             GenerateMethodsForClearProps(panClass, clearProps, preferNaturalLanguageForComments);
-            GenerateMethodsForSelectProps(panClass, selectProps, preferNaturalLanguageForComments);
+            GenerateMethodsForSelectProps(panClass, selectProps, preferNaturalLanguageForComments, supportNullableRefTypes);
             GenerateMethodsForQuickSelectProps(panClass, selectProps, preferNaturalLanguageForComments, uiLanguage);
             GenerateMethodsForQuickSelectPropsMIClick(panClass, selectProps, preferNaturalLanguageForComments, uiLanguage);
             GenerateMethodsForListProps(panClass, listProps, preferNaturalLanguageForComments);

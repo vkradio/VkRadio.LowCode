@@ -113,7 +113,7 @@ public class GuiPackage : PackNS.Package
 
         var docCommentSingleton = preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Единственный экземпляр (Singleton)" : "Singleton";
         var field = new CSClassField(
-            new CSharpReferenceType(false, "UiRegistry", false),
+            new CSharpReferenceTechnicalType(false, "UiRegistry", false),
             "_instance",
             clsUiRegistry,
             new XmlComment(docCommentSingleton),
@@ -138,7 +138,7 @@ public class GuiPackage : PackNS.Package
         clsUiRegistry.AddProperty(prop);
 
         var qSelectorField = new CSClassField(
-            new CSharpReferenceType(false, "QuickSelectStorage", false),
+            new CSharpReferenceTechnicalType(false, "QuickSelectStorage", false),
             "_quickSelectStorage",
             clsUiRegistry,
             new XmlComment(preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Хранилище быстрого выбора объектов из списков" : "Quick select storage of objects from lists"),
@@ -172,7 +172,7 @@ public class GuiPackage : PackNS.Package
 
             // Private fields for launchers
             var uilField = new CSClassField(
-                new CSharpReferenceType(false, "UILauncher", false),
+                new CSharpReferenceTechnicalType(false, "UILauncher", false),
                 fieldName,
                 clsUiRegistry,
                 new XmlComment(docComment),

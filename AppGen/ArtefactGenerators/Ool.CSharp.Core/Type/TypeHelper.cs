@@ -1,4 +1,4 @@
-﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
+﻿using Ardalis.GuardClauses;
 using VkRadio.LowCode.AppGen.Domain;
 using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
@@ -11,158 +11,7 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 /// </summary>
 public static class TypeHelper
 {
-    /// <summary>
-    /// Get a C# type keyword or name of user defined type from a DomainModel definition
-    /// </summary>
-    /// <param name="propDef">Property definition</param>
-    /// <returns></returns>
-    /*public static string PropertyDefinitionToCSType(PropertyDefinition propDef, bool supportNullableRefTypes = false)
-    {
-        string result;
-
-        if (!(propDef.FunctionalType is PFTLink))
-        {
-            if (propDef.FunctionalType is PFTBoolean)
-            {
-                result = "bool";
-            }
-            else if (propDef.FunctionalType is PFTDateTime)
-            {
-                result = "DateTime";
-            }
-            else if (propDef.FunctionalType is PFTDecimal)
-            {
-                result = "decimal";
-            }
-            else if (propDef.FunctionalType is PFTInteger) // TODO: Here we do not consider a size of int
-            {
-                result = "int";
-            }
-            else if (propDef.FunctionalType is PFTString)
-            {
-                result = "string";
-            }
-            else if (propDef.FunctionalType is PFTUniqueCode)
-            {
-                result = "Guid";
-            }
-            else
-            {
-                throw new GeneratorException($"Unknown value type for property Id {propDef.Id}: {propDef.FunctionalType.GetType().Name}.");
-            }
-
-            if (propDef.FunctionalType.Nullable &&
-                (supportNullableRefTypes || !(propDef.FunctionalType is PFTString)))
-            {
-                result += "?";
-            }
-        }
-        else
-        {
-            var pftBackRefTable = propDef.FunctionalType as PFTBackReferencedTable;
-
-            if (pftBackRefTable is not null)
-            {
-                //var className = GetClassNameForDOT(((PropertyDefinition)pftBackRefTable.RelationshipReference.OwnerPropertyDefinition).OwnerDefinition);
-                result = "DataTable";
-            }
-            else
-            {
-                var pftConn = propDef.FunctionalType as PFTConnector;
-
-                if (pftConn is not null)
-                {
-                    var end = pftConn.RelationshipConnector.End1.PropertyDefinition.Id == propDef.Id
-                        ? pftConn.RelationshipConnector.End2
-                        : pftConn.RelationshipConnector.End1;
-
-                    result = GetClassNameForEntity(end.PropertyDefinition.OwnerDefinition);
-                }
-                else
-                {
-                    var pftRefVal = propDef.FunctionalType as PFTReferenceValue;
-
-                    if (pftRefVal is not null)
-                    {
-                        result = GetClassNameForEntity(pftRefVal.RelationshipReference.ReferenceDefinition);
-                    }
-                    else
-                    {
-                        var pftTableOwner = propDef.FunctionalType as PFTTableOwner;
-
-                        if (pftTableOwner is not null)
-                        {
-                            result = GetClassNameForEntity(pftTableOwner.RelationshipTable.PropertyDefinitionInOwner.OwnerDefinition);
-                        }
-                        else
-                        {
-                            var pftTable = propDef.FunctionalType as PFTTablePart;
-
-                            if (pftTable is not null)
-                            {
-                                //var className = GetClassNameForDOT(pftTable.RelationshipTable.PropertyDefinitionInTable.OwnerDefinition);
-                                //result = string.Format("IDictionary<Guid, {0}>", className);
-                                result = "DataTable";
-                            }
-                            else
-                            {
-                                throw new GeneratorException($"Unknown reference type for property Id {propDef.Id}: {propDef.FunctionalType.GetType().Name}.");
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (propDef.FunctionalType.Nullable && supportNullableRefTypes)
-            {
-                result += "?";
-            }
-        }
-
-        return result;
-    }*/
-
     public static CSharpTypeBase TypeOrDefault(this CSharpTypeBase? type) => type ?? new CSharpTypeHardCoded("void");
-
-    /*
-    /// <summary>
-    /// Get a C# name for a user class of Entity, that corresponds for metadata property of reference type
-    /// </summary>
-    /// <param name="propDef"></param>
-    /// <returns>Class name</returns>
-    public static string PropertyDefinitionToCSEntityType(PropertyDefinition propDef)
-    {
-        string result;
-
-        if (!(propDef.FunctionalType is PFTLink))
-        {
-            throw new ArgumentException($"Cannot define C# class for non-reference PropertyDefinition Id {propDef.Id}, FunctionalType = {propDef.FunctionalType.GetType().Name}.");
-        }
-        else
-        {
-            if (propDef.FunctionalType is PFTBackReferencedTable ||
-                propDef.FunctionalType is PFTTablePart)
-            {
-                var pftBackRefTable = propDef.FunctionalType as PFTBackReferencedTable;
-
-                if (pftBackRefTable is not null)
-                {
-                    result = GetClassNameForEntity(((PropertyDefinition)pftBackRefTable.RelationshipReference.OwnerPropertyDefinition).OwnerDefinition);
-                }
-                else
-                {
-                    var pftTable = propDef.FunctionalType as PFTTablePart;
-                    result = GetClassNameForEntity(pftTable!.RelationshipTable.PropertyDefinitionInTable.OwnerDefinition);
-                }
-            }
-            else
-            {
-                result = PropertyDefinitionToCSType(propDef);
-            }
-        }
-
-        return result;
-    }*/
 
     /// <summary>
     /// Get XmlComment for a property definition of table type (collection)
@@ -205,42 +54,15 @@ public static class TypeHelper
         return result;
     }
 
-    /// <summary>
-    /// Get class name for an Entity type
-    /// </summary>
-    /// <param name="entityDef">Entity type definition</param>
-    /// <returns>Class name for Entity</returns>
-    public static string GetClassNameForEntity(EntityDefinition entityDef) => NameHelper.NamesToPascalCase(entityDef.Names);
+    public static string GetEntityClassName(this EntityDefinition entityDef) => NameHelper.NamesToPascalCase(Guard.Against.Null(entityDef, nameof(entityDef)).Names);
 
-    public static string? GetClassNameForEntity(PropertyDefinition propDef, bool returnNullIfNotApplicable = false)
+    public static string? GetEntityClassName(this IPropertyDefinition propertyDefinition, bool returnNullIfNotApplicable = false)
     {
-        EntityDefinition entityDefinition;
+        Guard.Against.Null(propertyDefinition, nameof(propertyDefinition));
 
-        if (propDef.FunctionalType is PFTBackReferencedTable pftBackRefTable)
-        {
-            entityDefinition = ((PropertyDefinition)pftBackRefTable.RelationshipReference.OwnerPropertyDefinition).OwnerDefinition;
-        }
-        else if (propDef.FunctionalType is PFTTablePart pftTable)
-        {
-            entityDefinition = pftTable!.RelationshipTable.PropertyDefinitionInTable.OwnerDefinition;
-        }
-        else if (propDef.FunctionalType is PFTConnector pftConn)
-        {
-            var end = pftConn.RelationshipConnector.End1.PropertyDefinition.Id == propDef.Id
-                ? pftConn.RelationshipConnector.End2
-                : pftConn.RelationshipConnector.End1;
+        var pftLink = propertyDefinition.FunctionalType as PFTLink;
 
-            entityDefinition = end.PropertyDefinition.OwnerDefinition;
-        }
-        else if (propDef.FunctionalType is PFTReferenceValue pftRefVal)
-        {
-            entityDefinition = pftRefVal.RelationshipReference.ReferenceDefinition;
-        }
-        else if (propDef.FunctionalType is PFTTableOwner pftTableOwner)
-        {
-            entityDefinition = pftTableOwner.RelationshipTable.PropertyDefinitionInOwner.OwnerDefinition;
-        }
-        else
+        if (pftLink is null)
         {
             if (returnNullIfNotApplicable)
             {
@@ -248,12 +70,25 @@ public static class TypeHelper
             }
             else
             {
-                throw new GeneratorException($"Unknown reference type for property Id {propDef.Id}: {propDef.FunctionalType.GetType().Name}.");
+                throw new ArgumentException($"{nameof(propertyDefinition)}.{nameof(propertyDefinition.FunctionalType)} should be {nameof(PFTLink)}", nameof(propertyDefinition));
             }
         }
 
-        var result = GetClassNameForEntity(entityDefinition);
+        var (entityDefinition, _) = pftLink.GetEntityDefinition();
 
-        return result;
+        return entityDefinition.GetEntityClassName();
     }
+
+    public static TypeEnum? GetPredefinedType(this PropertyDefinition propDef, bool returnNullIfNotApplicable = false) => propDef.FunctionalType switch
+    {
+        PFTBoolean => TypeEnum.Bool,
+        PFTDateTime => TypeEnum.DateTime,
+        PFTDecimal => TypeEnum.Decimal,
+        PFTInteger => TypeEnum.Int32,
+        PFTString => TypeEnum.String,
+        PFTUniqueCode => TypeEnum.Guid,
+        _ => returnNullIfNotApplicable
+            ? null
+            : throw new ArgumentException($"{nameof(propDef)} has no mapping to one of predefined C# types", nameof(propDef))
+    };
 }

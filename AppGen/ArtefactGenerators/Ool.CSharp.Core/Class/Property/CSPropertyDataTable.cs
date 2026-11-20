@@ -1,4 +1,5 @@
-﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
+﻿using Ardalis.GuardClauses;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 using VkRadio.LowCode.AppGen.Domain;
 using VkRadio.LowCode.AppGen.Domain.Names;
@@ -9,7 +10,11 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Proper
 
 public class CSPropertyDataTable : CSPropertyPredefined, IPropertyOrField
 {
-    public static readonly CSharpReferenceType PropertyType = new CSharpReferenceType(false, "DataTable", false);
+    private readonly IPropertyDefinition _propertyDefinition;
+
+    private CSharpTypeBase? _type;
+
+    public static CSharpReferenceDomainTableType GetPropertyType(IPropertyDefinition propDef) => new CSharpReferenceDomainTableType(false, propDef);
 
     private static string PropertyName(PropertyDefinition propDef) => $"{NameHelper.NamesToPascalCase(propDef.Names, true)}DataTable";
 
@@ -38,11 +43,20 @@ public class CSPropertyDataTable : CSPropertyPredefined, IPropertyOrField
     public CSPropertyDataTable(PropertyDefinition propDef, NaturalLanguageEnum preferNaturalLanguageForComments)
         : base(
             PropertyName(propDef),
-            $"public virtual {PropertyType} {PropertyName(propDef)} {{ get => StorageRegistry.Instance.{NameOfStorageClass(propDef)}.ReadAsTable({CSPropertyTableFilter.PropertyName(propDef)}); }}",
+            $"public virtual {GetPropertyType(propDef)} {PropertyName(propDef)} {{ get => StorageRegistry.Instance.{NameOfStorageClass(propDef)}.ReadAsTable({CSPropertyTableFilter.PropertyName(propDef)}); }}",
             new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments) + (preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? " (чтение таблицы)" : " (read table)"))
         )
     {
+        _propertyDefinition = Guard.Against.Null(propDef, nameof(propDef));
     }
 
-    public CSharpTypeBase Type => PropertyType;
+    public CSharpTypeBase Type
+    {
+        get
+        {
+            _type ??= GetPropertyType(_propertyDefinition);
+
+            return _type;
+        }
+    }
 }

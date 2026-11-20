@@ -78,7 +78,7 @@ public class StoragePackage: PackNS.Package
             false
         );
 
-        var ctorParam = new CSParameter("dbProviderFactory", new CSharpReferenceType(false, "IDbProviderFactory", false));
+        var ctorParam = new CSParameter("dbProviderFactory", new CSharpReferenceTechnicalType(false, "IDbProviderFactory", false));
         ctor.Params.Add(ctorParam.Name, ctorParam);
 
         clsStorageRegistry.AddConstructor(CSharpHelper.GenerateMethodKey(ctor), ctor);
@@ -107,7 +107,7 @@ public class StoragePackage: PackNS.Package
         );
         clsStorageRegistry.AddMethod(initMethod);
 
-        var initMethodParam = new CSParameter("instance", new CSharpReferenceType(false, "StorageRegistry", false));
+        var initMethodParam = new CSParameter("instance", new CSharpReferenceTechnicalType(false, "StorageRegistry", false));
         initMethod.Params.Add(initMethodParam.Name, initMethodParam);
 
         foreach (var cls in classDescriptors)
@@ -119,7 +119,7 @@ public class StoragePackage: PackNS.Package
 
             // 1. Storage field
             var field = new CSClassField(
-                new CSharpReferenceType(false, storageClassName, false),
+                new CSharpReferenceTechnicalType(false, storageClassName, false),
                 fieldName,
                 clsStorageRegistry,
                 new XmlComment(storageComment),
@@ -152,12 +152,12 @@ public class StoragePackage: PackNS.Package
         string singletonComment = preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Единственный экземпляр (Singleton)" : "Singleton";
 
         var fieldInstance = new CSClassField(
-            new CSharpReferenceType(false, "StorageRegistry", false),
+            new CSharpReferenceTechnicalType(false, "StorageRegistry", false),
             "_instance",
             clsStorageRegistry,
             new XmlComment(singletonComment),
             ElementVisibilityClassic.Private,
-            null,
+            "default!",
             true
         );
         clsStorageRegistry.AddField(fieldInstance);
@@ -244,7 +244,7 @@ public class StoragePackage: PackNS.Package
         );
         clsStorageRegistry.AddConstructor(CSharpHelper.GenerateMethodKey(ctor), ctor);
 
-        var ctorParam = new CSParameter("dbProviderFactory", new CSharpReferenceType(false, "IDbProviderFactory", false));
+        var ctorParam = new CSParameter("dbProviderFactory", new CSharpReferenceTechnicalType(false, "IDbProviderFactory", false));
         ctor.Params.Add(ctorParam.Name, ctorParam);
 
         //var ctorStatic = new CSConstructor(clsStorageRegistry)
@@ -272,7 +272,7 @@ public class StoragePackage: PackNS.Package
         );
         clsStorageRegistry.AddMethod(initMethod);
 
-        var initMethodParam = new CSParameter("instance", new CSharpReferenceType(false, "StorageRegistry", false));
+        var initMethodParam = new CSParameter("instance", new CSharpReferenceTechnicalType(false, "StorageRegistry", false));
         initMethod.Params.Add(initMethodParam.Name, initMethodParam);
 
         foreach (var cls in classes)
@@ -285,7 +285,7 @@ public class StoragePackage: PackNS.Package
 
             // 1. Storage field
             var field = new CSClassField(
-                new CSharpReferenceType(false, storageClassName, false),
+                new CSharpReferenceTechnicalType(false, storageClassName, false),
                 fieldName,
                 clsStorageRegistry,
                 new XmlComment(storageComment),
@@ -318,12 +318,12 @@ public class StoragePackage: PackNS.Package
         string singletonComment = preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Единственный экземпляр (Singleton)" : "Singleton";
         
         var fieldInstance = new CSClassField(
-            new CSharpReferenceType(false, "StorageRegistry", false),
+            new CSharpReferenceTechnicalType(false, "StorageRegistry", false),
             "_instance",
             clsStorageRegistry,
             new XmlComment(singletonComment),
             ElementVisibilityClassic.Private,
-            null,
+            "default!",
             true
         );
         clsStorageRegistry.AddField(fieldInstance);
