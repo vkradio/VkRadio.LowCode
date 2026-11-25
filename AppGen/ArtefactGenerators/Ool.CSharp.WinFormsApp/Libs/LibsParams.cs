@@ -1,5 +1,5 @@
-﻿using Ardalis.GuardClauses;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Libs;
 
@@ -7,7 +7,7 @@ public abstract class LibsParams
 {
     protected LibsParams(XElement initFromTargetXElement, ArtefactGeneratorCSharpClassic generator)
     {
-        Generator = Guard.Against.Null(generator, nameof(generator));
+        Generator = GuardRule.Forbid.Null(generator, nameof(generator));
     }
 
     public ArtefactGeneratorCSharpClassic Generator { get; protected set; }

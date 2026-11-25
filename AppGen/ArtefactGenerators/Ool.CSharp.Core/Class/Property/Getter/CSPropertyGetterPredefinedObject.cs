@@ -1,6 +1,6 @@
-﻿using Ardalis.GuardClauses;
-using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 using VkRadio.LowCode.AppGen.Domain.PredefinedEntityInstances;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property.Getter;
 
@@ -9,8 +9,8 @@ public class CSPropertyGetterPredefinedObject : CSPropertyGetter
     public CSPropertyGetterPredefinedObject(CSProperty property, PredefinedEntityInstance correspondingPredefinedObject, string idConstName)
         : base(property)
     {
-        CorrespondingPEI = Guard.Against.Null(correspondingPredefinedObject, nameof(correspondingPredefinedObject));
-        IdConstName = Guard.Against.NullOrEmpty(idConstName, nameof(idConstName));
+        CorrespondingPEI = GuardRule.Forbid.Null(correspondingPredefinedObject, nameof(correspondingPredefinedObject));
+        IdConstName = GuardRule.Forbid.NullOrEmpty(idConstName, nameof(idConstName));
     }
 
     public override string[] GenerateText()

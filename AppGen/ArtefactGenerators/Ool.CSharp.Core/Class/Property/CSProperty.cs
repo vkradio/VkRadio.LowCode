@@ -1,11 +1,11 @@
-﻿using Ardalis.GuardClauses;
-using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property.Getter;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property.Setter;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property;
 
@@ -35,8 +35,6 @@ public class CSProperty : ICSProperty, IPropertyOrField
     public CSProperty(
         string name,
         IPropertyOrField? correspondingPropertyOrField,
-        //CSharpTypeBase type,
-        //CSClass cSharpClass,
         string? entityClassName = null,
         ElementVisibilityAbstract? visibility = null,
         bool isStatic = false,
@@ -47,7 +45,7 @@ public class CSProperty : ICSProperty, IPropertyOrField
         CSharpTypeBase? explicitType = null
     )
     {
-        Name = Guard.Against.NullOrEmpty(name, nameof(name));
+        Name = GuardRule.Forbid.NullOrEmpty(name, nameof(name));
         CorrespondingPropertyOrField = correspondingPropertyOrField;
         EntityClassName = entityClassName;
         Visibility = visibility ?? ElementVisibilityClassic.Public;
@@ -69,7 +67,7 @@ public class CSProperty : ICSProperty, IPropertyOrField
     public CSProperty(PropertyDefinition propDef, IPropertyOrField correspondingPropertyOrField, XmlComment? docComment, bool modificationForIdField)
         : this(
             NameHelper.NamesToPascalCase(propDef.Names, true) + (modificationForIdField ? "Id" : string.Empty),
-            Guard.Against.Null(correspondingPropertyOrField, nameof(correspondingPropertyOrField)),
+            GuardRule.Forbid.Null(correspondingPropertyOrField, nameof(correspondingPropertyOrField)),
             null,
             ElementVisibilityClassic.Public,
             false,
@@ -79,7 +77,7 @@ public class CSProperty : ICSProperty, IPropertyOrField
             null
         )
     {
-        Guard.Against.Null(propDef, nameof(propDef));
+        GuardRule.Forbid.Null(propDef, nameof(propDef));
 
         if (!modificationForIdField)
         {

@@ -1,7 +1,7 @@
-﻿using Ardalis.GuardClauses;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.Names.Translit.RU;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.Domain.PredefinedEntityInstances;
 
@@ -42,9 +42,9 @@ public class PredefinedEntityInstance : IUniqueNamed
     /// <param name="xelSource">XML node</param>
     public PredefinedEntityInstance(DomainModel domainModel, XElement xelSource)
     {
-        Guard.Against.Null(xelSource, nameof(xelSource));
+        GuardRule.Forbid.Null(xelSource, nameof(xelSource));
 
-        DomainModel = Guard.Against.Null(domainModel, nameof(domainModel));
+        DomainModel = GuardRule.Forbid.Null(domainModel, nameof(domainModel));
 
         // 1. Read an Id of a predefined object
         Id = new Guid(xelSource.Element("Id")!.Value);

@@ -1,4 +1,4 @@
-﻿using Ardalis.GuardClauses;
+﻿using VkRadio.Patterns.Guards;
 using CompNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Component;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Class;
@@ -22,8 +22,8 @@ public abstract class Class
 
     public Class(string name, CompNS.Component component, AbstractDocComment? docComment = null, string? inheritsFrom = null)
     {
-        Name = Guard.Against.NullOrEmpty(name, nameof(name));
-        Component = Guard.Against.Null(component, nameof(component));
+        Name = GuardRule.Forbid.NullOrEmpty(name, nameof(name));
+        Component = GuardRule.Forbid.Null(component, nameof(component));
         DocComment = docComment;
         InheritsFrom = inheritsFrom;
     }
@@ -59,11 +59,11 @@ public abstract class Class
     /// </summary>
     public IReadOnlyDictionary<string, Method> Methods => _methods.AsReadOnly();
 
-    public void AddMethod(Method method) => _methods.Add(Guard.Against.Null(method, nameof(method)).Name, method);
+    public void AddMethod(Method method) => _methods.Add(GuardRule.Forbid.Null(method, nameof(method)).Name, method);
 
     public void AddMethod(string name, Method method) => _methods.Add(
-        Guard.Against.NullOrEmpty(name, nameof(name)),
-        Guard.Against.Null(method, nameof(method))
+        GuardRule.Forbid.NullOrEmpty(name, nameof(name)),
+        GuardRule.Forbid.Null(method, nameof(method))
     );
 
     /// <summary>
@@ -71,14 +71,14 @@ public abstract class Class
     /// </summary>
     public IReadOnlyDictionary<string, ClassField> Fields => _fields.AsReadOnly();
 
-    public void AddField(ClassField field) => _fields.Add(Guard.Against.Null(field, nameof(field)).Name, field);
+    public void AddField(ClassField field) => _fields.Add(GuardRule.Forbid.Null(field, nameof(field)).Name, field);
 
     /// <summary>
     /// Constants
     /// </summary>
     public IReadOnlyDictionary<string, ClassConstant> Constants => _constants.AsReadOnly();
 
-    public void AddConstant(ClassConstant constant) => _constants.Add(Guard.Against.Null(constant, nameof(constant)).Name, constant);
+    public void AddConstant(ClassConstant constant) => _constants.Add(GuardRule.Forbid.Null(constant, nameof(constant)).Name, constant);
 
     public virtual string[] GenerateText() => [
         .. GenerateClassDocComment(),

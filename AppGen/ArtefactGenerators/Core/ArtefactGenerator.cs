@@ -1,6 +1,6 @@
-﻿using Ardalis.GuardClauses;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.Domain;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
 
@@ -12,8 +12,8 @@ public abstract class ArtefactGenerator
     protected ArtefactGenerator(ArtefactTypeEnum type, DomainModel domainModel, Target target)
     {
         Type = type;
-        DomainModel = Guard.Against.Null(domainModel, nameof(domainModel));
-        Target = Guard.Against.Null(target, nameof(target));
+        DomainModel = GuardRule.Forbid.Null(domainModel, nameof(domainModel));
+        Target = GuardRule.Forbid.Null(target, nameof(target));
     }
 
     /// <summary>

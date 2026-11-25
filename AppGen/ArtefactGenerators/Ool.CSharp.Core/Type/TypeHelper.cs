@@ -1,8 +1,8 @@
-﻿using Ardalis.GuardClauses;
-using VkRadio.LowCode.AppGen.Domain;
+﻿using VkRadio.LowCode.AppGen.Domain;
 using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 
@@ -54,11 +54,11 @@ public static class TypeHelper
         return result;
     }
 
-    public static string GetEntityClassName(this EntityDefinition entityDef) => NameHelper.NamesToPascalCase(Guard.Against.Null(entityDef, nameof(entityDef)).Names);
+    public static string GetEntityClassName(this EntityDefinition entityDef) => NameHelper.NamesToPascalCase(GuardRule.Forbid.Null(entityDef, nameof(entityDef)).Names);
 
     public static string? GetEntityClassName(this IPropertyDefinition propertyDefinition, bool returnNullIfNotApplicable = false)
     {
-        Guard.Against.Null(propertyDefinition, nameof(propertyDefinition));
+        GuardRule.Forbid.Null(propertyDefinition, nameof(propertyDefinition));
 
         var pftLink = propertyDefinition.FunctionalType as PFTLink;
 

@@ -1,4 +1,4 @@
-﻿using Ardalis.GuardClauses;
+﻿using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Class;
 
@@ -29,7 +29,7 @@ public abstract class ClassField
         _docComment = docComment;
         _visibility = visibility ?? ElementVisibilityClassic.Private;
         _initialValue = initialValue;
-        _name = Guard.Against.NullOrEmpty(name, nameof(name));
+        _name = GuardRule.Forbid.NullOrEmpty(name, nameof(name));
         _isStatic = isStatic;
     }
 

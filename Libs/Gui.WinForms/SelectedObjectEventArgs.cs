@@ -1,6 +1,6 @@
-﻿using Ardalis.GuardClauses;
-using System;
+﻿using System;
 using VkRadio.LowCode.Libs.Orm;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.Libs.Gui.WinForms
 {
@@ -10,7 +10,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 
         public SelectedObjectEventArgs(DbMappedDOT selectedObject)
         {
-            Guard.Against.Null(selectedObject, nameof(selectedObject));
+            GuardRule.Forbid.Null(selectedObject, nameof(selectedObject));
             _selectedObject = selectedObject;
         }
 

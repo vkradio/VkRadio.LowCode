@@ -1,7 +1,7 @@
-﻿using Ardalis.GuardClauses;
-using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Class;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Field;
 
@@ -41,7 +41,7 @@ public class CSClassField : ClassField, IPropertyOrField
         owningClass,
         docComment,
         visibility,
-        GetInitialValue(initialValue, isStatic, Guard.Against.Null(type, nameof(type))),
+        GetInitialValue(initialValue, isStatic, GuardRule.Forbid.Null(type, nameof(type))),
         isStatic
     )
     {

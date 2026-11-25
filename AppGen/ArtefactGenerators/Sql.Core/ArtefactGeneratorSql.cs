@@ -1,8 +1,8 @@
-﻿using Ardalis.GuardClauses;
-using System.Text;
+﻿using System.Text;
 using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
 using VkRadio.LowCode.AppGen.Domain;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.Core;
 
@@ -17,7 +17,7 @@ public class ArtefactGeneratorSql : ArtefactGenerator
         Target target
     ) : base(type, domainModel, target)
     {
-        _dbSchemaDomainModelConstructor = Guard.Against.Null(dbSchemaDomainModelConstructor, nameof(dbSchemaDomainModelConstructor));
+        _dbSchemaDomainModelConstructor = GuardRule.Forbid.Null(dbSchemaDomainModelConstructor, nameof(dbSchemaDomainModelConstructor));
     }
 
     /// <summary>

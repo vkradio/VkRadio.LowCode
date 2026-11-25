@@ -1,5 +1,4 @@
-﻿using Ardalis.GuardClauses;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -9,6 +8,7 @@ using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using VkRadio.LowCode.Libs.Orm;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.Libs.Gui.WinForms
 {
@@ -305,8 +305,8 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 
         public virtual void Init(IDOStorage storage, UILauncher uiLauncher, FilterAbstract? filter, int? defaultSortFieldIndex = null, bool? defaultSortAscending = null, DbParameter[]? dbParameters = null)
         {
-            Guard.Against.Null(storage, nameof(storage));
-            Guard.Against.Null(uiLauncher, nameof(uiLauncher));
+            GuardRule.Forbid.Null(storage, nameof(storage));
+            GuardRule.Forbid.Null(uiLauncher, nameof(uiLauncher));
 
             this._storage = storage;
             this._uiLauncher = uiLauncher;
@@ -333,5 +333,5 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
         public DataGridView DGV_ListPublic => DGV_List;
 
         public event EventHandler<SelectedObjectEventArgs>? Pick;
-    };
+    }
 }

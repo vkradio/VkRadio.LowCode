@@ -1,7 +1,7 @@
-﻿using Ardalis.GuardClauses;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PredefinedEntityInstances;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.Domain;
 
@@ -56,7 +56,7 @@ public class EntityDefinition : IUniqueNamed
     /// <param name="xel">XML node containing DOT definition</param>
     public EntityDefinition(DomainModel domainModel, XElement xel)
     {
-        DomainModel = Guard.Against.Null(domainModel, nameof(domainModel));
+        DomainModel = GuardRule.Forbid.Null(domainModel, nameof(domainModel));
 
         // 1. Load IUniqueNamed properties
         Id = new Guid(xel.Element("Id")!.Value);

@@ -1,9 +1,9 @@
-﻿using Ardalis.GuardClauses;
-using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property;
 
@@ -46,7 +46,7 @@ public class CSPropertyTableFilter : CSPropertyPredefined, IPropertyOrField
             new XmlComment((preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? "Фильтр для свойства " : "Filter for the property ") + NameHelper.GetLocalNameLowerCase(propDef.Names, preferNaturalLanguageForComments))
         )
     {
-        _propertyDefinition = Guard.Against.Null(propDef, nameof(propDef));
+        _propertyDefinition = GuardRule.Forbid.Null(propDef, nameof(propDef));
     }
 
     public CSharpTypeBase Type

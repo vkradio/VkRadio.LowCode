@@ -1,34 +1,26 @@
-﻿using Ardalis.GuardClauses;
+﻿using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Class;
 
 public abstract class ClassConstant
 {
-    //protected string _name;
-    //protected string _value;
-    //protected AbstractDocComment _docComment;
-    ////protected Class _class;
-    //protected ElementVisibilityAbstract _visibility;
-
     protected ClassConstant(string name, string value, AbstractDocComment? docComment = null, ElementVisibilityAbstract? visibility = null)
     {
-        Name = Guard.Against.NullOrEmpty(name, nameof(name));
-        Value = Guard.Against.Null(value, nameof(value));
+        Name = GuardRule.Forbid.NullOrEmpty(name, nameof(name));
+        Value = GuardRule.Forbid.Null(value, nameof(value));
         DocComment = docComment;
         Visibility = visibility ?? ElementVisibilityClassic.Protected;
     }
 
     protected abstract string GenerateTextConcrete();
 
-    public string Name { get; protected set; } //{ get => _name; set => _name = value; }
+    public string Name { get; protected set; }
 
-    public string Value { get; protected set; } //{ get => _value; set => _value = value; }
+    public string Value { get; protected set; }
 
-    public AbstractDocComment? DocComment { get; protected set; } //{ get => _docComment; set => _docComment = value; }
+    public AbstractDocComment? DocComment { get; protected set; }
 
-    //public Class Class { get => _class; set => _class = value; }
-
-    public ElementVisibilityAbstract Visibility { get; protected set; } // { get => _visibility; set => _visibility = value; }
+    public ElementVisibilityAbstract Visibility { get; protected set; }
 
     public virtual string[] GenerateText()
     {

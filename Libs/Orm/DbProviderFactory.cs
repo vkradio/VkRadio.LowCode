@@ -1,7 +1,7 @@
-﻿using Ardalis.GuardClauses;
-using System;
+﻿using System;
 using System.Data.Common;
 using System.Linq;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.Libs.Orm
 {
@@ -13,7 +13,7 @@ namespace VkRadio.LowCode.Libs.Orm
 
         protected virtual void InitConnection(DbConnection connection)
         {
-            Guard.Against.Null(connection, nameof(connection));
+            GuardRule.Forbid.Null(connection, nameof(connection));
 
             connection.ConnectionString = _connectionString;
             connection.Open();

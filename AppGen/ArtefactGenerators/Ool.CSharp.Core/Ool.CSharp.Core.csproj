@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="VkRadio.Patterns.Guards" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj" />
     <ProjectReference Include="..\Ool.Core\Ool.Core.csproj" />
     <ProjectReference Include="..\Sql.Core\Sql.Core.csproj" />

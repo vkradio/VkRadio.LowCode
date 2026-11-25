@@ -1,7 +1,7 @@
-﻿using Ardalis.GuardClauses;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
+using VkRadio.Patterns.Guards;
 using PD = VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
 
 namespace VkRadio.LowCode.AppGen.Domain.Relationship;
@@ -23,7 +23,7 @@ public class RelationshipReference: Relationship
     public RelationshipReference(Guid id, DomainModel domainModel, XElement containingXel)
         : base(id, domainModel)
     {
-        Guard.Against.Null(containingXel, nameof(containingXel));
+        GuardRule.Forbid.Null(containingXel, nameof(containingXel));
 
         var ownerPropertyDefinitionId = new Guid(containingXel.Element("OwnerPropertyDefinitionId")!.Value);
 

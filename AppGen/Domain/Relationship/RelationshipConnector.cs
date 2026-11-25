@@ -1,6 +1,6 @@
-﻿using Ardalis.GuardClauses;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.Domain.Names;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.Domain.Relationship;
 
@@ -18,7 +18,7 @@ public class RelationshipConnector : Relationship
     public RelationshipConnector(Guid id, DomainModel domainModel, XElement containingXel)
         : base(id, domainModel)
     {
-        Guard.Against.Null(containingXel, nameof(containingXel));
+        GuardRule.Forbid.Null(containingXel, nameof(containingXel));
 
         End1 = RelationshipConnectorEnd.LoadFromXElement(
             this,

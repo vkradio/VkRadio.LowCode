@@ -1,6 +1,6 @@
-﻿using Ardalis.GuardClauses;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.Domain.Names;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.Domain.Relationship;
 
@@ -17,7 +17,7 @@ public abstract class Relationship : IUnique
     protected Relationship(Guid id, DomainModel domainModel)
     {
         Id = id;
-        DomainModel = Guard.Against.Null(domainModel, nameof(domainModel));
+        DomainModel = GuardRule.Forbid.Null(domainModel, nameof(domainModel));
     }
 
     /// <summary>

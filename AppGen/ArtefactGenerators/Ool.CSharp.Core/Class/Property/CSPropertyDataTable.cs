@@ -1,10 +1,10 @@
-﻿using Ardalis.GuardClauses;
-using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 using VkRadio.LowCode.AppGen.Domain;
 using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property;
 
@@ -47,7 +47,7 @@ public class CSPropertyDataTable : CSPropertyPredefined, IPropertyOrField
             new XmlComment(NameHelper.GetLocalNameUpperCase(propDef.Names, preferNaturalLanguageForComments) + (preferNaturalLanguageForComments == NaturalLanguageEnum.Ru ? " (чтение таблицы)" : " (read table)"))
         )
     {
-        _propertyDefinition = Guard.Against.Null(propDef, nameof(propDef));
+        _propertyDefinition = GuardRule.Forbid.Null(propDef, nameof(propDef));
     }
 
     public CSharpTypeBase Type

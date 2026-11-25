@@ -1,4 +1,4 @@
-﻿using Ardalis.GuardClauses;
+﻿using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
 
@@ -7,7 +7,7 @@ public class ParameterTyped : ParameterSimple
     public ParameterTyped(string name, string type, string? value)
         : base(name, value)
     {
-        _type = Guard.Against.NullOrEmpty(type);
+        _type = GuardRule.Forbid.NullOrEmpty(type);
     }
 
     protected string _type;

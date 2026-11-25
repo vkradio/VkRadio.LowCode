@@ -1,5 +1,5 @@
-﻿using Ardalis.GuardClauses;
-using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 
@@ -56,7 +56,7 @@ public class TypeEnumLiteralAttribute : Attribute
 
     public TypeEnumLiteralAttribute(string literal, bool isValueType)
     {
-        Literal = Guard.Against.NullOrEmpty(literal, nameof(literal));
+        Literal = GuardRule.Forbid.NullOrEmpty(literal, nameof(literal));
         IsValueType = isValueType;
     }
 }

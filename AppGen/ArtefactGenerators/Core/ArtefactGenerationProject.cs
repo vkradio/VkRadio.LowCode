@@ -1,8 +1,8 @@
-﻿using Ardalis.GuardClauses;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.Domain;
 using VkRadio.LowCode.AppGen.Domain.Names;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
 
@@ -81,9 +81,9 @@ public class ArtefactGenerationProject : IUnique
     ) //: base(id, name, projectRootPath, svnWcRootPath)
     {
         Id = id;
-        Name = Guard.Against.NullOrEmpty(name, nameof(name));
+        Name = GuardRule.Forbid.NullOrEmpty(name, nameof(name));
         ProjectRootPath = projectRootPath;
-        DomainModel = Guard.Against.Null(domainModel, nameof(domainModel));
+        DomainModel = GuardRule.Forbid.Null(domainModel, nameof(domainModel));
         SvnWcRootPath = svnWcRootPath;
         UILanguage = uiLanguage;
 

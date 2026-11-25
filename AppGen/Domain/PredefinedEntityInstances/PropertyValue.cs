@@ -1,5 +1,5 @@
-﻿using Ardalis.GuardClauses;
-using VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
+﻿using VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.Domain.PredefinedEntityInstances;
 
@@ -13,7 +13,7 @@ public class PropertyValue<T> : IPropertyValue
 
     public PropertyValue(IPropertyDefinition propDefinition)
     {
-        Guard.Against.Null(propDefinition, nameof(propDefinition));
+        GuardRule.Forbid.Null(propDefinition, nameof(propDefinition));
         Definition = (PropertyDefinition.PropertyDefinition)propDefinition;
     }
 

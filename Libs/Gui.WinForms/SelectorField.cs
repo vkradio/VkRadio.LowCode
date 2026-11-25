@@ -1,8 +1,8 @@
-﻿using Ardalis.GuardClauses;
-using System;
+﻿using System;
 using System.Globalization;
 using System.Windows.Forms;
 using VkRadio.LowCode.Libs.Orm;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.Libs.Gui.WinForms
 {
@@ -58,7 +58,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
         }
         public void UpdateValue(DbMappedDOT refObject)
         {
-            Guard.Against.Null(refObject, nameof(refObject));
+            GuardRule.Forbid.Null(refObject, nameof(refObject));
 
             _refObject = refObject;
             Value = refObject.ToString()!;

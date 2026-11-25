@@ -1,7 +1,7 @@
-﻿using Ardalis.GuardClauses;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Windows.Forms;
 using VkRadio.LowCode.Libs.Orm;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.Libs.Gui.WinForms
 {
@@ -25,10 +25,10 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 
         public DOCard(IDOStorage storage, DbMappedDOT dataObject, string dataObjectTypeName, DOEditPanel editPanel) : this()
         {
-            Guard.Against.Null(storage, nameof(storage));
-            Guard.Against.Null(dataObject, nameof(dataObject));
-            Guard.Against.Null(dataObjectTypeName, nameof(dataObjectTypeName));
-            Guard.Against.Null(editPanel, nameof(editPanel));
+            GuardRule.Forbid.Null(storage, nameof(storage));
+            GuardRule.Forbid.Null(dataObject, nameof(dataObject));
+            GuardRule.Forbid.Null(dataObjectTypeName, nameof(dataObjectTypeName));
+            GuardRule.Forbid.Null(editPanel, nameof(editPanel));
 
             _dataObject = dataObject;
             _storage = storage;

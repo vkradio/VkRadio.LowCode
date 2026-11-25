@@ -1,6 +1,6 @@
-﻿using Ardalis.GuardClauses;
-using VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
+﻿using VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 
@@ -8,7 +8,7 @@ public abstract class CSharpTypeBase : IFormattable
 {
     protected readonly string _typeName;
 
-    protected CSharpTypeBase(string typeName) => _typeName = Guard.Against.NullOrEmpty(typeName, nameof(typeName));
+    protected CSharpTypeBase(string typeName) => _typeName = GuardRule.Forbid.NullOrEmpty(typeName, nameof(typeName));
 
     public string TypeName => _typeName;
 
@@ -25,7 +25,7 @@ public static class CSharpTypeExtensions
 {
     public static CSharpTypeBase GetCSharpType(this PropertyDefinition propertyDefinition, bool supportNullableRefTypes, bool nonValueFieldsAlwaysNullable = false)
     {
-        Guard.Against.Null(propertyDefinition, nameof(propertyDefinition));
+        GuardRule.Forbid.Null(propertyDefinition, nameof(propertyDefinition));
 
         CSharpTypeBase result;
 

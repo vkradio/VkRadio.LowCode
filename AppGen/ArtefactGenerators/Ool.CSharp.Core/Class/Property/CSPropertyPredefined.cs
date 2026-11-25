@@ -1,4 +1,4 @@
-﻿using Ardalis.GuardClauses;
+﻿using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property;
 
@@ -9,8 +9,8 @@ public class CSPropertyPredefined : ICSProperty
 {
     public CSPropertyPredefined(string name, string predefinedValue, XmlComment? docComment = null)
     {
-        Name = Guard.Against.NullOrEmpty(name, nameof(name));
-        PredefinedValue = Guard.Against.NullOrEmpty(predefinedValue, nameof(predefinedValue));
+        Name = GuardRule.Forbid.NullOrEmpty(name, nameof(name));
+        PredefinedValue = GuardRule.Forbid.NullOrEmpty(predefinedValue, nameof(predefinedValue));
         DocComment = docComment;
     }
 

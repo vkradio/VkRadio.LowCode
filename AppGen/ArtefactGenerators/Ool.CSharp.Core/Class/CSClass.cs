@@ -1,8 +1,8 @@
-﻿using Ardalis.GuardClauses;
-using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
+﻿using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Constant;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Method;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Class.Property;
+using VkRadio.Patterns.Guards;
 using AbstClassNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Class;
 using CompNS = VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.Core.Component;
 
@@ -213,17 +213,17 @@ public class CSClass : AbstClassNS.Class
     /// </summary>
     public IReadOnlyDictionary<string, ICSProperty> Properties => _properties.AsReadOnly();
 
-    public void AddProperty(ICSProperty property) => _properties.Add(Guard.Against.Null(property, nameof(property)).Name, property);
+    public void AddProperty(ICSProperty property) => _properties.Add(GuardRule.Forbid.Null(property, nameof(property)).Name, property);
 
     /// <summary>
     /// Class constructors
     /// </summary>
     public IReadOnlyDictionary<string, CSConstructor> Constructors => _constructors.AsReadOnly();
 
-    public void AddConstructor(CSConstructor constructor) => _constructors.Add(Guard.Against.Null(constructor, nameof(constructor)).Name, constructor);
+    public void AddConstructor(CSConstructor constructor) => _constructors.Add(GuardRule.Forbid.Null(constructor, nameof(constructor)).Name, constructor);
 
     public void AddConstructor(string name, CSConstructor constructor) => _constructors.Add(
-        Guard.Against.NullOrEmpty(name, nameof(name)),
-        Guard.Against.Null(constructor, nameof(constructor))
+        GuardRule.Forbid.NullOrEmpty(name, nameof(name)),
+        GuardRule.Forbid.Null(constructor, nameof(constructor))
     );
 }

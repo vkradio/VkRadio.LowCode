@@ -1,10 +1,10 @@
-﻿using Ardalis.GuardClauses;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.Libs.Gui.WinForms
 {
@@ -76,14 +76,14 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 
         public static SelectableRow? GetRowById(IList<SelectableRow> list, Guid id)
         {
-            Guard.Against.Null(list, nameof(list));
+            GuardRule.Forbid.Null(list, nameof(list));
             return list.FirstOrDefault(r => r.Id == id);
         }
 
         public static void SetFirstRow(IList<SelectableRow> list, SelectableRow firstRow)
         {
-            Guard.Against.Null(list, nameof(list));
-            Guard.Against.Null(firstRow, nameof(firstRow));
+            GuardRule.Forbid.Null(list, nameof(list));
+            GuardRule.Forbid.Null(firstRow, nameof(firstRow));
 
             var rowToRemove = list.FirstOrDefault(r => r.Id == firstRow.Id);
             if (rowToRemove != null)
@@ -96,7 +96,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 
         public static void RemoveRow(IList<SelectableRow> list, Guid id)
         {
-            Guard.Against.Null(list, nameof(list));
+            GuardRule.Forbid.Null(list, nameof(list));
 
             var rowToRemove = list.FirstOrDefault(r => r.Id == id);
             if (rowToRemove != null)
@@ -105,8 +105,8 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 
         public void SaveList(string dataObjectType, IList<SelectableRow> list)
         {
-            Guard.Against.NullOrEmpty(dataObjectType, nameof(dataObjectType));
-            Guard.Against.Null(list, nameof(list));
+            GuardRule.Forbid.NullOrEmpty(dataObjectType, nameof(dataObjectType));
+            GuardRule.Forbid.Null(list, nameof(list));
 
             var xelRoot = GetRootXElement();
             var xelDot = xelRoot.Element(dataObjectType);

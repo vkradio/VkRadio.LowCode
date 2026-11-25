@@ -1,4 +1,4 @@
-﻿using Ardalis.GuardClauses;
+﻿using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 
@@ -9,7 +9,7 @@ public class CSharpTypeHardCoded : CSharpTypeBase
     public CSharpTypeHardCoded(string hardCodedValue)
         : base(hardCodedValue)
     {
-        _hardCodedValue = Guard.Against.NullOrEmpty(hardCodedValue, nameof(hardCodedValue));
+        _hardCodedValue = GuardRule.Forbid.NullOrEmpty(hardCodedValue, nameof(hardCodedValue));
     }
 
     public override string GenerateLiteral(string? format) => _hardCodedValue;

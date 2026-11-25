@@ -1,7 +1,7 @@
-﻿using Ardalis.GuardClauses;
-using System;
+﻿using System;
 using System.Windows.Forms;
 using VkRadio.LowCode.Libs.Orm;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.Libs.Gui.WinForms
 {
@@ -15,7 +15,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 
         protected void ValueSelected(SelectedObjectEventArgs eventArgs)
         {
-            Guard.Against.Null(eventArgs, nameof(eventArgs));
+            GuardRule.Forbid.Null(eventArgs, nameof(eventArgs));
 
             Pick?.Invoke(this, eventArgs);
             _selectedValue = eventArgs.SelectedObject;

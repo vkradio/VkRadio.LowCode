@@ -1,4 +1,4 @@
-﻿using Ardalis.GuardClauses;
+﻿using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.Type;
 
@@ -9,7 +9,7 @@ public class CSharpValueType : CSharpTypeBase
     public CSharpValueType(TypeEnum type, bool isNullable)
         : base(type.ToLiteral())
     {
-        Guard.Against.Expression(x => !x.IsValueType(), type, $"{nameof(type)} should be value type", nameof(type));
+        GuardRule.Forbid.Expression(x => !x.IsValueType(), type, $"{nameof(type)} should be value type", nameof(type));
 
         _isNullable = isNullable;
     }

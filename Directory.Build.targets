@@ -1,0 +1,4 @@
+﻿<Project>
+  <Import Project="$(MSBuildThisFileDirectory)Directory.Build.targets.user"
+          Condition="'$(IsPacking)' != 'true' And Exists('$(MSBuildThisFileDirectory)Directory.Build.targets.user')" />
+</Project>

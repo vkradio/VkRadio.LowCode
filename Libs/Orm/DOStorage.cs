@@ -1,5 +1,4 @@
-﻿using Ardalis.GuardClauses;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
@@ -7,6 +6,7 @@ using System.Data.Common;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.Libs.Orm
 {
@@ -126,7 +126,7 @@ namespace VkRadio.LowCode.Libs.Orm
 
         protected DbMappedDOT? Restore(DbCommand command, Guid id)
         {
-            Guard.Against.Null(command, nameof(command));
+            GuardRule.Forbid.Null(command, nameof(command));
 
             command.CommandType = CommandType.Text;
             command.CommandText = _sqlSelectOne;
@@ -325,7 +325,7 @@ namespace VkRadio.LowCode.Libs.Orm
         [SuppressMessage("Design", "CA1002:Do not expose generic lists", Justification = "Changing return type to IList<T> will be a breaking change to lots of legacy code")]
         public virtual List<TDOT> ReasAsCollectionForParent(FilterSimple parentFilter, string? additionalWhere = null, DbParameter[]? parameters = null, string? orderBy = null, DbTransaction? transaction = null, bool doNotUseDefaultOrder = false, int selectTop = 0)
         {
-            Guard.Against.Null(parentFilter, nameof(parentFilter));
+            GuardRule.Forbid.Null(parentFilter, nameof(parentFilter));
 
             var internalWhere = parentFilter.Where;
             if (!string.IsNullOrEmpty(additionalWhere))
@@ -375,7 +375,7 @@ namespace VkRadio.LowCode.Libs.Orm
 
         public virtual int GetCountForParent(FilterSimple parentFilter, string? additionalWhere = null, DbParameter[]? parameters = null, DbTransaction? transaction = null)
         {
-            Guard.Against.Null(parentFilter, nameof(parentFilter));
+            GuardRule.Forbid.Null(parentFilter, nameof(parentFilter));
 
             var where = parentFilter.Where;
             if (!string.IsNullOrEmpty(additionalWhere))
@@ -473,7 +473,7 @@ namespace VkRadio.LowCode.Libs.Orm
         {
             // TODO: Integrity not checked yet.
 
-            Guard.Against.Null(dataObject, nameof(dataObject));
+            GuardRule.Forbid.Null(dataObject, nameof(dataObject));
 
             if (dataObject.InSync)
                 return null;
@@ -507,7 +507,7 @@ namespace VkRadio.LowCode.Libs.Orm
 
         protected string? ProtectedDelete(DbCommand command, Guid id, bool throwZeroRowsAffectedException)
         {
-            Guard.Against.Null(command, nameof(command));
+            GuardRule.Forbid.Null(command, nameof(command));
 
             command.CommandType = CommandType.Text;
             command.CommandText = _sqlDelete;
@@ -563,7 +563,7 @@ namespace VkRadio.LowCode.Libs.Orm
 
         public virtual string? Delete(DbMappedDOT dataObject, DbTransaction? transaction = null)
         {
-            Guard.Against.Null(dataObject, nameof(dataObject));
+            GuardRule.Forbid.Null(dataObject, nameof(dataObject));
 
             // Don't delete new objects from the DB because they are not saved there yet.
             if (!dataObject.Id.HasValue)

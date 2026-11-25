@@ -1,7 +1,7 @@
-﻿using Ardalis.GuardClauses;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.Domain.Relationship;
 
@@ -18,7 +18,7 @@ public class RelationshipTable : Relationship
     public RelationshipTable(Guid id, DomainModel domainModel, XElement containingXel)
         : base(id, domainModel)
     {
-        Guard.Against.Null(containingXel, nameof(containingXel));
+        GuardRule.Forbid.Null(containingXel, nameof(containingXel));
 
         var xel = containingXel.Element("SupportsHierarchy");
         SupportsHierarchy = xel is not null

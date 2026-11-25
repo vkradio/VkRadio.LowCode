@@ -1,9 +1,9 @@
-﻿using Ardalis.GuardClauses;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using System;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.Libs.Orm.MsSql;
 
@@ -50,7 +50,7 @@ public class SqlClientFactory : DbProviderFactory
 
     public override DbCommand CreateCommand(DbConnection connection)
     {
-        Guard.Against.Null(connection, nameof(connection));
+        GuardRule.Forbid.Null(connection, nameof(connection));
         return ((SqlConnection)connection).CreateCommand();
     }
 
@@ -58,7 +58,7 @@ public class SqlClientFactory : DbProviderFactory
 
     public override DbParameter CreateParameter(string paramName, object? value, Type type, bool isNullable)
     {
-        Guard.Against.Null(type, nameof(type));
+        GuardRule.Forbid.Null(type, nameof(type));
 
         return new SqlParameter(paramName, TypeToSqlDbType(type))
         {
@@ -68,7 +68,7 @@ public class SqlClientFactory : DbProviderFactory
 
     public override DbParameter CreateParameter(DbParameter proto)
     {
-        Guard.Against.Null(proto, nameof(proto));
+        GuardRule.Forbid.Null(proto, nameof(proto));
 
         return new SqlParameter(proto.ParameterName, proto.DbType) { Value = proto.Value };
     }
@@ -77,9 +77,9 @@ public class SqlClientFactory : DbProviderFactory
 
     public override string? CheckForUniqueConstraintException(Exception exception, string tableName, string[] tableFieldDbNames, string[] tableFieldHumanNames)
     {
-        Guard.Against.Null(tableName, nameof(tableName));
-        Guard.Against.Null(tableFieldDbNames, nameof(tableFieldDbNames));
-        Guard.Against.Null(tableFieldHumanNames, nameof(tableFieldHumanNames));
+        GuardRule.Forbid.Null(tableName, nameof(tableName));
+        GuardRule.Forbid.Null(tableFieldDbNames, nameof(tableFieldDbNames));
+        GuardRule.Forbid.Null(tableFieldHumanNames, nameof(tableFieldHumanNames));
 
         if (exception is SqlException exSql)
         {

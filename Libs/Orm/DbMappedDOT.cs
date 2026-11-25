@@ -1,6 +1,6 @@
-﻿using Ardalis.GuardClauses;
-using System;
+﻿using System;
 using System.Globalization;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.Libs.Orm
 {
@@ -55,8 +55,8 @@ namespace VkRadio.LowCode.Libs.Orm
 
         public virtual void CloneBase(DbMappedDOT cloneFrom, DbMappedDOT cloneTo)
         {
-            Guard.Against.Null(cloneFrom, nameof(cloneFrom));
-            Guard.Against.Null(cloneTo, nameof(cloneTo));
+            GuardRule.Forbid.Null(cloneFrom, nameof(cloneFrom));
+            GuardRule.Forbid.Null(cloneTo, nameof(cloneTo));
 
             cloneTo._id = cloneFrom._id;
             cloneTo._inSync = cloneFrom._inSync;

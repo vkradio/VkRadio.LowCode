@@ -1,5 +1,5 @@
-﻿using Ardalis.GuardClauses;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.Libs.Gui.WinForms
 {
@@ -11,7 +11,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 
         public virtual void InitFromDOCard(DOCard doCard)
         {
-            Guard.Against.Null(doCard, nameof(doCard));
+            GuardRule.Forbid.Null(doCard, nameof(doCard));
 
             _doCard = doCard;
             Controls.Add(_doCard);

@@ -1,8 +1,8 @@
-﻿using Ardalis.GuardClauses;
-using System;
+﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Windows.Forms;
 using VkRadio.LowCode.Libs.Orm;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.Libs.Gui.WinForms
 {
@@ -17,7 +17,7 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 
         public virtual void SyncFromDOTBase(DbMappedDOT dataObject)
         {
-            Guard.Against.Null(dataObject, nameof(dataObject));
+            GuardRule.Forbid.Null(dataObject, nameof(dataObject));
 
             this._dataObject = dataObject;
             SyncFromDOT(this._dataObject);
@@ -30,5 +30,5 @@ namespace VkRadio.LowCode.Libs.Gui.WinForms
 
         [SuppressMessage("Security", "CA2109:Review visible event handlers", Justification = "We have no dangerous security functionality here")]
         public virtual void AnyValueChanged(object? sender, EventArgs e) => ((DOCard?)Parent?.Parent)?.AnyValueChanged(sender, e);
-    };
+    }
 }
