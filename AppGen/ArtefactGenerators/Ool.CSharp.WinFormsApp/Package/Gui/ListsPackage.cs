@@ -23,7 +23,7 @@ public class ListsPackage : PackNS.Package
 
     const float c_pixelsPerSymbol = 200f / 36f;
 
-    public ListsPackage(GuiPackage parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage, bool supportHiDpi)
+    public ListsPackage(GuiPackage parentPackage, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage, bool supportHiDpi, bool supportNullableRefTypes)
         : base(parentPackage, "Lists")
     {
         var model = ParentPackage.ParentPackage.ParentPackage.DomainModel;
@@ -276,7 +276,7 @@ public class ListsPackage : PackNS.Package
                 false,
                 false
             );
-            var param1 = new CSParameter("sender", new CSharpReferenceTechnicalType(false, TypeEnum.Object, false));
+            var param1 = new CSParameter("sender", new CSharpReferenceTechnicalType(supportNullableRefTypes, TypeEnum.Object, true));
             var param2 = new CSParameter("e", new CSharpReferenceTechnicalType(false, "DataGridViewCellFormattingEventArgs", false));
             methodFormatter.Params.Add(param1.Name, param1);
             methodFormatter.Params.Add(param2.Name, param2);

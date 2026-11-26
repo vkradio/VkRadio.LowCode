@@ -30,7 +30,7 @@ public class GuiPackage : PackNS.Package
         _launchersPackage = new LaunchersPackage(this, preferNaturalLanguageForComments, uiLanguage);
         _subpackages.Add(_launchersPackage.Name, _launchersPackage);
 
-        _listsPackage = new ListsPackage(this, preferNaturalLanguageForComments, uiLanguage, supportHiDpi);
+        _listsPackage = new ListsPackage(this, preferNaturalLanguageForComments, uiLanguage, supportHiDpi, parentPackage.ParentPackage.Generator.SupportNullableReferenceTypes);
         _subpackages.Add(_listsPackage.Name, _listsPackage);
 
         #region UiRegistry.cs component

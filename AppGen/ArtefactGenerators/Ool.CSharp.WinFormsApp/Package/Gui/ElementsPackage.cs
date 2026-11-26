@@ -354,7 +354,7 @@ public class ElementsPackage : PackNS.Package
         }
     }
 
-    private static void GenerateMethodsForQuickSelectPropsMIClick(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> selectProps, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage)
+    private static void GenerateMethodsForQuickSelectPropsMIClick(CSClass cSharpClass, List<CSharpHelper.PropertyWidgetDescriptor> selectProps, NaturalLanguageEnum preferNaturalLanguageForComments, NaturalLanguageEnum uiLanguage, bool supportNullableRefTypes)
     {
         var entityClassName = selectProps.Count != 0
             ? NameHelper.NamesToPascalCase(selectProps[0].PropertyDefinition.OwnerDefinition.Names)
@@ -376,8 +376,8 @@ public class ElementsPackage : PackNS.Package
                 {
                     string.Format("var qSelectList = UiRegistry.Instance.QuickSelectStorage.GetRowsForDOT(\"{0}\");", wDesc.PropertyClass),
                     string.Empty,
-                    "ToolStripMenuItem mi = (ToolStripMenuItem)sender;",
-                    "QuickSelectStorage.SelectableRow row = (QuickSelectStorage.SelectableRow)mi.Tag;",
+                    $"ToolStripMenuItem mi = (ToolStripMenuItem)sender{TypeHelper.Exclamation(supportNullableRefTypes)};",
+                    $"QuickSelectStorage.SelectableRow row = (QuickSelectStorage.SelectableRow)mi.Tag{(supportNullableRefTypes ? "!" : string.Empty)};",
                     "Guid id = row.Id;",
                     string.Format("var selectedValue = StorageRegistry.Instance.{0}Storage.Restore(id) as {0};", wDesc.PropertyClass),
                     "if (selectedValue == null)",
@@ -400,9 +400,9 @@ public class ElementsPackage : PackNS.Package
                 false
             );
 
-            var param = new CSParameter("sender", new CSharpReferenceTechnicalType(false, TypeEnum.Object, false));
+            var param = new CSParameter("sender", new CSharpReferenceTechnicalType(supportNullableRefTypes, TypeEnum.Object, true));
             method.Params.Add(param.Name, param);
-            param = new CSParameter("e", new CSharpReferenceTechnicalType(false, "EventArgs", false));
+            param = new CSParameter("e", new CSharpReferenceTechnicalType(supportNullableRefTypes, "EventArgs", false));
             method.Params.Add(param.Name, param);
             cSharpClass.AddMethod(CSharpHelper.GenerateMethodKey(method), method);
         }
@@ -660,7 +660,7 @@ public class ElementsPackage : PackNS.Package
             GenerateMethodsForClearProps(panClass, clearProps, preferNaturalLanguageForComments);
             GenerateMethodsForSelectProps(panClass, selectProps, preferNaturalLanguageForComments, supportNullableRefTypes);
             GenerateMethodsForQuickSelectProps(panClass, selectProps, preferNaturalLanguageForComments, uiLanguage);
-            GenerateMethodsForQuickSelectPropsMIClick(panClass, selectProps, preferNaturalLanguageForComments, uiLanguage);
+            GenerateMethodsForQuickSelectPropsMIClick(panClass, selectProps, preferNaturalLanguageForComments, uiLanguage, supportNullableRefTypes);
             GenerateMethodsForListProps(panClass, listProps, preferNaturalLanguageForComments);
             GenerateMethodsForCardProps(panClass, cardProps, preferNaturalLanguageForComments);
             #endregion

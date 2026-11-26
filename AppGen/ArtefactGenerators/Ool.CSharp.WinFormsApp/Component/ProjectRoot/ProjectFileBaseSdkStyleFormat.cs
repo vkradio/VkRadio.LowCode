@@ -12,7 +12,7 @@ public class ProjectFileBaseSdkStyleFormat : ProjectFile
 
         var generator = (ArtefactGeneratorCSharpClassic)projectPackage.ParentPackage.ArtefactGenerationTarget.ArtefactGenerator;
 
-        _predefinedCode.Add("<Project Sdk=\"Microsoft.NET.Sdk.WindowsDesktop\">");
+        _predefinedCode.Add($"<Project Sdk=\"Microsoft.NET.Sdk{(generator.DotNetVersion.IsModern() ? string.Empty : ".WindowsDesktop")}\">");
         _predefinedCode.Add(string.Empty);
         _predefinedCode.Add("  <PropertyGroup>");
         _predefinedCode.Add($"    <TargetFramework>{TargetFramework.VersionToTfm(generator.DotNetVersion)}</TargetFramework>");

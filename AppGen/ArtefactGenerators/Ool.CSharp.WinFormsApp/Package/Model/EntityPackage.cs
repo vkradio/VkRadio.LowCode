@@ -742,7 +742,7 @@ public class EntityPackage : PackNS.Package
     /// </summary>
     /// <param name="cSharpClass"></param>
     /// <param name="entityDef"></param>
-    private static void CreateMethodToString(CSClass cSharpClass, EntityDefinition entityDef, NaturalLanguageEnum preferNaturalLanguageForComments)
+    private static void CreateMethodToString(CSClass cSharpClass, EntityDefinition entityDef, NaturalLanguageEnum preferNaturalLanguageForComments, bool supportNullableRefTypes)
     {
         var method = new CSMethod(
             cSharpClass,
@@ -823,8 +823,8 @@ public class EntityPackage : PackNS.Package
         var getting = isString
             ? $"{varName} ?? string.Empty"
             : nullableValueType
-                ? $"{varName}.HasValue ? {varName}.Value.ToString() : string.Empty"
-                : $"{varName}.ToString()"
+                ? $"{varName}.HasValue ? {varName}.Value.ToString(){TypeHelper.Exclamation(supportNullableRefTypes)} : string.Empty"
+                : $"{varName}.ToString(){TypeHelper.Exclamation(supportNullableRefTypes)}"
             ;
 
         var gettingWOverrider = $"_overrider != null && _overrider.OverrideToString ? (_overrider.ToStringOverride()) : ({getting})";
@@ -900,7 +900,7 @@ public class EntityPackage : PackNS.Package
         #region Insert methods
         CreateMethodInitNew(result, entityDef, preferNaturalLanguageForComments);
         CreateMethodClone(result, entityDef, preferNaturalLanguageForComments);
-        CreateMethodToString(result, entityDef, preferNaturalLanguageForComments);
+        CreateMethodToString(result, entityDef, preferNaturalLanguageForComments, supportNullableRefTypes);
         CreateMethodValidate(result, entityDef, preferNaturalLanguageForComments, uiLanguage, supportNullableRefTypes);
         GenerateResetCachedRefPropertiesMethod(result, entityDef, preferNaturalLanguageForComments);
         #endregion

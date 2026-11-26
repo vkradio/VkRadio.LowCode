@@ -1,5 +1,6 @@
 ﻿using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
+using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.Core.DotNetVersions;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Libs;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp.Package.Root;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Sql.Core;
@@ -13,7 +14,7 @@ namespace VkRadio.LowCode.AppGen.ArtefactGenerators.Ool.CSharp.WinFormsApp;
 /// </summary>
 public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
 {
-    const string c_defaultDotNetVersion = "4.8";
+    private readonly Version c_defaultDotNetVersion = new Version("4.8");
 
     private readonly NaturalLanguageEnum _uiLanguage;
 
@@ -25,7 +26,7 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
         _uiLanguage = uiLanguage;
     }
 
-    public string DotNetVersion { get; private set; } = default!;
+    public Version DotNetVersion { get; private set; } = default!;
 
     public LibsParams LibsParams { get; private set; } = default!;
 
@@ -63,22 +64,22 @@ public class ArtefactGeneratorCSharpClassic : ArtefactGenerator
             var xel = xelDotNetVersion.Element("Number")
                 ?? throw new GeneratorException("Element DotNetVersion of C# Target has no inner element Number");
 
-            DotNetVersion = (xel.Value ?? string.Empty).Trim();
+            var versionStr = (xel.Value ?? string.Empty).Trim();
 
-            if (string.IsNullOrEmpty(DotNetVersion))
+            if (string.IsNullOrEmpty(versionStr))
             {
                 throw new GeneratorException("In C# Target an element DotNetVersion.Number has no value");
             }
+
+            DotNetVersion = new Version(versionStr);
         }
         else
         {
             DotNetVersion = c_defaultDotNetVersion;
         }
 
-        var dotNetVersion = new Version(DotNetVersion);
-
-        if (dotNetVersion.Major >= 4 &&
-            dotNetVersion.Minor >= 7)
+        if (DotNetVersion.IsModern() ||
+            (DotNetVersion.Major >= 4 && DotNetVersion.Minor >= 7))
         {
             SupportHiDpi = true;
         }

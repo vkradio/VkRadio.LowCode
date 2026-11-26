@@ -13,6 +13,8 @@ public static class TypeHelper
 {
     public static CSharpTypeBase TypeOrDefault(this CSharpTypeBase? type) => type ?? new CSharpTypeHardCoded("void");
 
+    public static string Exclamation(bool supportNullableRefTypes) => supportNullableRefTypes ? "!" : string.Empty;
+
     /// <summary>
     /// Get XmlComment for a property definition of table type (collection)
     /// </summary>
