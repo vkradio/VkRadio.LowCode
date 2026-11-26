@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <PackageId>VkRadio.LowCode.Libs.Orm</PackageId>
-    <Version>1.0.1</Version>
+    <Version>0.0.1</Version>
     <Authors>vkradio</Authors>
     <Description>Simple micro-ORM base library used in VkRadio.LowCode toolset</Description>
     <PackageProjectUrl>https://github.com/vkradio/VkRadio.LowCode/tree/main/Libs.Orm</PackageProjectUrl>
@@ -19,6 +19,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,6 +29,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
     <PackageReference Include="VkRadio.Patterns.Guards" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>

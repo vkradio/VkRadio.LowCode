@@ -1,5 +1,4 @@
-﻿using System.Reflection.Emit;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
 using VkRadio.LowCode.Libs.Utils;
 
@@ -38,6 +37,8 @@ public class LibsParamsLegacy : LibsParams
 
 
     public static readonly string C_ORMLIB_PROJECT_GUID_STRING = "BC2581BB-BC55-4E13-9AED-69CE482E092D";
+
+    public override IEnumerable<string> GenerateNuGetPackageReferenceLines(bool legacyProjectFileFormat = false) => Enumerable.Empty<string>();
 
     public override IEnumerable<string> GenerateProjectReferenceLines(string projectPackageFullPath, bool legacyProjectFileFormat = false)
     {

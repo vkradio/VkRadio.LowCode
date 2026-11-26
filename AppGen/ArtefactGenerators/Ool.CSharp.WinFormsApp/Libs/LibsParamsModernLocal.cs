@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.ArtefactGenerators.Core;
 using VkRadio.LowCode.Libs.Utils;
 
@@ -93,6 +92,8 @@ public class LibsParamsModernLocal : LibsParamsModern
     }
 
     public string LibsPath { get; private set; }
+
+    public override IEnumerable<string> GenerateNuGetPackageReferenceLines(bool legacyProjectFileFormat = false) => Enumerable.Empty<string>();
 
     public override IEnumerable<string> GenerateProjectReferenceLines(string projectPackageFullPath, bool legacyProjectFileFormat = false) => 
         GenerateProjectReference(projectPackageFullPath, C_PROJ_NAME_WIN_FORMS, C_PROJ_GUID_WIN_FORMS, legacyProjectFileFormat)

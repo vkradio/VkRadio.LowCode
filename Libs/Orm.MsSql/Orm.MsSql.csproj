@@ -8,7 +8,7 @@
 
   <PropertyGroup>
     <PackageId>VkRadio.LowCode.Libs.Orm.MsSql</PackageId>
-    <Version>1.0.1</Version>
+    <Version>0.0.1</Version>
     <Authors>vkradio</Authors>
     <Description>IDbProviderFactory implementation for MS SQL (used in VkRadio.LowCode toolset)</Description>
     <PackageProjectUrl>https://github.com/vkradio/VkRadio.LowCode/tree/main/Libs.Orm.MsSql</PackageProjectUrl>
@@ -19,6 +19,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -33,6 +34,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Orm\Orm.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>

@@ -22,10 +22,26 @@ public class ProjectFileBaseSdkStyleFormat : ProjectFile
         _predefinedCode.Add("    <CLSCompliant>false</CLSCompliant>");
         _predefinedCode.Add("  </PropertyGroup>");
         _predefinedCode.Add(string.Empty);
-        _predefinedCode.Add("  <ItemGroup>");
-        _predefinedCode.AddRange(generator.LibsParams.GenerateProjectReferenceLines(projectPackage.FullPath));
-        _predefinedCode.Add("  </ItemGroup>");
-        _predefinedCode.Add(string.Empty);
+
+        var projectReferences = generator.LibsParams.GenerateProjectReferenceLines(projectPackage.FullPath).ToList();
+
+        if (projectReferences.Count != 0)
+        {
+            _predefinedCode.Add($"  <ItemGroup>");
+            _predefinedCode.AddRange(projectReferences);
+            _predefinedCode.Add($"  </ItemGroup>");
+            _predefinedCode.Add(string.Empty);
+        }
+
+        var packageReferences = generator.LibsParams.GenerateNuGetPackageReferenceLines(false).ToList();
+
+        if (packageReferences.Count != 0)
+        {
+            _predefinedCode.Add($"  <ItemGroup>");
+            _predefinedCode.AddRange(packageReferences);
+            _predefinedCode.Add($"  </ItemGroup>");
+            _predefinedCode.Add(string.Empty);
+        }
 
         var classNames = Package
             .GuiPackage

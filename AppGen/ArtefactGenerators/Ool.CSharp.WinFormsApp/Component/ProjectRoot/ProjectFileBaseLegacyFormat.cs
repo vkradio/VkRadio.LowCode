@@ -117,9 +117,25 @@ public class ProjectFileBaseLegacyFormat : ProjectFile
         _predefinedCode.Add($"      <DesignTime>True</DesignTime>");
         _predefinedCode.Add($"    </Compile>");
         _predefinedCode.Add($"  </ItemGroup>");
-        _predefinedCode.Add($"  <ItemGroup>");
-        _predefinedCode.AddRange(generator.LibsParams.GenerateProjectReferenceLines(projectPackage.FullPath));
-        _predefinedCode.Add($"  </ItemGroup>");
+
+        var projectReferences = generator.LibsParams.GenerateProjectReferenceLines(projectPackage.FullPath).ToList();
+
+        if (projectReferences.Count != 0)
+        {
+            _predefinedCode.Add($"  <ItemGroup>");
+            _predefinedCode.AddRange(projectReferences);
+            _predefinedCode.Add($"  </ItemGroup>");
+        }
+
+        var packageReferences = generator.LibsParams.GenerateNuGetPackageReferenceLines(true).ToList();
+
+        if (packageReferences.Count != 0)
+        {
+            _predefinedCode.Add($"  <ItemGroup>");
+            _predefinedCode.AddRange(packageReferences);
+            _predefinedCode.Add($"  </ItemGroup>");
+        }
+
         _predefinedCode.Add($"  <Import Project=\"$(MSBuildToolsPath)\\Microsoft.CSharp.targets\" />");
         _predefinedCode.Add($"  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. ");
         _predefinedCode.Add($"       Other similar extension points exist, see Microsoft.Common.targets.");

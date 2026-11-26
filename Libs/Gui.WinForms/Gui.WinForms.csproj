@@ -10,7 +10,7 @@
 
   <PropertyGroup>
     <PackageId>VkRadio.LowCode.Libs.Gui.WinForms</PackageId>
-    <Version>0.0.0-dev.8</Version>
+    <Version>0.0.1</Version>
     <Authors>vkradio</Authors>
     <Description>WinForms GUI components library used in VkRadio.LowCode toolset</Description>
     <PackageProjectUrl>https://github.com/vkradio/VkRadio.LowCode/tree/main/VkRadio.LowCode.Gui.WinForms</PackageProjectUrl>
@@ -21,6 +21,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,6 +36,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
     <PackageReference Include="VkRadio.Patterns.Guards" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
   <ItemGroup>

@@ -12,6 +12,8 @@ public abstract class LibsParams
 
     public ArtefactGeneratorCSharpClassic Generator { get; protected set; }
 
+    public abstract IEnumerable<string> GenerateNuGetPackageReferenceLines(bool legacyProjectFileFormat = false);
+
     public abstract IEnumerable<string> GenerateProjectReferenceLines(string projectPackageFullPath, bool legacyProjectFileFormat = false);
 
     public abstract IEnumerable<string> GenerateSolutionProjectsEntryLines(string solutionPackageFullPath);

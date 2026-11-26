@@ -5,8 +5,7 @@
 
   <ItemGroup>
     <PackageVersion Include="VkRadio.Patterns.Guards" Version="0.0.2" />
-    <PackageVersion Include="Ardalis.GuardClauses" Version="5.0.0" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
-    <PackageVersion Include="Microsoft.Data.SqlClient" Version="7.1.1" />
+    <PackageVersion Include="Microsoft.Data.SqlClient" Version="7.1.2" />
   </ItemGroup>
 </Project>
