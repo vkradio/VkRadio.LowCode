@@ -1,4 +1,5 @@
-﻿using VkRadio.LowCode.AppGen.Domain.Names;
+﻿using System.Xml.Linq;
+using VkRadio.LowCode.AppGen.Domain.Names;
 
 namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
 
@@ -7,14 +8,14 @@ namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTyp
 /// </summary>
 public class PFTQuantity : PFTInteger
 {
-    public PFTQuantity()
+    public override string StringCode => C_STRING_CODE;
+
+    public PFTQuantity(bool? nullable, bool? unique, XElement xElement)
+        : base(nullable ?? true, unique ?? false, xElement)
     {
-        //_defaultValue = 0;
-        _defaultValue = null;
-        _nullable = true;
-        _quantitative = true;
-        _stringCode = C_STRING_CODE;
-        _unique = false;
+        //DefaultValue = 0;
+        DefaultValue = null;
+        Quantitative = true;
 
         _defaultNames.Clear();
         _defaultNames.Add(NaturalLanguageEnum.En, C_STRING_CODE);

@@ -1,18 +1,27 @@
-﻿namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
+﻿using System.Xml.Linq;
+
+namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
 
 /// <summary>
 /// Property functional type - connection between two single objects
 /// </summary>
-public class PFTConnector : PFTLink, IPFTDependentLink
+public class PFTConnector : PFTDependentLink
 {
-    Relationship.RelationshipConnector _relationshipConnector;
+    private Relationship.RelationshipConnector _relationshipConnector = default!;
+
+    protected override void SetDefaultOnDeleteAction()
+    {
+        OnDeleteAction = OnDeleteActionEnum.Ingnore;
+    }
+
+    public override string StringCode => C_STRING_CODE;
 
     /// <summary>
     /// Constructor
     /// </summary>
-    public PFTConnector()
+    public PFTConnector(bool? nullable, bool? unique, XElement xElement, DomainModel domainModel)
+        : base(nullable, unique, xElement, domainModel)
     {
-        _stringCode = C_STRING_CODE;
     }
 
     /// <summary>
@@ -48,13 +57,6 @@ public class PFTConnector : PFTLink, IPFTDependentLink
     /// String code of a functional property type (used in MetaModel files)
     /// </summary>
     public const string C_STRING_CODE = "object connector";
-
-    public OnDeleteActionEnum OnDeleteAction { get; set; }
-
-    public void SetDefaultOnDeleteAction()
-    {
-        OnDeleteAction = OnDeleteActionEnum.Ingnore;
-    }
 
     public override (EntityDefinition EntityDefinition, bool IsTable) GetEntityDefinition()
     {

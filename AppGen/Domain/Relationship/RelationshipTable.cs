@@ -1,5 +1,4 @@
 ﻿using System.Xml.Linq;
-using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
 using VkRadio.Patterns.Guards;
 
@@ -33,30 +32,30 @@ public class RelationshipTable : Relationship
 
         var tablePropertyDefinitionId = new Guid(containingXel.Element("PropertyDefinitionIdInTable")!.Value);
         PropertyDefinitionInTable = DomainModel.AllPropertyDefinitions[tablePropertyDefinitionId];
-        PFTTableOwner ftTableOwner = (PFTTableOwner)PropertyDefinitionInTable.FunctionalType;
+        var ftTableOwner = (PFTTableOwner)PropertyDefinitionInTable.FunctionalType;
         ftTableOwner.RelationshipTable = this;
-        PropertyDefinitionInTable.FunctionalType.Nullable = SupportsHierarchy;
+        ftTableOwner.SetSupportshierarchy(SupportsHierarchy);
 
         // Deferred enrichment of dictionaries of property names. If some property had no name in some language, it is being extracted
         // from a data object type definition to that it points, if exists.
-        NameDictionary.EnrichNamesForCollection(PropertyDefinitionInOwner.Names, PropertyDefinitionInTable.OwnerDefinition.Names);
-        NameDictionary.EnrichNames(PropertyDefinitionInTable.Names, PropertyDefinitionInOwner.OwnerDefinition.Names);
+        PropertyDefinitionInOwner.EnrichNamesForCollection(PropertyDefinitionInTable.OwnerDefinition.Names);
+        PropertyDefinitionInTable.EnrichNames(PropertyDefinitionInOwner.OwnerDefinition.Names);
     }
 
     /// <summary>
     /// Whether it supports hierarchies. Allows to have empty root owner
     /// </summary>
-    public bool SupportsHierarchy { get; private set; } // => _supportsHierarchy;
+    public bool SupportsHierarchy { get; private set; }
 
     /// <summary>
     /// Definition of a property that is an owner of a table part
     /// </summary>
-    public PropertyDefinition.PropertyDefinition PropertyDefinitionInOwner { get; private set; } // => _propertyDefinitionInOwner;
+    public PropertyDefinition.PropertyDefinition PropertyDefinitionInOwner { get; private set; }
 
     /// <summary>
     /// Definition of a property that is a table part, that points to its owner (Foreign Key in a database)
     /// </summary>
-    public PropertyDefinition.PropertyDefinition PropertyDefinitionInTable { get; private set; } // => _propertyDefinitionInTable;
+    public PropertyDefinition.PropertyDefinition PropertyDefinitionInTable { get; private set; }
 
     /// <summary>
     /// Relationship type code

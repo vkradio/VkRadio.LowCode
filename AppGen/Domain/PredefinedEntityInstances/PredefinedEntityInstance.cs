@@ -10,6 +10,8 @@ namespace VkRadio.LowCode.AppGen.Domain.PredefinedEntityInstances;
 /// </summary>
 public class PredefinedEntityInstance : IUniqueNamed
 {
+    private readonly IDictionary<NaturalLanguageEnum, string> _names;
+
     /// <summary>
     /// Unique identifier of a predefined object
     /// </summary>
@@ -33,7 +35,7 @@ public class PredefinedEntityInstance : IUniqueNamed
     /// <summary>
     /// Name dictionary of a predefined data object
     /// </summary>
-    public IDictionary<NaturalLanguageEnum, string> Names { get; private set; }
+    public IReadOnlyDictionary<NaturalLanguageEnum, string> Names => _names.AsReadOnly();
 
     /// <summary>
     /// Loading of a predefined data object from an XML node
@@ -54,7 +56,7 @@ public class PredefinedEntityInstance : IUniqueNamed
         EntityDefinition = domainModel.AllEntityDefinitions[entityDefinitionId];
 
         // 3. Load predefined names, if they are set (othewise get them from properties)
-        Names = NameDictionary.LoadNamesFromContainingXElement(xelSource);
+        _names = new Dictionary<NaturalLanguageEnum, string>(NameDictionary.LoadNamesFromContainingXElement(xelSource));
         var searchNameProp = Names.Count == 0;
 
         // 4. Load values of properties, and set default values
@@ -116,11 +118,11 @@ public class PredefinedEntityInstance : IUniqueNamed
 
                 if (lang == NaturalLanguageEnum.Ru)
                 {
-                    Names.Add(NaturalLanguageEnum.Ru, nameValue);
+                    _names.Add(NaturalLanguageEnum.Ru, nameValue);
                     nameValue = Transliteration.Front(nameValue);
                 }
 
-                Names.Add(NaturalLanguageEnum.En, nameValue);
+                _names.Add(NaturalLanguageEnum.En, nameValue);
 
                 searchNameProp = false;
             }
@@ -145,7 +147,7 @@ public class PredefinedEntityInstance : IUniqueNamed
                     nameValue = Transliteration.Front(nameValue);
                 }
 
-                Names.Add(NaturalLanguageEnum.En, nameValue);
+                _names.Add(NaturalLanguageEnum.En, nameValue);
 
                 break;
             }

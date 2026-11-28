@@ -1,4 +1,5 @@
-﻿using VkRadio.LowCode.AppGen.Domain.Names;
+﻿using System.Xml.Linq;
+using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PredefinedEntityInstances;
 
 namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
@@ -8,14 +9,14 @@ namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTyp
 /// </summary>
 public class PFTBoolean : PropertyFunctionalType
 {
-    public PFTBoolean()
+    public override string StringCode => C_STRING_CODE;
+
+    public PFTBoolean(bool? nullable, bool? unique, XElement xElement)
+        : base(nullable ?? true, unique ?? false, xElement)
     {
-        _defaultValue = null;
-        _nullable = true;
-        _quantitative = false;
-        _stringCode = C_STRING_CODE;
-        _unique = false;
-        _systemType = typeof(bool);
+        DefaultValue = null;
+        Quantitative = false;
+        SystemType = typeof(bool);
 
         _defaultNames.Add(NaturalLanguageEnum.En, C_STRING_CODE);
         _defaultNames.Add(NaturalLanguageEnum.Ru, "булево");
@@ -31,11 +32,11 @@ public class PFTBoolean : PropertyFunctionalType
     /// </summary>
     /// <param name="xmlString">XML string containing a value</param>
     /// <returns>Typed value of a property</returns>
-    public override object? ParseValueFromXmlString(string xmlString) { return bool.Parse(xmlString); }
+    public override object? ParseValueFromXmlString(string xmlString) => bool.Parse(xmlString);
 
     /// <summary>
     /// Creating of a typed prefab for storing a value
     /// </summary>
     /// <returns>Prefab for a property value</returns>
-    public override IPropertyValue CreatePropertyValue() => new PropertyValue<bool?>(_propertyDefinition);
+    public override IPropertyValue CreatePropertyValue() => new PropertyValue<bool?>(PropertyDefinition);
 }

@@ -1,4 +1,5 @@
 ﻿using System.Xml;
+using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.Domain.PredefinedEntityInstances;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.SystemFunctionalTypes;
 
@@ -12,12 +13,11 @@ public abstract class PFTDateTime : PropertyFunctionalType
     /// <summary>
     /// Constructor
     /// </summary>
-    public PFTDateTime()
+    protected PFTDateTime(bool? nullable, bool? unique, XElement xElement)
+        : base(nullable ?? true, unique ?? false, xElement)
     {
-        _defaultValue = null;
-        _nullable = true;
-        _quantitative = false;
-        _unique = false;
+        DefaultValue = null;
+        Quantitative = false;
     }
 
     /// <summary>
@@ -36,7 +36,7 @@ public abstract class PFTDateTime : PropertyFunctionalType
     /// Creating a typed prefab for storing a value
     /// </summary>
     /// <returns>Prefab of a property value</returns>
-    public override IPropertyValue CreatePropertyValue() => new PropertyValue<SDateTime>(_propertyDefinition);
+    public override IPropertyValue CreatePropertyValue() => new PropertyValue<SDateTime>(PropertyDefinition);
 
     /// <summary>
     /// String code defining a usage of a current runtime value

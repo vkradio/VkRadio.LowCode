@@ -1,5 +1,4 @@
 ﻿using System.Xml.Linq;
-using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.Domain.Relationship;
@@ -20,12 +19,12 @@ public class RelationshipConnector : Relationship
     {
         GuardRule.Forbid.Null(containingXel, nameof(containingXel));
 
-        End1 = RelationshipConnectorEnd.LoadFromXElement(
+        End1 = new RelationshipConnectorEnd(
             this,
             containingXel.Element("End1") ?? throw new ApplicationException(string.Format(errNoEndDefinedForRelationship, "1", id)),
             1
         );
-        End2 = RelationshipConnectorEnd.LoadFromXElement(
+        End2 = new RelationshipConnectorEnd(
             this,
             containingXel.Element("End2") ?? throw new ApplicationException(string.Format(errNoEndDefinedForRelationship, "2", id)),
             2
@@ -37,8 +36,8 @@ public class RelationshipConnector : Relationship
         // Deferred mutual enrichment of name dictionaries. If some property had no name in some language,
         // that name is given from a data object type definition for that it points, if it was set for that
         // data object type.
-        NameDictionary.EnrichNames(End1.PropertyDefinition.Names, End2.PropertyDefinition.OwnerDefinition.Names);
-        NameDictionary.EnrichNames(End2.PropertyDefinition.Names, End1.PropertyDefinition.OwnerDefinition.Names);
+        End1.PropertyDefinition.EnrichNames(End2.PropertyDefinition.OwnerDefinition.Names);
+        End2.PropertyDefinition.EnrichNames(End1.PropertyDefinition.OwnerDefinition.Names);
     }
 
     /// <summary>

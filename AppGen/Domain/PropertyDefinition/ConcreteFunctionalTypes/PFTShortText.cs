@@ -1,4 +1,5 @@
-﻿using VkRadio.LowCode.AppGen.Domain.Names;
+﻿using System.Xml.Linq;
+using VkRadio.LowCode.AppGen.Domain.Names;
 
 namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
 
@@ -7,17 +8,18 @@ namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTyp
 /// </summary>
 public class PFTShortText : PFTString
 {
-    public PFTShortText()
+    public override string StringCode => C_STRING_CODE;
+
+    public PFTShortText(bool? nullable, bool? unique, XElement xElement)
+        : base(nullable ?? true, unique ?? false, xElement)
     {
-        _defaultValue = null;
-        _nullable = true;
-        _quantitative = false;
-        _stringCode = C_STRING_CODE;
-        _unique = false;
-        _defaultMaxLength = 100;
-        _defaultMinLength = 0;
-        _maxLength = 100;
-        _minLength = 0;
+        DefaultValue = null;
+        Quantitative = false;
+        
+        DefaultMaxLength = ReadDefaultMaxLength(xElement) ?? 100;
+        DefaultMinLength = ReadDefaultMinLength(xElement) ?? 0;
+        MaxLength = ReadMaxLength(xElement) ?? 100;
+        MinLength = ReadMinLength(xElement) ?? 0;
 
         _defaultNames.Add(NaturalLanguageEnum.En, C_STRING_CODE);
         _defaultNames.Add(NaturalLanguageEnum.Ru, "короткий текст");

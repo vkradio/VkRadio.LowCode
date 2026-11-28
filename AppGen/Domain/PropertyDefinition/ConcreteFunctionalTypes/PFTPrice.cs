@@ -1,4 +1,5 @@
-﻿using VkRadio.LowCode.AppGen.Domain.Names;
+﻿using System.Xml.Linq;
+using VkRadio.LowCode.AppGen.Domain.Names;
 
 namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
 
@@ -7,10 +8,11 @@ namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTyp
 /// </summary>
 public class PFTPrice : PFTMoney
 {
-    public PFTPrice()
-    {
-        _stringCode = C_STRING_CODE;
+    public override string StringCode => C_STRING_CODE;
 
+    public PFTPrice(bool? nullable, bool? unique, XElement xElement)
+        : base(nullable, unique, xElement)
+    {
         _defaultNames.Clear();
         _defaultNames.Add(NaturalLanguageEnum.En, C_STRING_CODE);
         _defaultNames.Add(NaturalLanguageEnum.Ru, "цена");

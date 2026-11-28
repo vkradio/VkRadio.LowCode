@@ -8,25 +8,20 @@ namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTyp
 /// </summary>
 public class PFTMoney : PFTInteger
 {
-    private int _decimalPositions = 2;
+    public override string StringCode => C_STRING_CODE;
 
-    public PFTMoney()
+    public PFTMoney(bool? nullable, bool? unique, XElement xElement)
+        : base(nullable, unique, xElement)
     {
-        _stringCode = C_STRING_CODE;
+        var xel = xElement.Element("DecimalPositions");
+
+        DecimalPositions = xel is not null
+            ? int.Parse(xel.Value)
+            : 2;
 
         _defaultNames.Clear();
         _defaultNames.Add(NaturalLanguageEnum.En, C_STRING_CODE);
         _defaultNames.Add(NaturalLanguageEnum.Ru, "денежная сумма");
-    }
-
-    protected override void InitExtendedParams(XElement xelPropertyDefinition)
-    {
-        var xel = xelPropertyDefinition.Element("DecimalPositions");
-
-        if (xel is not null)
-        {
-            _decimalPositions = int.Parse(xel.Value);
-        }
     }
 
     public override object ParseValueFromXmlString(string xmlString)
@@ -40,7 +35,7 @@ public class PFTMoney : PFTInteger
 
         var result = int.Parse(parts[0]);
 
-        for (var i = 0; i < _decimalPositions; i++)
+        for (var i = 0; i < DecimalPositions; i++)
         {
             result *= 10;
         }
@@ -49,15 +44,15 @@ public class PFTMoney : PFTInteger
         {
             var part = parts[1];
 
-            if (part.Length > _decimalPositions)
+            if (part.Length > DecimalPositions)
             {
-                throw new FormatException(string.Format("Invalid format of PFTMoney value: {0} (DecimalPositions = {1}).", xmlString ?? "<NULL>", _decimalPositions));
+                throw new FormatException(string.Format("Invalid format of PFTMoney value: {0} (DecimalPositions = {1}).", xmlString ?? "<NULL>", DecimalPositions));
             }
 
             var decimalResult = 0;
             var decimalPositionIndexInString = 0;
 
-            for (var i = _decimalPositions; i >= 1; i--)
+            for (var i = DecimalPositions; i >= 1; i--)
             {
                 var positionValue = part.Length > decimalPositionIndexInString
                     ? int.Parse(part.Substring(decimalPositionIndexInString, 1))
@@ -65,7 +60,7 @@ public class PFTMoney : PFTInteger
 
                 decimalPositionIndexInString++;
 
-                for (var j = decimalPositionIndexInString; j < _decimalPositions; j++)
+                for (var j = decimalPositionIndexInString; j < DecimalPositions; j++)
                 {
                     positionValue *= 10;
                 }
@@ -81,5 +76,5 @@ public class PFTMoney : PFTInteger
 
     new public const string C_STRING_CODE = "money";
 
-    public int DecimalPositions { get => _decimalPositions; set => _decimalPositions = value; }
+    public int DecimalPositions { get; private set; }
 }

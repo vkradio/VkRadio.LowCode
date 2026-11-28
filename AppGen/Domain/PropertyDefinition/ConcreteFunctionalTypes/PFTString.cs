@@ -8,57 +8,47 @@ namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTyp
 /// </summary>
 public abstract class PFTString : PropertyFunctionalType
 {
-    protected int _defaultMaxLength;
-    protected int _defaultMinLength;
-    protected int _maxLength;
-    protected int _minLength;
+    private int? ReadIntValue(XElement xel, string propName) => int.TryParse(xel.Element(propName)?.Value, out var parsedValue) ? parsedValue : null;
 
-    public PFTString()
+    protected int? ReadMaxLength(XElement xel) => ReadIntValue(xel, "MaxLength");
+
+    protected int? ReadMinLength(XElement xel) => ReadIntValue(xel, "MinLength");
+
+    protected int? ReadDefaultMaxLength(XElement xel) => ReadIntValue(xel, "DefaultMaxLength");
+
+    protected int? ReadDefaultMinLength(XElement xel) => ReadIntValue(xel, "DefaultMinLength");
+
+    protected PFTString(bool? nullable, bool? unique, XElement xElement)
+        : base(nullable ?? true, unique ?? false, xElement)
     {
-        _defaultValue = null;
-        _nullable = true;
-        _quantitative = false;
-        _unique = false;
-    }
+        DefaultValue = null;
+        Quantitative = false;
 
-    protected override void InitExtendedParams(XElement xelPropertyDefinition)
-    {
-        var xel = xelPropertyDefinition.Element("MaxLength");
-
-        if (xel is not null)
-        {
-            _maxLength = int.Parse(xel.Value);
-        }
-
-        xel = xelPropertyDefinition.Element("MinLength");
-
-        if (xel is not null)
-        {
-            _minLength = int.Parse(xel.Value);
-        }
+        MaxLength = ReadMaxLength(xElement) ?? default;
+        MinLength = ReadMinLength(xElement) ?? default;
     }
 
     /// <summary>
     /// Default max lenght of a string
     /// </summary>
-    public int DefaultMaxLength => _defaultMaxLength;
+    public int DefaultMaxLength { get; protected set; }
 
     /// <summary>
     /// Default min length of a string
     /// </summary>
-    public int DefaultMinLength => _defaultMinLength;
+    public int DefaultMinLength { get; protected set; }
 
     /// <summary>
     /// Max length of a string
     /// </summary>
-    public int MaxLength => _maxLength;
+    public int MaxLength { get; protected set; }
 
     /// <summary>
     /// Min length of a string
     /// </summary>
-    public int MinLength => _minLength;
+    public int MinLength { get; protected set; }
 
     public override object ParseValueFromXmlString(string xmlString) => xmlString;
 
-    public override IPropertyValue CreatePropertyValue() => new PropertyValue<string>(_propertyDefinition);
+    public override IPropertyValue CreatePropertyValue() => new PropertyValue<string>(PropertyDefinition);
 }

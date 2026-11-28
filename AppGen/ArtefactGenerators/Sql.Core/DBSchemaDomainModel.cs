@@ -239,7 +239,7 @@ public abstract class DBSchemaDomainModel
                         continue;
                     }
 
-                    var dependentLink = propCorr.PropertyDefinition.FunctionalType as IPFTDependentLink;
+                    var dependentLink = propCorr.PropertyDefinition.FunctionalType as PFTDependentLink;
 
                     if (dependentLink is not null && dependentLink.OnDeleteAction != OnDeleteActionEnum.Ingnore)
                     {

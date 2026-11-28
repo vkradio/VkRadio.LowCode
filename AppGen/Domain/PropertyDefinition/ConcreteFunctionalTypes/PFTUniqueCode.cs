@@ -1,4 +1,5 @@
-﻿using VkRadio.LowCode.AppGen.Domain.Names;
+﻿using System.Xml.Linq;
+using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PredefinedEntityInstances;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.SystemFunctionalTypes;
 
@@ -9,15 +10,15 @@ namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTyp
 /// </summary>
 public class PFTUniqueCode : PropertyFunctionalType
 {
-    const string C_GENERATE_MARK = "generate";
+    private const string C_GENERATE_MARK = "generate";
 
-    public PFTUniqueCode()
+    public override string StringCode => C_STRING_CODE;
+
+    public PFTUniqueCode(bool? nullable, bool? unique, XElement xElement)
+        : base(nullable ?? true, unique ?? true, xElement)
     {
-        _defaultValue = null;
-        _nullable = true;
-        _quantitative = false;
-        _unique = true;
-        _stringCode = C_STRING_CODE;
+        DefaultValue = null;
+        Quantitative = false;
 
         _defaultNames.Add(NaturalLanguageEnum.En, C_STRING_CODE);
         _defaultNames.Add(NaturalLanguageEnum.Ru, "уникальный код");
@@ -30,7 +31,7 @@ public class PFTUniqueCode : PropertyFunctionalType
             : new SGuid(Guid.Parse(xmlString));
     }
 
-    public override IPropertyValue CreatePropertyValue() => new PropertyValue<SGuid>(_propertyDefinition);
+    public override IPropertyValue CreatePropertyValue() => new PropertyValue<SGuid>(PropertyDefinition);
 
     public const string C_STRING_CODE = "unique code";
 }

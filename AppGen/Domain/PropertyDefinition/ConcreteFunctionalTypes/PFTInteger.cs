@@ -1,4 +1,5 @@
-﻿using VkRadio.LowCode.AppGen.Domain.Names;
+﻿using System.Xml.Linq;
+using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PredefinedEntityInstances;
 
 namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
@@ -8,14 +9,14 @@ namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTyp
 /// </summary>
 public class PFTInteger : PropertyFunctionalType
 {
-    public PFTInteger()
+    public override string StringCode => C_STRING_CODE;
+
+    public PFTInteger(bool? nullable, bool? unique, XElement xElement)
+        : base(nullable ?? true, unique ?? false, xElement)
     {
-        //_defaultValue = 0;
-        _defaultValue = null;
-        _nullable = true;
-        _quantitative = true;
-        _stringCode = C_STRING_CODE;
-        _unique = false;
+        //DefaultValue = 0;
+        DefaultValue = null;
+        Quantitative = true;
 
         _defaultNames.Add(NaturalLanguageEnum.En, C_STRING_CODE);
         _defaultNames.Add(NaturalLanguageEnum.Ru, "целое число");
@@ -25,5 +26,5 @@ public class PFTInteger : PropertyFunctionalType
 
     public override object ParseValueFromXmlString(string xmlString) => int.Parse(xmlString);
 
-    public override IPropertyValue CreatePropertyValue() => new PropertyValue<int?>(_propertyDefinition);
+    public override IPropertyValue CreatePropertyValue() => new PropertyValue<int?>(PropertyDefinition);
 }

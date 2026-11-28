@@ -1,4 +1,5 @@
-﻿using VkRadio.LowCode.AppGen.Domain.Names;
+﻿using System.Xml.Linq;
+using VkRadio.LowCode.AppGen.Domain.Names;
 
 namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
 
@@ -7,17 +8,18 @@ namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTyp
 /// </summary>
 public class PFTFilePath : PFTString
 {
-    public PFTFilePath()
+    public override string StringCode => C_STRING_CODE;
+
+    public PFTFilePath(bool? nullable, bool? unique, XElement xElement)
+        : base(nullable ?? true, unique ?? false, xElement)
     {
-        _defaultValue = null;
-        _nullable = true;
-        _quantitative = false;
-        _stringCode = C_STRING_CODE;
-        _unique = false;
-        _defaultMaxLength = 255;
-        _defaultMinLength = 0;
-        _maxLength = 255;
-        _minLength = 0;
+        DefaultValue = null;
+        Quantitative = false;
+        
+        DefaultMaxLength = ReadDefaultMaxLength(xElement) ?? 255;
+        DefaultMinLength = ReadDefaultMinLength(xElement) ?? 0;
+        MaxLength = ReadMaxLength(xElement) ?? 255;
+        MinLength = ReadMinLength(xElement) ?? 0;
 
         _defaultNames.Add(NaturalLanguageEnum.En, C_STRING_CODE);
         _defaultNames.Add(NaturalLanguageEnum.Ru, "путь к файлу");

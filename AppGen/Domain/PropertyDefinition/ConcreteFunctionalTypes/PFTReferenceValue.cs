@@ -1,18 +1,27 @@
 ﻿// TODO: Need to implement a value of type "tabled reference value" (and a corresponding relationship), that should be similar to a "reference value",
 // but not as a single link, but a collection of links, such that a dictionary does not know about who references it (does not have a Foreign Key to the "owner")
 
+using System.Xml.Linq;
+
 namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
 
 /// <summary>
 /// Functional property type - reference to an element of dictionary
 /// </summary>
-public class PFTReferenceValue : PFTLink, IPFTDependentLink
+public class PFTReferenceValue : PFTDependentLink
 {
-    Relationship.RelationshipReference _relationshipReference;
+    private Relationship.RelationshipReference _relationshipReference = default!;
 
-    public PFTReferenceValue()
+    protected override void SetDefaultOnDeleteAction()
     {
-        _stringCode = C_STRING_CODE;
+        OnDeleteAction = OnDeleteActionEnum.CannotDelete;
+    }
+
+    public override string StringCode => C_STRING_CODE;
+
+    public PFTReferenceValue(bool? nullable, bool? unique, XElement xElement, DomainModel domainModel)
+        : base(nullable, unique, xElement, domainModel)
+    {
     }
 
     /// <summary>
@@ -41,13 +50,6 @@ public class PFTReferenceValue : PFTLink, IPFTDependentLink
     }
 
     public const string C_STRING_CODE = "reference value";
-
-    public OnDeleteActionEnum OnDeleteAction { get; set; }
-
-    public void SetDefaultOnDeleteAction()
-    {
-        OnDeleteAction = OnDeleteActionEnum.CannotDelete;
-    }
 
     public override (EntityDefinition EntityDefinition, bool IsTable) GetEntityDefinition() => (RelationshipReference.ReferenceDefinition, false);
 }

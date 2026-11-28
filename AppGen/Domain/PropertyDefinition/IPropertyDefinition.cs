@@ -15,10 +15,12 @@ public interface IPropertyDefinition : IUniqueNamed
     /// <summary>
     /// Ordering attribute for objects in a list
     /// </summary>
-    ListOrderEnum? ListOrder { get; set; }
+    ListOrderEnum? ListOrder { get; }
 
     /// <summary>
     /// Entity type definition that owns this property
     /// </summary>
-    public EntityDefinition OwnerDefinition { get; set; }
+    public EntityDefinition OwnerDefinition { get; }
+
+    void EnrichNames(IReadOnlyDictionary<NaturalLanguageEnum, string> nameSource);
 }

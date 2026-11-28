@@ -10,6 +10,8 @@ namespace VkRadio.LowCode.AppGen.Domain;
 /// </summary>
 public class EntityDefinition : IUniqueNamed
 {
+    private readonly IDictionary<NaturalLanguageEnum, string> _names;
+
     private List<PredefinedEntityInstance>? _predefinedEntities;
 
     /// <summary>
@@ -20,7 +22,7 @@ public class EntityDefinition : IUniqueNamed
     /// <summary>
     /// Dictionary of names of DOT
     /// </summary>
-    public IDictionary<NaturalLanguageEnum, string> Names { get; private set; }
+    public IReadOnlyDictionary<NaturalLanguageEnum, string> Names => _names.AsReadOnly();
 
     /// <summary>
     /// DomainModel
@@ -60,7 +62,7 @@ public class EntityDefinition : IUniqueNamed
 
         // 1. Load IUniqueNamed properties
         Id = new Guid(xel.Element("Id")!.Value);
-        Names = NameDictionary.LoadNamesFromContainingXElement(xel);
+        _names = new Dictionary<NaturalLanguageEnum, string>(NameDictionary.LoadNamesFromContainingXElement(xel));
 
         // 2. Load definitions of DOT properties
         var xelPropDefs = xel.Element("PropertyDefinitions")
@@ -68,13 +70,7 @@ public class EntityDefinition : IUniqueNamed
 
         PropertyDefinitions = xelPropDefs
             .Elements("PropertyDefinition")
-            .Select(x => PropertyDefinition.PropertyDefinition.LoadFromXElement(x, domainModel))
+            .Select(x => new PropertyDefinition.PropertyDefinition(x, domainModel, this))
             .ToDictionary(x => x.Id);
-
-        // 3. Wire property definitions to their owner
-        foreach (var pd in PropertyDefinitions.Values)
-        {
-            pd.OwnerDefinition = this;
-        }
     }
 }

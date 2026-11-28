@@ -2,6 +2,7 @@
 using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PredefinedEntityInstances;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
+using VkRadio.Patterns.Guards;
 
 namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
 
@@ -10,50 +11,43 @@ namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
 /// </summary>
 public abstract class PropertyFunctionalType
 {
-    protected IPropertyDefinition _propertyDefinition;
-    protected object? _defaultValue;
-    protected bool _nullable;
-    protected bool _quantitative;
-    protected string _stringCode;
-    protected bool _unique;
-    protected Type _systemType;
-    protected Dictionary<NaturalLanguageEnum, string> _defaultNames = [];
+    protected readonly Dictionary<NaturalLanguageEnum, string> _defaultNames = [];
 
     /// <summary>
     /// Property type definition of a data object type or a register, that own this functional type
     /// </summary>
-    public IPropertyDefinition PropertyDefinition { get => _propertyDefinition; set => _propertyDefinition = value; }
+    public IPropertyDefinition PropertyDefinition { get; set; } = default!;
 
     /// <summary>
     /// Default value of a property
     /// </summary>
-    public object? DefaultValue { get => _defaultValue; set => _defaultValue = value; }
+    public object? DefaultValue { get; protected set; }
 
     /// <summary>
     /// Is it possible to have missing values
     /// </summary>
-    public bool Nullable { get => _nullable; set => _nullable = value; }
+    public bool Nullable { get; protected set; }
 
     /// <summary>
     /// Is it a qualitative type
     /// </summary>
-    public bool Quantitative => _quantitative;
+    public bool Quantitative { get; protected set; }
 
     /// <summary>
     /// String code of a type
     /// </summary>
-    public string StringCode => _stringCode;
+    public abstract string StringCode { get; }
 
     /// <summary>
     /// Is it a unique value (among other properties withing a full list of owning objects)
     /// </summary>
-    public bool Unique { get => _unique; set => _unique = value; }
+    public bool Unique { get; protected set; }
 
     /// <summary>
     /// System (.NET) type, containing a value (this value is not stored in a MetaModel, but only
     /// serves for its functioning withing a runtime environment)
     /// </summary>
-    public Type SystemType => _systemType;
+    public Type? SystemType { get; protected set; }
 
     /// <summary>
     /// Default property names.
@@ -61,7 +55,7 @@ public abstract class PropertyFunctionalType
     /// from this property. In this case a reference functional types have names, that match with names
     /// of referenced data object types.
     /// </summary>
-    public IDictionary<NaturalLanguageEnum, string> DefaultNames => _defaultNames;
+    public IReadOnlyDictionary<NaturalLanguageEnum, string> DefaultNames => _defaultNames.AsReadOnly();
 
     /// <summary>
     /// Extracting property values from an XML string
@@ -70,12 +64,19 @@ public abstract class PropertyFunctionalType
     /// <returns>Typed property value</returns>
     public abstract object? ParseValueFromXmlString(string xmlString);
 
-    /// <summary>
-    /// Initializing of an extended set of parameters for a functional type
-    /// </summary>
-    /// <param name="xelPropertyDefinition">XML node containing a property definition</param>
-    protected virtual void InitExtendedParams(XElement xelPropertyDefinition)
+    protected PropertyFunctionalType(bool? nullable, bool? unique, XElement xElement)
     {
+        GuardRule.Forbid.Null(xElement, nameof(xElement));
+
+        if (nullable.HasValue)
+        {
+            Nullable = nullable.Value;
+        }
+
+        if (unique.HasValue)
+        {
+            Unique = unique.Value;
+        }
     }
 
     /// <summary>
@@ -100,83 +101,30 @@ public abstract class PropertyFunctionalType
 
         PropertyFunctionalType result = ftName switch
         {
-            PFTBackReferencedTable.C_STRING_CODE => new PFTBackReferencedTable(),
-            PFTBoolean.C_STRING_CODE => new PFTBoolean(),
-            PFTConnector.C_STRING_CODE => new PFTConnector(),
-            PFTDate.C_STRING_CODE => new PFTDate(),
-            PFTDateAndTime.C_STRING_CODE => new PFTDateAndTime(),
-            PFTDecimal.C_STRING_CODE => new PFTDecimal(),
-            PFTEmail.C_STRING_CODE => new PFTEmail(),
-            PFTFilePath.C_STRING_CODE => new PFTFilePath(),
-            PFTInteger.C_STRING_CODE => new PFTInteger(),
-            PFTMoney.C_STRING_CODE => new PFTMoney(),
-            PFTName.C_STRING_CODE => new PFTName(),
-            PFTOrderNumber.C_STRING_CODE => new PFTOrderNumber(),
-            PFTPassword.C_STRING_CODE => new PFTPassword(),
-            PFTPrice.C_STRING_CODE => new PFTPrice(),
-            PFTQuantity.C_STRING_CODE => new PFTQuantity(),
-            PFTReferenceValue.C_STRING_CODE => new PFTReferenceValue(),
-            PFTShortText.C_STRING_CODE => new PFTShortText(),
-            PFTTableOwner.C_STRING_CODE => new PFTTableOwner(),
-            PFTTablePart.C_STRING_CODE => new PFTTablePart(),
-            PFTText.C_STRING_CODE => new PFTText(),
-            PFTTime.C_STRING_CODE => new PFTTime(),
-            PFTUniqueCode.C_STRING_CODE => new PFTUniqueCode(),
+            PFTBackReferencedTable.C_STRING_CODE => new PFTBackReferencedTable(nullable, unique, containingXel),
+            PFTBoolean.C_STRING_CODE => new PFTBoolean(nullable, unique, containingXel),
+            PFTConnector.C_STRING_CODE => new PFTConnector(nullable, unique, containingXel, domainModel),
+            PFTDate.C_STRING_CODE => new PFTDate(nullable, unique, containingXel),
+            PFTDateAndTime.C_STRING_CODE => new PFTDateAndTime(nullable, unique, containingXel),
+            PFTDecimal.C_STRING_CODE => new PFTDecimal(nullable, unique, containingXel),
+            PFTEmail.C_STRING_CODE => new PFTEmail(nullable, unique, containingXel),
+            PFTFilePath.C_STRING_CODE => new PFTFilePath(nullable, unique, containingXel),
+            PFTInteger.C_STRING_CODE => new PFTInteger(nullable, unique, containingXel),
+            PFTMoney.C_STRING_CODE => new PFTMoney(nullable, unique, containingXel),
+            PFTName.C_STRING_CODE => new PFTName(nullable, unique, containingXel),
+            PFTOrderNumber.C_STRING_CODE => new PFTOrderNumber(nullable, unique, containingXel),
+            PFTPassword.C_STRING_CODE => new PFTPassword(nullable, unique, containingXel),
+            PFTPrice.C_STRING_CODE => new PFTPrice(nullable, unique, containingXel),
+            PFTQuantity.C_STRING_CODE => new PFTQuantity(nullable, unique, containingXel),
+            PFTReferenceValue.C_STRING_CODE => new PFTReferenceValue(nullable, unique, containingXel, domainModel),
+            PFTShortText.C_STRING_CODE => new PFTShortText(nullable, unique, containingXel),
+            PFTTableOwner.C_STRING_CODE => new PFTTableOwner(nullable, unique, containingXel, domainModel),
+            PFTTablePart.C_STRING_CODE => new PFTTablePart(nullable, unique, containingXel),
+            PFTText.C_STRING_CODE => new PFTText(nullable, unique, containingXel),
+            PFTTime.C_STRING_CODE => new PFTTime(nullable, unique, containingXel),
+            PFTUniqueCode.C_STRING_CODE => new PFTUniqueCode(nullable, unique, containingXel),
             _ => throw new ApplicationException(string.Format("Property functional type not supported: {0}.", ftName ?? "<NULL>")),
         };
-
-        if (nullable.HasValue)
-        {
-            result.Nullable = nullable.Value;
-        }
-
-        if (unique.HasValue)
-        {
-            result.Unique = unique.Value;
-        }
-
-        var dependentLink = result as IPFTDependentLink;
-
-        if (dependentLink is not null)
-        {
-            xel = containingXel.Element("OnRefObjectDelete");
-
-            if (xel is not null)
-            {
-                dependentLink.OnDeleteAction = xel.Value switch
-                {
-                    "ignore" => OnDeleteActionEnum.Ingnore,
-                    "delete" => OnDeleteActionEnum.Delete,
-                    "block" => OnDeleteActionEnum.CannotDelete,
-                    "set default value" => OnDeleteActionEnum.ResetToDefault,
-                    "set null" => OnDeleteActionEnum.ResetToNull,
-
-                    _ => throw new ApplicationException(string.Format(
-                        "Property {0} has unsupported OnRefObjectDelete value: {1}.",
-                        containingXel.Element("Id") is not null
-                            ? containingXel.Element("Id")!.Value
-                            : "<NULL>",
-                        xel.Value ?? "<NULL>"
-                    )),
-                };
-            }
-            else
-            {
-                if (domainModel.DefaultLinksStrict)
-                {
-                    if (result.Nullable)
-                    {
-                        dependentLink.OnDeleteAction = OnDeleteActionEnum.ResetToNull;
-                    }
-                    else
-                    {
-                        dependentLink.SetDefaultOnDeleteAction();
-                    }
-                }
-            }
-        }
-
-        result.InitExtendedParams(containingXel);
 
         return result;
     }

@@ -63,7 +63,7 @@ public static class NameDictionary
     /// </summary>
     /// <param name="dest">Dictionary recipient (being enriched)</param>
     /// <param name="src">Dictionary source</param>
-    public static void EnrichNames(IDictionary<NaturalLanguageEnum, string> dest, IDictionary<NaturalLanguageEnum, string> src)
+    public static void EnrichNames(IDictionary<NaturalLanguageEnum, string> dest, IReadOnlyDictionary<NaturalLanguageEnum, string> src)
     {
         foreach (var lang in AllHumanLanguages)
         {
@@ -83,7 +83,7 @@ public static class NameDictionary
     /// </summary>
     /// <param name="dest">Destination dictionary (being enriched)</param>
     /// <param name="src">Source dictionary</param>
-    public static void EnrichNamesForCollection(IDictionary<NaturalLanguageEnum, string> dest, IDictionary<NaturalLanguageEnum, string> src)
+    public static void EnrichNamesForCollection(IDictionary<NaturalLanguageEnum, string> dest, IReadOnlyDictionary<NaturalLanguageEnum, string> src)
     {
         foreach (var lang in AllHumanLanguages)
         {

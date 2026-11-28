@@ -1,15 +1,24 @@
-﻿namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
+﻿using System.Xml.Linq;
+
+namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
 
 /// <summary>
 /// Functional property type - link to a table owner
 /// </summary>
-public class PFTTableOwner : PFTLink, IPFTDependentLink
+public class PFTTableOwner : PFTDependentLink
 {
-    Relationship.RelationshipTable _relationshipTable;
+    private Relationship.RelationshipTable _relationshipTable = default!;
 
-    public PFTTableOwner()
+    protected override void SetDefaultOnDeleteAction()
     {
-        _stringCode = C_STRING_CODE;
+        OnDeleteAction = OnDeleteActionEnum.Delete;
+    }
+
+    public override string StringCode => C_STRING_CODE;
+
+    public PFTTableOwner(bool? nullable, bool? unique, XElement xElement, DomainModel domainModel)
+        : base(nullable, unique, xElement, domainModel)
+    {
     }
 
     /// <summary>
@@ -43,12 +52,7 @@ public class PFTTableOwner : PFTLink, IPFTDependentLink
 
     public const string C_STRING_CODE = "table owner";
 
-    public OnDeleteActionEnum OnDeleteAction { get; set; }
-
-    public void SetDefaultOnDeleteAction()
-    {
-        OnDeleteAction = OnDeleteActionEnum.Delete;
-    }
-
     public override (EntityDefinition EntityDefinition, bool IsTable) GetEntityDefinition() => (RelationshipTable.PropertyDefinitionInOwner.OwnerDefinition, false);
+
+    public void SetSupportshierarchy(bool supportshierarchy) => Nullable = supportshierarchy;
 }

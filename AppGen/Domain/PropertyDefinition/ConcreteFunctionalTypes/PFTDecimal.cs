@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Xml.Linq;
 using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PredefinedEntityInstances;
 
@@ -9,17 +10,17 @@ namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTyp
 /// </summary>
 public class PFTDecimal : PropertyFunctionalType
 {
+    public override string StringCode => C_STRING_CODE;
+
     /// <summary>
     /// Fixed point decimal number constructor
     /// </summary>
-    public PFTDecimal()
+    public PFTDecimal(bool? nullable, bool? unique, XElement xElement)
+        : base(nullable ?? true, unique ?? false, xElement)
     {
-        //_defaultValue = 0.0m;
-        _defaultValue = null;
-        _nullable = true;
-        _quantitative = true;
-        _stringCode = C_STRING_CODE;
-        _unique = false;
+        //DefaultValue = 0.0m;
+        DefaultValue = null;
+        Quantitative = true;
 
         _defaultNames.Add(NaturalLanguageEnum.En, C_STRING_CODE);
         _defaultNames.Add(NaturalLanguageEnum.Ru, "десятичное число");
@@ -29,5 +30,5 @@ public class PFTDecimal : PropertyFunctionalType
 
     public override object ParseValueFromXmlString(string in_xmlString) => decimal.Parse(in_xmlString, CultureInfo.InvariantCulture);
 
-    public override IPropertyValue CreatePropertyValue() => new PropertyValue<decimal?>(_propertyDefinition);
+    public override IPropertyValue CreatePropertyValue() => new PropertyValue<decimal?>(PropertyDefinition);
 }

@@ -35,7 +35,7 @@ public static class NameHelper
         return preparedName.Split([' ', '-', '/']);
     }
 
-    public static string[] GetNameWords(IDictionary<NaturalLanguageEnum, string> names) => GetNameWords(names[NaturalLanguageEnum.En]);
+    public static string[] GetNameWords(IReadOnlyDictionary<NaturalLanguageEnum, string> names) => GetNameWords(names[NaturalLanguageEnum.En]);
 
     public static string CapitalizeFirst(this string input)
     {
@@ -51,7 +51,7 @@ public static class NameHelper
         });
     }
 
-    public static string NamesToPascalCase(IDictionary<NaturalLanguageEnum, string> names, bool firstLetterUpperCase)
+    public static string NamesToPascalCase(IReadOnlyDictionary<NaturalLanguageEnum, string> names, bool firstLetterUpperCase)
     {
         var words = GetNameWords(names);
         var name = string.Empty;
@@ -77,11 +77,11 @@ public static class NameHelper
         return name;
     }
 
-    public static string NamesToPascalCase(IDictionary<NaturalLanguageEnum, string> names) => NamesToPascalCase(names, true);
+    public static string NamesToPascalCase(IReadOnlyDictionary<NaturalLanguageEnum, string> names) => NamesToPascalCase(names, true);
 
-    public static string NamesToCamelCase(IDictionary<NaturalLanguageEnum, string> names) => NamesToPascalCase(names, false);
+    public static string NamesToCamelCase(IReadOnlyDictionary<NaturalLanguageEnum, string> names) => NamesToPascalCase(names, false);
 
-    public static string NamesToCamelCasePlural(IDictionary<NaturalLanguageEnum, string> names)
+    public static string NamesToCamelCasePlural(IReadOnlyDictionary<NaturalLanguageEnum, string> names)
     {
         var result = NamesToCamelCase(names);
 
@@ -157,14 +157,14 @@ public static class NameHelper
     /// Extract a name, words from which separated by a _ symbol, from an Entity type name
     /// </summary>
     /// <param name="names"></param>
-    public static string NameToUnderscoreSeparatedName(IDictionary<NaturalLanguageEnum, string> names) => NameToUnderscoreSeparatedName(names[NaturalLanguageEnum.En]);
+    public static string NameToUnderscoreSeparatedName(IReadOnlyDictionary<NaturalLanguageEnum, string> names) => NameToUnderscoreSeparatedName(names[NaturalLanguageEnum.En]);
 
     /// <summary>
     /// Get an Id constant name from an object name, with a priority for English name (but if does not exist, transliterate a localized value)
     /// </summary>
     /// <param name="names">Object name package</param>
     /// <returns>Constant name looking like C_ID_WORD1_WORD2_WORDN</returns>
-    public static string NameToConstantId(IDictionary<NaturalLanguageEnum, string> names) => NameToConstant(names, true, true);
+    public static string NameToConstantId(IReadOnlyDictionary<NaturalLanguageEnum, string> names) => NameToConstant(names, true, true);
 
     /// <summary>
     /// Get an Id constant name from an object name, with a priority for English name (but if does not exist, transliterate a localized value)
@@ -173,7 +173,7 @@ public static class NameHelper
     /// <param name="addCPrefix">Add C_ prefix</param>
     /// <param name="idConstant">Is the constant an Id of an object (false by default)</param>
     /// <returns>Constant name looking like C_[ID_]WORD1_WORD2_WORDN</returns>
-    public static string NameToConstant(IDictionary<NaturalLanguageEnum, string> names, bool addCPrefix = true, bool idConstant = false)
+    public static string NameToConstant(IReadOnlyDictionary<NaturalLanguageEnum, string> names, bool addCPrefix = true, bool idConstant = false)
     {
         var name = names.ContainsKey(NaturalLanguageEnum.En)
             ? names[NaturalLanguageEnum.En]
@@ -200,7 +200,7 @@ public static class NameHelper
     /// </summary>
     /// <param name="names">Name dictionary</param>
     /// <returns>Localized name with a big first letter</returns>
-    public static string GetLocalNameUpperCase(IDictionary<NaturalLanguageEnum, string> names, NaturalLanguageEnum preferNaturalLanguageForComments)
+    public static string GetLocalNameUpperCase(IReadOnlyDictionary<NaturalLanguageEnum, string> names, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         var localName = GetLocalNameLowerCase(names, preferNaturalLanguageForComments).CapitalizeFirst();
 
@@ -212,7 +212,7 @@ public static class NameHelper
     /// </summary>
     /// <param name="names">Name dictionary</param>
     /// <returns>Localized name with a small first letter</returns>
-    public static string GetLocalNameLowerCase(IDictionary<NaturalLanguageEnum, string> names, NaturalLanguageEnum preferNaturalLanguageForComments)
+    public static string GetLocalNameLowerCase(IReadOnlyDictionary<NaturalLanguageEnum, string> names, NaturalLanguageEnum preferNaturalLanguageForComments)
     {
         var localName = names.ContainsKey(preferNaturalLanguageForComments)
             ? names[preferNaturalLanguageForComments]

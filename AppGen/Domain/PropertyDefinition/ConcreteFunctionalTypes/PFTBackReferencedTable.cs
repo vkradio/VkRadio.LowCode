@@ -1,24 +1,26 @@
-﻿namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
+﻿using System.Xml.Linq;
+
+namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
 
 /// <summary>
 /// Functional type of a property - collection (table) of objects, implicitly created from links for the corresponding object registry
 /// </summary>
 public class PFTBackReferencedTable : PFTLink, IPFTTable
 {
+    public override string StringCode => C_STRING_CODE;
+
     /// <summary>
     /// Collection constructor
     /// </summary>
-    public PFTBackReferencedTable(/*Relationship.RelationshipReference relationshipReference*/)
+    public PFTBackReferencedTable(bool? nullable, bool? unique, XElement xElement)
+        : base(nullable, unique, xElement)
     {
-        _stringCode = C_STRING_CODE;
-
-        //RelationshipReference = Guard.Against.Null(relationshipReference, nameof(relationshipReference));
     }
 
     /// <summary>
     /// Reference
     /// </summary>
-    public Relationship.RelationshipReference RelationshipReference { get; set; }
+    public Relationship.RelationshipReference RelationshipReference { get; set; } = default!;
     /*{
         get { return _relationshipReference; }
 

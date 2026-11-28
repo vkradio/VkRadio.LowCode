@@ -1,5 +1,4 @@
 ﻿using System.Xml.Linq;
-using VkRadio.LowCode.AppGen.Domain.Names;
 using VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTypes;
 using VkRadio.Patterns.Guards;
 using PD = VkRadio.LowCode.AppGen.Domain.PropertyDefinition;
@@ -9,12 +8,8 @@ namespace VkRadio.LowCode.AppGen.Domain.Relationship;
 /// <summary>
 /// Relationship of type &quot;reference of a dictionary value&quot;
 /// </summary>
-public class RelationshipReference: Relationship
+public class RelationshipReference : Relationship
 {
-    //PD.IPropertyDefinition _ownerPropertyDefinition;
-    //PD.PropertyDefinition _backRefTablePropertyDefinition;
-    //EntityDefinition _referenceDefinition;
-
     /// <summary>
     /// Relationship consctructor
     /// </summary>
@@ -27,10 +22,7 @@ public class RelationshipReference: Relationship
 
         var ownerPropertyDefinitionId = new Guid(containingXel.Element("OwnerPropertyDefinitionId")!.Value);
 
-        OwnerPropertyDefinition = //_domainModel.AllPropertyDefinitions.ContainsKey(ownerPropertyDefinitionId)
-                                  //?
-            DomainModel.AllPropertyDefinitions[ownerPropertyDefinitionId];
-        //: _domainModel.AllRegisterValueDefinitions[ownerPropertyDefinitionId];
+        OwnerPropertyDefinition = DomainModel.AllPropertyDefinitions[ownerPropertyDefinitionId];
 
         var xel = containingXel.Element("ReferenceDefinitionId");
 
@@ -57,11 +49,11 @@ public class RelationshipReference: Relationship
 
         // Deferred enrichment of a dictionary of property names. If some property had no name in some language, that name
         // is being extracted from a data object type definition, from that it pointing to, if that exists
-        NameDictionary.EnrichNames(OwnerPropertyDefinition.Names, ReferenceDefinition.Names);
+        OwnerPropertyDefinition.EnrichNames(ReferenceDefinition.Names);
 
         if (BackRefTablePropertyDefinition is not null) // TODO: Here after implementing of register a bug is possible, because we assume that DOT definitions are only from DOTs and not from registers
         {
-            NameDictionary.EnrichNames(BackRefTablePropertyDefinition.Names, ((PD.PropertyDefinition)OwnerPropertyDefinition).OwnerDefinition.Names);
+            BackRefTablePropertyDefinition.EnrichNames(((PD.PropertyDefinition)OwnerPropertyDefinition).OwnerDefinition.Names);
         }
     }
 

@@ -11,120 +11,17 @@ namespace VkRadio.LowCode.AppGen.Domain;
 /// </summary>
 public class DomainModel : INamed
 {
-    Dictionary<NaturalLanguageEnum, string> _names;
-    Dictionary<Guid, PredefinedEntityInstance> _allPredefinedEntityInstances;
-    Dictionary<Guid, EntityDefinition> _allEntityDefinitions;
-    Dictionary<Guid, Relationship.Relationship> _allRelationships;
-    Dictionary<Guid, PropertyDefinition.PropertyDefinition> _allPropertyDefinitions;
+    private readonly Dictionary<NaturalLanguageEnum, string> _names;
 
-    /// <summary>
-    /// Private MetaModel constructor
-    /// </summary>
-    DomainModel()
-    {
-        _allPredefinedEntityInstances = [];
-        _allEntityDefinitions = [];
-        _allRelationships = [];
-    }
+    private readonly Dictionary<Guid, PredefinedEntityInstance> _allPredefinedEntityInstances;
+
+    private readonly Dictionary<Guid, EntityDefinition> _allEntityDefinitions;
+
+    private readonly Dictionary<Guid, Relationship.Relationship> _allRelationships;
+
+    private Dictionary<Guid, PropertyDefinition.PropertyDefinition>? _allPropertyDefinitions;
 
     #region Private methods for loading MetaModel from a file
-    /// <summary>
-    /// Private load of MetaModel from a file
-    /// </summary>
-    /// <param name="filePath">path to a MetaModel file</param>
-    private void PrivateLoad(string filePath)
-    {
-        var xelRoot = XElement.Load(filePath);
-
-        var xelDefaultLinks = xelRoot.Element("DefaultLinks");
-
-        if (xelDefaultLinks is not null)
-        {
-            if (xelDefaultLinks.Value == "strict")
-            {
-                DefaultLinksStrict = true;
-            }
-            else if (xelDefaultLinks.Value == "free")
-            {
-                DefaultLinksStrict = false;
-            }
-            else
-            {
-                throw new ApplicationException(string.Format("Unsupported root metamodel DefaultLinks value: \"{0}\". Supported values: \"strict\", \"free\" (default).", xelDefaultLinks.Value ?? "<NULL>"));
-            }
-        }
-
-        if (xelRoot.Name != "MetaModel")
-        {
-            if (xelRoot.Name != "MetaModelCompound")
-            {
-                throw new ApplicationException("Root metamodel element is not MetaModel or MetaModelCompound.");
-            }
-
-            // Load all files of a set of MetaModels
-            var xelPackages = xelRoot.Element("Packages")
-                ?? throw new ApplicationException("Packages element not found in MetaModelCompound.");
-
-            var xelPackageRoots = new Dictionary<string, XElement>();
-
-            foreach (var xelPackagePath in xelPackages.Elements("PackagePath"))
-            {
-                var fi = new FileInfo(filePath);
-                var path = Path.Combine(fi.DirectoryName!, xelPackagePath.Value);
-                var xelPackageRoot = XElement.Load(path);
-
-                if (xelPackageRoot.Name != "MetaModelPackage")
-                {
-                    throw new ApplicationException("Root metamodel element is not MetaModelPackage.");
-                }
-
-                xelPackageRoots.Add(path, xelPackageRoot);
-            }
-
-            // Load entity definitions and definitions of their properties
-            foreach (var xel in xelPackageRoots.Values)
-            {
-                LoadEntityDefinitions(xel);
-            }
-
-            // Load references. References for data object types are being set immediately, and for corresponding
-            // properties the links are being set
-            foreach (XElement xel in xelPackageRoots.Values)
-            {
-                LoadRelationships(xel);
-            }
-
-            // Load predefined objects
-            foreach (XElement xel in xelPackageRoots.Values)
-            {
-                LoadPredefinedEntities(xel);
-            }
-        }
-        else
-        {
-            // Load data object type definitions and definitions of their properties
-            LoadEntityDefinitions(xelRoot);
-
-            // Load references. References for data object types are being set immediately, and for corresponding
-            // properties the links are being set
-            LoadRelationships(xelRoot);
-
-            // Load predefined objects
-            LoadPredefinedEntities(xelRoot);
-        }
-
-        _names = NameDictionary.LoadNamesFromContainingXElement(xelRoot);
-
-        // Execute delayed linking of default values of functional types in form of links to data object types
-        ChangePredefinedEntityGuidsToRefsInDefaults();
-
-        // Execute delayed linking of reference value of predefined objects
-        ChangePredefinedEntityGuidsToRefsInPredefinedEntityPropValues();
-
-        // Checking definitions of properties of data object types and register values of reference types for reference integrity
-        CheckRefPropertyIntegrity();
-    }
-
     /// <summary>
     /// Load entity type definitions
     /// </summary>
@@ -304,7 +201,7 @@ public class DomainModel : INamed
     /// <summary>
     /// DomainModel name on different natural languages
     /// </summary>
-    public IDictionary<NaturalLanguageEnum, string> Names => _names;
+    public IReadOnlyDictionary<NaturalLanguageEnum, string> Names => _names.AsReadOnly();
 
     public bool DefaultLinksStrict { get; set; }
 
@@ -340,16 +237,102 @@ public class DomainModel : INamed
     }
 
     /// <summary>
-    /// Load a new DomainModel from file
+    /// MetaModel constructor
     /// </summary>
-    /// <param name="filePath">Path to a file of DomainModel</param>
-    /// <returns>Loaded DomainModel</returns>
-    public static DomainModel Load(string filePath)
+    public DomainModel(string filePath)
     {
-        var domainModel = new DomainModel();
+        _allPredefinedEntityInstances = [];
+        _allEntityDefinitions = [];
+        _allRelationships = [];
 
-        domainModel.PrivateLoad(filePath);
+        var xelRoot = XElement.Load(filePath);
 
-        return domainModel;
+        var xelDefaultLinks = xelRoot.Element("DefaultLinks");
+
+        if (xelDefaultLinks is not null)
+        {
+            if (xelDefaultLinks.Value == "strict")
+            {
+                DefaultLinksStrict = true;
+            }
+            else if (xelDefaultLinks.Value == "free")
+            {
+                DefaultLinksStrict = false;
+            }
+            else
+            {
+                throw new ApplicationException(string.Format("Unsupported root metamodel DefaultLinks value: \"{0}\". Supported values: \"strict\", \"free\" (default).", xelDefaultLinks.Value ?? "<NULL>"));
+            }
+        }
+
+        if (xelRoot.Name != "MetaModel")
+        {
+            if (xelRoot.Name != "MetaModelCompound")
+            {
+                throw new ApplicationException("Root metamodel element is not MetaModel or MetaModelCompound.");
+            }
+
+            // Load all files of a set of MetaModels
+            var xelPackages = xelRoot.Element("Packages")
+                ?? throw new ApplicationException("Packages element not found in MetaModelCompound.");
+
+            var xelPackageRoots = new Dictionary<string, XElement>();
+
+            foreach (var xelPackagePath in xelPackages.Elements("PackagePath"))
+            {
+                var fi = new FileInfo(filePath);
+                var path = Path.Combine(fi.DirectoryName!, xelPackagePath.Value);
+                var xelPackageRoot = XElement.Load(path);
+
+                if (xelPackageRoot.Name != "MetaModelPackage")
+                {
+                    throw new ApplicationException("Root metamodel element is not MetaModelPackage.");
+                }
+
+                xelPackageRoots.Add(path, xelPackageRoot);
+            }
+
+            // Load entity definitions and definitions of their properties
+            foreach (var xel in xelPackageRoots.Values)
+            {
+                LoadEntityDefinitions(xel);
+            }
+
+            // Load references. References for data object types are being set immediately, and for corresponding
+            // properties the links are being set
+            foreach (XElement xel in xelPackageRoots.Values)
+            {
+                LoadRelationships(xel);
+            }
+
+            // Load predefined objects
+            foreach (XElement xel in xelPackageRoots.Values)
+            {
+                LoadPredefinedEntities(xel);
+            }
+        }
+        else
+        {
+            // Load data object type definitions and definitions of their properties
+            LoadEntityDefinitions(xelRoot);
+
+            // Load references. References for data object types are being set immediately, and for corresponding
+            // properties the links are being set
+            LoadRelationships(xelRoot);
+
+            // Load predefined objects
+            LoadPredefinedEntities(xelRoot);
+        }
+
+        _names = NameDictionary.LoadNamesFromContainingXElement(xelRoot);
+
+        // Execute delayed linking of default values of functional types in form of links to data object types
+        ChangePredefinedEntityGuidsToRefsInDefaults();
+
+        // Execute delayed linking of reference value of predefined objects
+        ChangePredefinedEntityGuidsToRefsInPredefinedEntityPropValues();
+
+        // Checking definitions of properties of data object types and register values of reference types for reference integrity
+        CheckRefPropertyIntegrity();
     }
 }

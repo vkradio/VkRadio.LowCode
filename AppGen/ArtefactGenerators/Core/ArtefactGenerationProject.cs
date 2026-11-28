@@ -169,7 +169,7 @@ public class ArtefactGenerationProject : IUnique
         }
         #endregion
 
-        var domainModel = DomainModel.Load(metaModelFilePath);
+        var domainModel = new DomainModel(metaModelFilePath);
 
         var project = new ArtefactGenerationProject(
             id,

@@ -8,20 +8,38 @@ namespace VkRadio.LowCode.AppGen.Domain.PropertyDefinition.ConcreteFunctionalTyp
 /// </summary>
 public class PFTPassword : PFTString
 {
-    PasswordStoreAs _storeAs;
+    public override string StringCode => C_STRING_CODE;
 
-    public PFTPassword()
+    public PFTPassword(bool? nullable, bool? unique, XElement xElement)
+        : base(nullable ?? false, unique ?? false, xElement)
     {
-        _defaultValue = null;
-        _nullable = false;
-        _quantitative = false;
-        _stringCode = C_STRING_CODE;
-        _unique = false;
-        _defaultMaxLength = 255;
-        _defaultMinLength = 8;
-        _maxLength = 255;
-        _minLength = 8;
-        _storeAs = PasswordStoreAs.Md5;
+        DefaultValue = null;
+        Quantitative = false;
+        
+        DefaultMaxLength = ReadDefaultMaxLength(xElement) ?? 255;
+        DefaultMinLength = ReadDefaultMinLength(xElement) ?? 8;
+        MaxLength = ReadMaxLength(xElement) ?? 255;
+        MinLength = ReadMinLength(xElement) ?? 8;
+
+        var xel = xElement.Element("StoreAs");
+
+        if (xel is not null)
+        {
+            var strStoreAs = xel.Value;
+
+            StoreAs = strStoreAs switch
+            {
+                "open" => PasswordStoreAs.Open,
+
+                "md5" => PasswordStoreAs.Md5,
+
+                _ => throw new ApplicationException(string.Format("Unsupported StoreAs code for password property Id {0}: \"{1}\".", xElement.Element("Id")!.Value, strStoreAs)),
+            };
+        }
+        else
+        {
+            StoreAs = PasswordStoreAs.Md5;
+        }
 
         _defaultNames.Add(NaturalLanguageEnum.En, C_STRING_CODE);
         _defaultNames.Add(NaturalLanguageEnum.Ru, "пароль");
@@ -32,26 +50,7 @@ public class PFTPassword : PFTString
     /// <summary>
     /// Storage method in a dababase
     /// </summary>
-    public PasswordStoreAs StoreAs { get => _storeAs; set => _storeAs = value; }
-
-    protected override void InitExtendedParams(XElement xelPropertyDefinition)
-    {
-        base.InitExtendedParams(xelPropertyDefinition);
-
-        var xel = xelPropertyDefinition.Element("StoreAs");
-
-        if (xel is not null)
-        {
-            var strStoreAs = xel.Value;
-
-            _storeAs = strStoreAs switch
-            {
-                "open" => PasswordStoreAs.Open,
-                "md5" => PasswordStoreAs.Md5,
-                _ => throw new ApplicationException(string.Format("Unsupported StoreAs code for password property Id {0}: \"{1}\".", xelPropertyDefinition.Element("Id")!.Value, strStoreAs)),
-            };
-        }
-    }
+    public PasswordStoreAs StoreAs { get; private set; }
 }
 
 /// <summary>
@@ -63,6 +62,7 @@ public enum PasswordStoreAs
     /// Open store as a plain string
     /// </summary>
     Open,
+
     // MD5 hash
     Md5
 }
